@@ -73,14 +73,19 @@ services:
     ports:
       - "8082:8080"
     environment: # https://docs.camunda.io/docs/self-managed/tasklist-deployment/configuration/
-      - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=zeebe:26500
+      - CAMUNDA_CLIENT_MODE=self-managed
+      - CAMUNDA_CLIENT_GRPCADDRESS=http://zeebe:26500
+      - CAMUNDA_CLIENT_RESTADDRESS=http://zeebe:8080
       - CAMUNDA_TASKLIST_ZEEBE_RESTADDRESS=http://zeebe:8080
+      - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
+      - CAMUNDA_TASKLIST_ZEEBE_GATEWAYADDRESS=zeebe:26500
       - CAMUNDA_TASKLIST_ELASTICSEARCH_URL=http://elasticsearch:9200
       - CAMUNDA_TASKLIST_ZEEBEELASTICSEARCH_URL=http://elasticsearch:9200
       - CAMUNDA_TASKLIST_CSRFPREVENTIONENABLED=false
       - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
-      - management.endpoints.web.exposure.include=health
+      - management.endpoints.web.exposure.include=health,configprops
       - management.endpoint.health.probes.enabled=true
+      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
     healthcheck:
       test: [ "CMD-SHELL", "wget -O - -q 'http://localhost:9600/actuator/health/readiness'" ]
       interval: 30s
@@ -100,11 +105,13 @@ services:
       - "8085:8080"
     environment:
       - CAMUNDA_CLIENT_MODE=self-managed
-      - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
+      - CAMUNDA_CLIENT_GRPCADDRESS=http://zeebe:26500
+      - CAMUNDA_CLIENT_RESTADDRESS=http://zeebe:8080
       - OPERATE_CLIENT_BASEURL=http://operate:8080
       - OPERATE_CLIENT_PROFILE=simple
-      - management.endpoints.web.exposure.include=health
+      - management.endpoints.web.exposure.include=health,configprops
       - management.endpoint.health.probes.enabled=true
+      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness" ]
       interval: 30s
