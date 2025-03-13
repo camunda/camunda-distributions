@@ -157,14 +157,18 @@ services:
     ports:
       - "8085:8080"
     environment:
-      - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
-      - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
+      - OPERATE_CLIENT_BASEURL=http://operate:8080
+      - OPERATE_CLIENT_PROFILE=oidc
+      - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
+      - OPERATE_CLIENT_AUTHURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      - OPERATE_CLIENT_AUDIENCE=operate-api
+      - OPERATE_CLIENT_CLIENTID=connectors
+      - OPERATE_CLIENT_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
       - ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
       - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
       - ZEEBE_TOKEN_AUDIENCE=zeebe-api
       - ZEEBE_AUTHORIZATION_SERVER_URL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - CAMUNDA_OPERATE_CLIENT_URL=http://operate:8080
       - CAMUNDA_IDENTITY_ISSUER_URL=http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
       - CAMUNDA_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:18080/auth/realms/camunda-platform
       - CAMUNDA_IDENTITY_CLIENT_ID=connectors
