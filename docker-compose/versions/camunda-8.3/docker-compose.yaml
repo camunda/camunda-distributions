@@ -421,6 +421,8 @@ services:
         condition: service_healthy
       mailpit:
         condition: service_started
+      identity:
+        condition: service_healthy
     healthcheck:
       test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8091/health/readiness" ]
       interval: 5s
