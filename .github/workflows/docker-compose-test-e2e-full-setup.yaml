@@ -45,11 +45,6 @@ jobs:
             camunda-version: "8.3"
             main-compose-args: "-f docker-compose-core.yaml"
             e2e-test-enabled: false
-          - name: Camunda 8.3 - Web Modeler Standalone
-            camunda-version: "8.3"
-            deps-compose-args: "--profile identity"
-            main-compose-args: "-f docker-compose-web-modeler.yaml"
-            e2e-test-enabled: false
           # Camunda 8.4
           - name: Camunda 8.4 ⭐
             camunda-version: "8.4"
@@ -59,11 +54,6 @@ jobs:
             camunda-version: "8.4"
             main-compose-args: "-f docker-compose-core.yaml"
             e2e-test-enabled: false
-          - name: Camunda 8.4 - Web Modeler Standalone
-            camunda-version: "8.4"
-            deps-compose-args: "--profile identity"
-            main-compose-args: "-f docker-compose-web-modeler.yaml"
-            e2e-test-enabled: false
           # Camunda 8.5
           - name: Camunda 8.5 ⭐
             camunda-version: "8.5"
@@ -72,11 +62,6 @@ jobs:
           - name: Camunda 8.5 - Identity Disabled
             camunda-version: "8.5"
             main-compose-args: "-f docker-compose-core.yaml"
-            e2e-test-enabled: false
-          - name: Camunda 8.5 - Web Modeler Standalone
-            camunda-version: "8.5"
-            deps-compose-args: "--profile identity"
-            main-compose-args: "-f docker-compose-web-modeler.yaml"
             e2e-test-enabled: false
           # Camunda 8.6
           - name: Camunda 8.6 ⭐
