@@ -1,3 +1,5 @@
+# NOTE: This Docker Compose file can only be used by enterprise customers that have access to Camunda's private registry.
+#
 # While the Docker images themselves are supported for production usage,
 # this docker-compose.yaml is designed to be used by developers to run
 # an environment locally. It is not designed to be used in production.
@@ -6,7 +8,7 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/platform-deployment/helm-kubernetes/guides/local-kubernetes-cluster/
 
-# This is a full configuration with Zeebe, Operate, Tasklist, Optimize, Identity, Keycloak, and Elasticsearch
+# This is a full configuration with Zeebe, Operate, Tasklist, Optimize, Identity, Keycloak, Web Modeler and Elasticsearch
 # See docker-compose-core.yml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
