@@ -32,6 +32,10 @@ services:
       - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
       - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
       - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
+      - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
+      - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
+      - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
+      - SPRING_PROFILES_ACTIVE=identity-auth
       - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
     restart: always
     healthcheck:
