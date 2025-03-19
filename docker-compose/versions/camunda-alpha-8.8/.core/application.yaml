@@ -72,10 +72,10 @@ camunda:
 
   security:
     authentication:
-      method: "basic"
-      unprotectedApi: false
+      mode: "none"
+      unprotectedApi: true
     authorizations:
-      enabled: true
+      enabled: false
     initialization:
       users:
         - username: "demo"
