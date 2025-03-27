@@ -476,7 +476,6 @@ services:
       CAMUNDA_MODELER_CLUSTERS_0_URL_ZEEBE_REST: http://zeebe:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_OPERATE: http://operate:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_TASKLIST: http://tasklist:8080
-      CAMUNDA_MODELER_CLUSTERS_0_OAUTH_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
     # extra cluster configuration depending on the authentication mode
     env_file: ./.web-modeler/cluster-config-authentication-mode-${ZEEBE_AUTHENTICATION_MODE}.env
     networks:
