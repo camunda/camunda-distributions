@@ -10,5 +10,5 @@ test('Validate login page', async ({ page }) => {
   await page.getByLabel('Password').fill('demo');
   await page.getByRole('button', { name: 'Log in' }).click();
   await page.getByText('Projects').waitFor();
-  await page.locator('[data-test="create-project"]').click();
+  await page.getByRole('button', { name: 'Create new project' }).click();
 });
