@@ -90,7 +90,7 @@ jobs:
         env:
           GH_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
         run: |
-          gh release list | tee | grep "${{ env.DOCKER_COMPOSE_NAME }}" &&
+          gh release list | tee | grep -v idp-enabled | grep "${{ env.DOCKER_COMPOSE_NAME }}" &&
             gh release delete ${{ env.DOCKER_COMPOSE_NAME }} --cleanup-tag
           # To avoid race condition when the release is created again.
           sleep 5
