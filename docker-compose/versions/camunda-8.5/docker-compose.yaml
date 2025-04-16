@@ -52,9 +52,6 @@ services:
     depends_on:
       - elasticsearch
       - identity
-    profiles:
-      - ''
-      - orchestration
 
   operate: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#operate
     image: camunda/operate:${CAMUNDA_OPERATE_VERSION}
@@ -99,9 +96,6 @@ services:
       - zeebe
       - identity
       - elasticsearch
-    profiles:
-      - ''
-      - orchestration
 
   tasklist: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#tasklist
     image: camunda/tasklist:${CAMUNDA_TASKLIST_VERSION}
@@ -150,9 +144,6 @@ services:
         condition: service_healthy
       identity:
         condition: service_healthy
-    profiles:
-      - ''
-      - orchestration
 
   connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
@@ -188,9 +179,6 @@ services:
       - zeebe
       - operate
       - identity
-    profiles:
-      - ''
-      - orchestration
 
   optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
     image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
@@ -228,9 +216,6 @@ services:
     depends_on:
       - identity
       - elasticsearch
-    profiles:
-      - ''
-      - orchestration
 
   identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
     container_name: identity
@@ -299,9 +284,6 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    profiles:
-      - ''
-      - identity
 
   postgres: # https://hub.docker.com/_/postgres
     container_name: postgres
@@ -320,9 +302,6 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - identity-network
-    profiles:
-      - ''
-      - identity
 
   keycloak: # https://hub.docker.com/r/bitnami/keycloak
     container_name: keycloak
@@ -350,9 +329,6 @@ services:
       - identity-network
     depends_on:
       - postgres
-    profiles:
-      - ''
-      - identity
 
   elasticsearch: # https://hub.docker.com/_/elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
@@ -381,9 +357,6 @@ services:
       - elastic:/usr/share/elasticsearch/data
     networks:
       - camunda-platform
-    profiles:
-      - ''
-      - orchestration
 
   modeler-db:
     container_name: modeler-db
@@ -401,9 +374,6 @@ services:
       - modeler
     volumes:
       - postgres-web:/var/lib/postgresql/data
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   modeler-websockets:
     container_name: modeler-websockets
@@ -423,9 +393,6 @@ services:
       PUSHER_APP_SECRET: modeler-app-secret
     networks:
       - modeler
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   mailpit:
     # If you want to use your own SMTP server, you can remove this container
@@ -441,9 +408,6 @@ services:
       interval: 30s
     networks:
       - modeler
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   # Modeler containers
   modeler-restapi:
@@ -485,9 +449,6 @@ services:
     networks:
     - modeler
     - camunda-platform
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   modeler-webapp:
     container_name: modeler-webapp
@@ -524,9 +485,6 @@ services:
     networks:
       - modeler
       - camunda-platform
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   kibana:
     image: docker.elastic.co/kibana/kibana:${ELASTIC_VERSION}
