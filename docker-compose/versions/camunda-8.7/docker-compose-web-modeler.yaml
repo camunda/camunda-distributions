@@ -22,9 +22,6 @@ services:
       - web-modeler
     volumes:
       - postgres-web:/var/lib/postgresql/data
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   web-modeler-websockets:
     container_name: web-modeler-websockets
@@ -44,9 +41,6 @@ services:
       PUSHER_APP_SECRET: web-modeler-app-secret
     networks:
       - web-modeler
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   mailpit:
     # If you want to use your own SMTP server, you can remove this container
@@ -62,9 +56,6 @@ services:
       interval: 30s
     networks:
       - web-modeler
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   # Modeler containers
   web-modeler-restapi:
@@ -106,9 +97,6 @@ services:
     networks:
       - web-modeler
       - camunda-platform
-    profiles:
-      - ''
-      - web-modeler
 
   web-modeler-webapp:
     container_name: web-modeler-webapp
@@ -145,9 +133,6 @@ services:
     networks:
       - web-modeler
       - camunda-platform
-    profiles:
-      - ''
-      - web-modeler-standalone
 
   ## Dependencies: identity, keycloak, postgres for keycloak
   identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
@@ -221,9 +206,6 @@ services:
     depends_on:
       keycloak:
         condition: service_healthy
-    profiles:
-      - ''
-      - identity
 
   postgres: # https://hub.docker.com/_/postgres
     container_name: postgres
@@ -242,9 +224,6 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - identity-network
-    profiles:
-      - ''
-      - identity
 
   keycloak: # https://hub.docker.com/r/bitnami/keycloak
     container_name: keycloak
@@ -272,9 +251,6 @@ services:
       - identity-network
     depends_on:
       - postgres
-    profiles:
-      - ''
-      - identity
 
 networks:
   camunda-platform:
