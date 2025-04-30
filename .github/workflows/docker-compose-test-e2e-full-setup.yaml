@@ -36,15 +36,6 @@ jobs:
       fail-fast: false
       matrix:
         versions:
-          # Camunda 8.3
-          - name: Camunda 8.3 ⭐
-            camunda-version: "8.3"
-            main-compose-args: "-f docker-compose.yaml"
-            e2e-test-enabled: false
-          - name: Camunda 8.3 - Identity Disabled
-            camunda-version: "8.3"
-            main-compose-args: "-f docker-compose-core.yaml"
-            e2e-test-enabled: false
           # Camunda 8.4
           - name: Camunda 8.4 ⭐
             camunda-version: "8.4"
@@ -88,19 +79,6 @@ jobs:
             camunda-version: "8.7"
             main-compose-args: "-f docker-compose-web-modeler.yaml"
             e2e-test-enabled: false
-#           # Camunda Alpha
-#           - name: Camunda Alpha ⭐
-#             camunda-version: "alpha"
-#             main-compose-args: "-f docker-compose.yaml"
-#             e2e-test-enabled: true
-#           - name: Camunda Alpha - Identity Disabled
-#             camunda-version: "alpha"
-#             main-compose-args: "-f docker-compose-core.yaml"
-#             e2e-test-enabled: false
-#           - name: Camunda Alpha - Web Modeler Standalone
-#             camunda-version: "alpha"
-#             main-compose-args: "-f docker-compose-web-modeler.yaml"
-#             e2e-test-enabled: false
         exclude: ${{ fromJson(needs.init.outputs.unchanged-versions) }}
     uses: ./.github/workflows/docker-compose-test-e2e-template.yaml
     secrets: inherit
