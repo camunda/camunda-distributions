@@ -432,7 +432,7 @@ services:
       timeout: 15s
       retries: 30
     environment:
-      JAVA_OPTIONS: -Xmx128m
+      JAVA_OPTIONS: -Xmx512m
       LOGGING_LEVEL_IO_CAMUNDA_MODELER: DEBUG
       CAMUNDA_IDENTITY_BASEURL: http://identity:8084/
       SPRING_DATASOURCE_URL: jdbc:postgresql://web-modeler-db:5432/web-modeler-db
