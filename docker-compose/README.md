@@ -11,16 +11,10 @@ A Docker Compose configuration to run Camunda Platform (e.g., Zeebe, Operate, Ta
 
 Released Camunda versions:
 
-- [Camunda 8.3](./versions/camunda-8.3)
 - [Camunda 8.4](./versions/camunda-8.4)
 - [Camunda 8.5](./versions/camunda-8.5)
 - [Camunda 8.6](./versions/camunda-8.6)
-
-## Next Version
-
-Unreleased Camunda version:
-
-- [Camunda Alpha](./versions/camunda-alpha)
+- [Camunda 8.7](./versions/camunda-8.7)
 
 ## Continuous Integration
 

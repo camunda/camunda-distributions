@@ -51,8 +51,6 @@ jobs:
       max-parallel: 1
       matrix:
         versions:
-          - name: Camunda 8.3
-            camunda-version: 8.3
           - name: Camunda 8.4
             camunda-version: 8.4
           - name: Camunda 8.5
@@ -61,8 +59,6 @@ jobs:
             camunda-version: 8.6
           - name: Camunda 8.7
             camunda-version: 8.7
-          - name: Camunda Alpha
-            camunda-version: alpha
         exclude: ${{ fromJson(needs.init.outputs.unchanged-versions) }}
     uses: ./.github/workflows/docker-compose-release-template.yaml
     secrets: inherit

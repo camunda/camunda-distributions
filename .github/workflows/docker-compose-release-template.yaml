@@ -6,7 +6,7 @@ on:
   workflow_call:
     inputs:
       camunda-version:
-        description: Camunda minor version in format x.y or alpha.
+        description: Camunda minor version in format x.y.
         required: true
         type: string
 
