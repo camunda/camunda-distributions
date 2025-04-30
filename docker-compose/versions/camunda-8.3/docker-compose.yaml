@@ -393,7 +393,7 @@ services:
       timeout: 15s
       retries: 30
     environment:
-      JAVA_OPTIONS: -Xmx128m
+      JAVA_OPTIONS: -Xmx512m
       LOGGING_LEVEL_IO_CAMUNDA_MODELER: DEBUG
       SPRING_DATASOURCE_URL: jdbc:postgresql://modeler-db:5432/modeler-db
       SPRING_DATASOURCE_USERNAME: modeler-db-user
