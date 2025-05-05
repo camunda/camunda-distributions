@@ -162,28 +162,22 @@ services:
     ports:
       - "8085:8080"
     environment:
-      - CAMUNDA_CLIENT_ZEEBE_REST-ADDRESS=http://zeebe:8080
-      - OPERATE_CLIENT_BASEURL=http://operate:8080
-      - OPERATE_CLIENT_PROFILE=oidc
+      # Zeebe connection
+      - CAMUNDA_CLIENT_ZEEBE_RESTADDRESS=http://zeebe:8080
       - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
+      - CAMUNDA_CLIENT_AUTH_TOKENURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      - CAMUNDA_CLIENT_AUTH_CLIENTID=${ZEEBE_CLIENT_ID}
+      - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=${ZEEBE_CLIENT_SECRET}
+      - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/zeebe_auth_cache
+      - CAMUNDA_CLIENT_ZEEBE_AUDIENCE=zeebe-api
+      # Operate connection
+      - OPERATE_CLIENT_BASEURL=http://operate:8080
       - OPERATE_CLIENT_AUTHURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
       - OPERATE_CLIENT_AUDIENCE=operate-api
+      - OPERATE_CLIENT_PROFILE=oidc
       - OPERATE_CLIENT_CLIENTID=connectors
       - OPERATE_CLIENT_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      - ZEEBE_CLIENT_BROKER_GATEWAY-ADDRESS=zeebe:26500
-      - ZEEBE_CLIENT_SECURITY_PLAINTEXT=true
-      - ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
-      - ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
-      - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
-      - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
-      - ZEEBE_TOKEN_AUDIENCE=zeebe-api
-      - ZEEBE_AUTHORIZATION_SERVER_URL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - CAMUNDA_IDENTITY_ISSUER_URL=http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
-      - CAMUNDA_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:18080/auth/realms/camunda-platform
-      - CAMUNDA_IDENTITY_CLIENT_ID=connectors
-      - CAMUNDA_IDENTITY_CLIENT_SECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      - CAMUNDA_IDENTITY_TYPE=KEYCLOAK
-      - CAMUNDA_IDENTITY_AUDIENCE=operate-api
+      # management configuration
       - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
       - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
       - management.endpoint.health.probes.enabled=true
