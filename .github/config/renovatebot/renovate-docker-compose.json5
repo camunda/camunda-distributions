@@ -57,6 +57,13 @@
       matchFileNames: ["docker-compose/versions/camunda-8.7/**"],
       matchUpdateTypes: ["patch"],
     },
+    {
+      groupName: "camunda-docker-compose-alpha-8.8",
+      addLabels: ["version/8.8", "deps/docker-compose"],
+      matchFileNames: ["docker-compose/versions/camunda-8.8/**"],
+      // Allows only patch and alpha, but no -rc (e.g., 8.7.0, 8.7.0-alpha3, but no 8.7.0-alpha3-rc1).
+      "allowedVersions": "/^8\\.8\\.\\d+(-alpha[0-9]*)?$/"
+    },
     // End of minor cycle chores.
 
     // Disable auto-merge for alpha release candidates.
