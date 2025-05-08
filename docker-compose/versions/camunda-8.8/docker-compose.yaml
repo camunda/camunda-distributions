@@ -31,8 +31,11 @@ services:
       - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
       - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
       - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
+      - CAMUNDA_SECURITY_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
+      - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=false
       - SPRING_PROFILES_ACTIVE=operate,tasklist,broker,identity,consolidated-auth
-      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
+      # UseSVE needed for M4 Mac
+      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m -XX:UseSVE=0"
       - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
       - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
     env_file:
@@ -259,7 +262,9 @@ services:
       - xpack.security.enabled=false
       # allow running with low disk space
       - cluster.routing.allocation.disk.threshold_enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      # UseSVE needed for M4 Mac
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m -XX:UseSVE=0"
+      - "CLI_JAVA_OPTS=-XX:UseSVE=0"
     ulimits:
       memlock:
         soft: -1
