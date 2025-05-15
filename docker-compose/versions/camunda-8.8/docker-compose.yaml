@@ -19,20 +19,15 @@ services:
       - "9600:9600"
       - "8080:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
-      - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_MODE=${ZEEBE_AUTHENTICATION_MODE}
-      - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      - ZEEBE_BROKER_GATEWAY_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
       # default is 1000, see here: https://github.com/camunda/zeebe/blob/main/exporters/elasticsearch-exporter/src/main/java/io/camunda/zeebe/exporter/ElasticsearchExporterConfiguration.java#L259
       - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
       # allow running with low disk space
       - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
       - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
       - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
-      - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
-      - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
       - CAMUNDA_SECURITY_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
       - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=false
+      - CAMUNDA_SECURITY_AUTHORIZATIONS_ENABLED=true
       - SPRING_PROFILES_ACTIVE=operate,tasklist,broker,identity,consolidated-auth
       # UseSVE needed for M4 Mac
       - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m -XX:UseSVE=0"
