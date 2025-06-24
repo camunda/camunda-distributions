@@ -49,29 +49,9 @@ services:
     ports:
       - "8085:8080"
     environment:
-      - CAMUNDA_CLIENT_ZEEBE_RESTADDRESS=http://zeebe:8080
-      - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
-      - CAMUNDA_OPERATE_CLIENT_USERNAME=demo
-      - CAMUNDA_OPERATE_CLIENT_PASSWORD=demo
-      - OPERATE_CLIENT_BASEURL=http://zeebe:8080/operate
-        # - OPERATE_CLIENT_PROFILE=oidc
+      - CAMUNDA_CLIENT_MODE=self-managed
       - CAMUNDA_CLIENT_GRPCADDRESS=http://zeebe:26500
       - CAMUNDA_CLIENT_RESTADDRESS=http://zeebe:8080
-        # - OPERATE_CLIENT_AUTHURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - OPERATE_CLIENT_AUDIENCE=operate-api
-        # - OPERATE_CLIENT_CLIENTID=connectors
-        # - OPERATE_CLIENT_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-        # - ZEEBE_CLIENT_ID=${ZEEBE_CLIENT_ID}
-        # - ZEEBE_CLIENT_SECRET=${ZEEBE_CLIENT_SECRET}
-      - ZEEBE_CLIENT_CONFIG_PATH=/tmp/zeebe_auth_cache
-      - ZEEBE_TOKEN_AUDIENCE=zeebe-api
-        # - ZEEBE_AUTHORIZATION_SERVER_URL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-        # - CAMUNDA_IDENTITY_ISSUER_URL=http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
-        # - CAMUNDA_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:18080/auth/realms/camunda-platform
-        # - CAMUNDA_IDENTITY_CLIENT_ID=connectors
-        # - CAMUNDA_IDENTITY_CLIENT_SECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-        # - CAMUNDA_IDENTITY_TYPE=KEYCLOAK
-        # - CAMUNDA_IDENTITY_AUDIENCE=operate-api
       - management.endpoints.web.exposure.include=health,configprops
       - management.endpoint.health.probes.enabled=true
       - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
