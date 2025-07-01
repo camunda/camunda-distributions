@@ -165,7 +165,7 @@ services:
       # Zeebe connection
       - CAMUNDA_CLIENT_ZEEBE_RESTADDRESS=http://zeebe:8080
       - CAMUNDA_CLIENT_ZEEBE_GRPCADDRESS=http://zeebe:26500
-      - CAMUNDA_CLIENT_AUTH_TOKENURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      - CAMUNDA_CLIENT_AUTH_ISSUER=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
       - CAMUNDA_CLIENT_AUTH_CLIENTID=${ZEEBE_CLIENT_ID}
       - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=${ZEEBE_CLIENT_SECRET}
       - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/zeebe_auth_cache
