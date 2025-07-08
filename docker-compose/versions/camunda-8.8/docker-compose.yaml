@@ -19,9 +19,8 @@ services:
       - "9600:9600"
       - "8088:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
-      - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_MODE=${ZEEBE_AUTHENTICATION_MODE}
+      - CAMUNDA_SECURITY_AUTHENTICATION_MODE=${CAMUNDA_SECURITY_AUTHENTICATION_MODE}
       - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      - ZEEBE_BROKER_GATEWAY_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
       # default is 1000, see here: https://github.com/camunda/zeebe/blob/main/exporters/elasticsearch-exporter/src/main/java/io/camunda/zeebe/exporter/ElasticsearchExporterConfiguration.java#L259
       - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
       # allow running with low disk space
@@ -102,7 +101,6 @@ services:
       - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       - CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE=optimize-api
       - CAMUNDA_OPTIMIZE_IDENTITY_BASE_URL=http://identity:8080/identity
-      - CAMUNDA_OPTIMIZE_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
       - CAMUNDA_OPTIMIZE_SECURITY_AUTH_COOKIE_SAME_SITE_ENABLED=false
       - CAMUNDA_OPTIMIZE_UI_LOGOUT_HIDDEN=true
       - management.endpoints.web.exposure.include=health,configprops
@@ -180,7 +178,6 @@ services:
       KEYCLOAK_CLIENTS_0_PERMISSIONS_4_DEFINITION: read:*
       KEYCLOAK_CLIENTS_0_PERMISSIONS_5_RESOURCE_SERVER_ID: operate-api
       KEYCLOAK_CLIENTS_0_PERMISSIONS_5_DEFINITION: read:*
-      MULTITENANCY_ENABLED: ${MULTI_TENANCY_ENABLED}
       RESOURCE_PERMISSIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
@@ -347,11 +344,13 @@ services:
       CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://zeebe:26500
       CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://zeebe:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
+      CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: NONE
+#       CAMUNDA_MODELER_CLUSTERS_0_OAUTH_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      CAMUNDA_BASIC_AUTH_USERNAME: demo
+      CAMUNDA_BASIC_AUTH_PASSWORD: demo
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
-    # extra cluster configuration depending on the authentication mode
-    env_file: ./.web-modeler/cluster-config-authentication-mode-${ZEEBE_AUTHENTICATION_MODE}.env
     networks:
       - web-modeler
       - camunda-platform
