@@ -74,12 +74,6 @@ camunda:
       unprotectedApi: true
     authorizations:
       enabled: false
-    initialization:
-      users:
-        - username: "demo"
-          password: "demo"
-          name: "Demo User"
-          email: "demo@demo.com"
 
   #
   # Camunda Database Configuration.
