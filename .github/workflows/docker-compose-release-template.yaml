@@ -47,7 +47,7 @@ jobs:
       #
       # Security signature.
       - name: Install Cosign CLI
-        uses: sigstore/cosign-installer@3454372f43399081ed03b604cb2d021dabca52bb # v3.8.2
+        uses: sigstore/cosign-installer@d58896d6a1865668819e1d91763c7751a165e159 # v3.9.2
       - name: Sign Helm chart with Cosign
         run: |
           cosign sign-blob -y ${{ env.DOCKER_COMPOSE_NAME }}.zip \
@@ -99,7 +99,7 @@ jobs:
           git tag ${{ env.DOCKER_COMPOSE_NAME }}
       - name: Release on GitHub
         id: gh-release
-        uses: softprops/action-gh-release@da05d552573ad5aba039eaac05058a918a7bf631 # v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8 # v2
         with:
           name: ${{ env.DOCKER_COMPOSE_NAME }}
           tag_name: ${{ env.DOCKER_COMPOSE_NAME }}
