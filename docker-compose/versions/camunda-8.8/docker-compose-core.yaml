@@ -47,7 +47,7 @@ services:
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
     container_name: connectors
     ports:
-      - "8085:8080"
+      - "8086:8080"
     environment:
       - CAMUNDA_CLIENT_MODE=self-managed
       - CAMUNDA_CLIENT_GRPCADDRESS=http://zeebe:26500
