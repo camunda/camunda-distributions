@@ -70,7 +70,7 @@ camunda:
 
   security:
     authentication:
-      mode: "none"
+      method: "basic"
       unprotectedApi: true
     authorizations:
       enabled: false
