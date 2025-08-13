@@ -70,7 +70,7 @@ camunda:
 
   security:
     authentication:
-      mode: "none"
+      method: "basic"
       unprotectedApi: true
     authorizations:
       enabled: false
@@ -80,6 +80,10 @@ camunda:
           password: "demo"
           name: "Demo User"
           email: "demo@demo.com"
+      defaultRoles:
+        admin:
+          users:
+            - "demo"
 
   #
   # Camunda Database Configuration.
