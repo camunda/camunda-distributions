@@ -413,7 +413,6 @@ services:
   web-modeler-restapi:
     container_name: web-modeler-restapi
     image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION}
-    command: /bin/sh -c "java $JAVA_OPTIONS org.springframework.boot.loader.JarLauncher"
     depends_on:
       web-modeler-db:
         condition: service_healthy
