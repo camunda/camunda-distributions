@@ -341,16 +341,12 @@ services:
       CAMUNDA_MODELER_CLUSTERS_0_ID: "local-zeebe"
       CAMUNDA_MODELER_CLUSTERS_0_NAME: "Local Zeebe instance"
       CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_ZEEBE_VERSION}
-      CAMUNDA_MODELER_CLUSTERS_0_URL_ZEEBE_GRPC: grpc://zeebe:26500
-      CAMUNDA_MODELER_CLUSTERS_0_URL_ZEEBE_REST: http://zeebe:8080
-      CAMUNDA_MODELER_CLUSTERS_0_URL_OPERATE: http://operate:8080
-      CAMUNDA_MODELER_CLUSTERS_0_URL_TASKLIST: http://tasklist:8080
-      CAMUNDA_BASIC_AUTH_USERNAME: demo
-      CAMUNDA_BASIC_AUTH_PASSWORD: demo
+      CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://zeebe:26500
+      CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://zeebe:8080
+      CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
-#       CAMUNDA_MODELER_CLUSTERS_0_OAUTH_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
     # extra cluster configuration depending on the authentication mode
     env_file: ./.web-modeler/cluster-config-authentication-mode-${ZEEBE_AUTHENTICATION_MODE}.env
     networks:
