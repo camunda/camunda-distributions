@@ -149,6 +149,8 @@ services:
       KEYCLOAK_INIT_WEBMODELER_ROOT_URL: http://${HOST}:8070
       KEYCLOAK_INIT_CONNECTORS_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       KEYCLOAK_INIT_CONNECTORS_ROOT_URL: http://${HOST}:8085
+      KEYCLOAK_INIT_CONSOLE_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
+      KEYCLOAK_INIT_CONSOLE_ROOT_URL: http://${HOST}:8089
       KEYCLOAK_INIT_ZEEBE_NAME: zeebe
       KEYCLOAK_USERS_0_USERNAME: "demo"
       KEYCLOAK_USERS_0_PASSWORD: "demo"
@@ -161,6 +163,7 @@ services:
       KEYCLOAK_USERS_0_ROLES_4: "Web Modeler"
       KEYCLOAK_USERS_0_ROLES_5: "Web Modeler Admin"
       KEYCLOAK_USERS_0_ROLES_6: "Zeebe"
+      KEYCLOAK_USERS_0_ROLES_7: "Console"
       KEYCLOAK_CLIENTS_0_NAME: zeebe
       KEYCLOAK_CLIENTS_0_ID: ${ZEEBE_CLIENT_ID}
       KEYCLOAK_CLIENTS_0_SECRET: ${ZEEBE_CLIENT_SECRET}
@@ -407,6 +410,37 @@ services:
       PUSHER_APP_SECRET: web-modeler-app-secret
     networks:
       - web-modeler
+
+  console:
+    container_name: console
+    image: camunda/console:${CAMUNDA_CONSOLE_VERSION}
+    ports:
+      - "8089:8080"
+      - "9100:9100"
+    environment:
+      NODE_ENV: production
+      KEYCLOAK_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
+      KEYCLOAK_INTERNAL_BASE_URL: http://keycloak:18080/auth
+      KEYCLOAK_REALM: camunda-platform
+      CAMUNDA_IDENTITY_CLIENT_ID: console
+      CAMUNDA_IDENTITY_AUDIENCE: console-api
+      JAVA_TOOL_OPTIONS: -Xms512m -Xmx1g
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9100/health/readiness || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
+    volumes:
+      - "./.console:/var/run/config"
+    networks:
+      - camunda-platform
+    depends_on:
+      identity:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
 
 volumes:
   zeebe:
