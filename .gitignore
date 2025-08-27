@@ -20,9 +20,6 @@ playwright/.cache/
 .env.test.local
 .env.production.local
 
-# Console configuration (runtime generated)
-docker-compose/versions/*/.console/
-
 # Logs
 logs/
 *.log
