@@ -426,7 +426,7 @@ services:
       CAMUNDA_IDENTITY_AUDIENCE: console-api
       JAVA_TOOL_OPTIONS: -Xms512m -Xmx1g
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9100/health/readiness || exit 1"]
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9100/health/readiness"]
       interval: 30s
       timeout: 5s
       retries: 5
