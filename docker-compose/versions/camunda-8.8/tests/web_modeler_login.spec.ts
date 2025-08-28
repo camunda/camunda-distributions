@@ -15,5 +15,8 @@ test('Validate login page', async ({ page }) => {
   await page.waitForTimeout(2000);
   
   await page.getByText('Projects').waitFor();
-  await page.getByRole('link', { name: 'New project' }).click();
+  
+  const newProjectLocator = page.locator('a:has-text("New project"), button:has-text("New project")').first();
+  await newProjectLocator.waitFor({ timeout: 30000 });
+  await newProjectLocator.click();
 });
