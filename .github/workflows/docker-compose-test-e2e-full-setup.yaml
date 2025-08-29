@@ -84,6 +84,7 @@ jobs:
             camunda-version: "8.8"
             main-compose-args: "-f docker-compose.yaml"
             e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.8/tests"
           - name: Camunda Alpha 8.8 - Identity Disabled
             camunda-version: "8.8"
             main-compose-args: "-f docker-compose-core.yaml"
@@ -100,3 +101,4 @@ jobs:
       deps-compose-args: ${{ matrix.versions.deps-compose-args }}
       main-compose-args: ${{ matrix.versions.main-compose-args }}
       e2e-test-enabled: ${{ matrix.versions.e2e-test-enabled }}
+      e2e-test-directory: ${{ matrix.versions.e2e-test-directory || 'docker-compose/test/e2e' }}
