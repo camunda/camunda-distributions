@@ -423,7 +423,7 @@ services:
       KEYCLOAK_INTERNAL_BASE_URL: http://keycloak:18080/auth
       KEYCLOAK_REALM: camunda-platform
       CAMUNDA_IDENTITY_CLIENT_ID: console
-      CAMUNDA_IDENTITY_AUDIENCE: console-api
+      CAMUNDA_IDENTITY_AUDIENCE: console
       JAVA_TOOL_OPTIONS: -Xms512m -Xmx1g
     healthcheck:
       test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9100/health/readiness"]
