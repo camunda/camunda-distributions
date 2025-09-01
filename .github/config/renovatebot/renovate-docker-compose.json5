@@ -76,7 +76,7 @@
   customManagers: [
     {
       customType: "regex",
-      fileMatch: [".env"],
+      managerFilePatterns: ["/.env/"],
       datasourceTemplate: "docker",
       matchStrings: [
         "# renovate: datasource=docker depName=(?<depName>[^\\s]+?)(?: (lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s*?(\\S+)=(?<currentValue>\\S+)",
@@ -85,7 +85,7 @@
     },
     {
       customType: "regex",
-      fileMatch: ["**/.console/application.yaml"],
+      managerFilePatterns: ["\\.console/application\\.yaml$"],
       datasourceTemplate: "docker",
       matchStrings: [
         "# renovate: datasource=docker depName=(?<depName>[^\\s]+?)(?: (lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s*version:\\s*\"(?<currentValue>[^\"]+)\"",
