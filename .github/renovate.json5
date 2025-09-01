@@ -5,7 +5,6 @@
   extends: [
     "config:recommended",
     "github>camunda/camunda-distributions//.github/config/renovatebot/renovate-docker-compose.json5",
-    "github>camunda/camunda-distributions//.github/config/renovatebot/renovate-aws-marketplace.json5",
     "github>camunda/camunda-distributions//.github/config/renovatebot/renovate-github-actions.json5",
     "github>camunda/camunda-distributions//.github/config/renovatebot/renovate-main.json5",
     ":semanticCommitTypeAll(deps)",

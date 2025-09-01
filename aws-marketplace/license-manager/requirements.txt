@@ -1,5 +1,0 @@
-Flask
-flask-restplus
-Werkzeug
-boto3
-uuid
