@@ -8,6 +8,7 @@ camunda:
       releases:
         - name: "camunda-platform"
           namespace: "camunda-platform"
+          # renovate: datasource=docker depName=camunda/camunda
           version: "8.8.0-alpha7"
           tags:
             - "dev"
@@ -15,12 +16,14 @@ camunda:
           components:
             - name: "Console"
               id: "console"
+              # renovate: datasource=docker depName=camunda/console
               version: "8.8.0-alpha7"
               url: "http://localhost:8089"
               readiness: "http://console:8080/health/readiness"
               metrics: "http://console:9100/prometheus"
             - name: "Zeebe Gateway"
               id: "zeebeGateway"
+              # renovate: datasource=docker depName=camunda/camunda
               version: "8.8.0-alpha7"
               urls:
                 grpc: "grpc://localhost:26500"
@@ -29,24 +32,28 @@ camunda:
               metrics: "http://zeebe:9600/prometheus"
             - name: "Operate"
               id: "operate"
+              # renovate: datasource=docker depName=camunda/operate
               version: "8.8.0-alpha7"
               url: "http://localhost:8088/operate"
               readiness: "http://zeebe:9600/actuator/health/readiness"
               metrics: "http://zeebe:9600/actuator/prometheus"
             - name: "Tasklist"
               id: "tasklist"
+              # renovate: datasource=docker depName=camunda/tasklist
               version: "8.8.0-alpha7"
               url: "http://localhost:8088/tasklist"
               readiness: "http://zeebe:9600/actuator/health/readiness"
               metrics: "http://zeebe:9600/actuator/prometheus"
             - name: "Optimize"
               id: "optimize"
+              # renovate: datasource=docker depName=camunda/optimize
               version: "8.8.0-alpha7"
               url: "http://localhost:8083"
               readiness: "http://optimize:8090/api/readyz"
               metrics: "http://optimize:8090/actuator/prometheus"
             - name: "Identity"
               id: "identity"
+              # renovate: datasource=docker depName=camunda/identity
               version: "8.8.0-alpha7"
               url: "http://localhost:8084"
               readiness: "http://identity:8082/actuator/health"
@@ -57,16 +64,19 @@ camunda:
               readiness: "http://keycloak:18080/auth"
             - name: "WebModeler WebApp"
               id: "webModelerWebApp"
+              # renovate: datasource=docker depName=camunda/web-modeler-webapp
               version: "8.8.0-alpha8-rc1"
               url: "http://localhost:8070"
               readiness: "http://web-modeler-webapp:8071/health/readiness"
             - name: "WebModeler RestAPI"
               id: "webModelerRestAPI"  
+              # renovate: datasource=docker depName=camunda/web-modeler-restapi
               version: "8.8.0-alpha8-rc1"
               url: "http://localhost:8070/api"
               readiness: "http://web-modeler-restapi:8091/health/readiness"
             - name: "Connectors"
               id: "connectors"
+              # renovate: datasource=docker depName=camunda/connectors-bundle
               version: "8.8.0-alpha7"
               url: "http://localhost:8086"
               readiness: "http://connectors:8080/actuator/health/readiness"

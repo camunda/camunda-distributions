@@ -83,5 +83,14 @@
       ],
       versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
     },
+    {
+      customType: "regex",
+      fileMatch: ["**/.console/application.yaml"],
+      datasourceTemplate: "docker",
+      matchStrings: [
+        "# renovate: datasource=docker depName=(?<depName>[^\\s]+?)(?: (lookupName|packageName)=(?<packageName>[^\\s]+?))?(?: versioning=(?<versioning>[^\\s]+?))?(?: registryUrl=(?<registryUrl>[^\\s]+?))?\\s*version:\\s*\"(?<currentValue>[^\"]+)\"",
+      ],
+      versioningTemplate: "{{#if versioning}}{{{versioning}}}{{else}}semver{{/if}}",
+    },
   ],
 }
