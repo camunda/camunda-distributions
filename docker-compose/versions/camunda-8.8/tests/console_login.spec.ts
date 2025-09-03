@@ -4,7 +4,7 @@ test('Console login and cluster health monitoring', async ({ page }) => {
   test.setTimeout(120000);
   
   // Navigate to console
-  await page.goto('http://localhost:8089/');
+  await page.goto('http://localhost:8087/');
   
   // Verify login page loads correctly
   await expect(page.getByRole('heading', { name: 'Log in' })).toBeVisible();
@@ -29,7 +29,7 @@ test('Console login and cluster health monitoring', async ({ page }) => {
   await expect(page.locator('span:has-text("Healthy")').first()).toBeVisible({ timeout: 20000 });
   
   // Navigate to the cluster-specific page to verify automation components
-  await page.goto('http://localhost:8089/clusters/camunda-platform');
+  await page.goto('http://localhost:8087/clusters/camunda-platform');
   
   // Verify automation components section loads
   await expect(page.locator('h3:has-text("Automation components")')).toBeVisible({ timeout: 30000 });
