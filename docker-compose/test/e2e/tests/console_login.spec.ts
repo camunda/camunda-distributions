@@ -2,7 +2,7 @@ import { test, expect } from '@playwright/test';
 
 test('Validate login page', async ({ page }) => {
   test.setTimeout(60000);
-  await page.goto('http://localhost:8089/');
+  await page.goto('http://localhost:8087/');
   await page.getByRole('heading', { name: 'Log in' }).waitFor();
   await page.getByLabel('Username or email').click();
   await page.getByLabel('Username or email').fill('demo');

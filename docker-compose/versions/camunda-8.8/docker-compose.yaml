@@ -150,7 +150,7 @@ services:
       KEYCLOAK_INIT_CONNECTORS_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       KEYCLOAK_INIT_CONNECTORS_ROOT_URL: http://${HOST}:8085
       KEYCLOAK_INIT_CONSOLE_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      KEYCLOAK_INIT_CONSOLE_ROOT_URL: http://${HOST}:8089
+      KEYCLOAK_INIT_CONSOLE_ROOT_URL: http://${HOST}:8087
       KEYCLOAK_INIT_ZEEBE_NAME: zeebe
       KEYCLOAK_USERS_0_USERNAME: "demo"
       KEYCLOAK_USERS_0_PASSWORD: "demo"
@@ -415,7 +415,7 @@ services:
     container_name: console
     image: camunda/console:${CAMUNDA_CONSOLE_VERSION}
     ports:
-      - "8089:8080"
+      - "8087:8080"
       - "9100:9100"
     environment:
       NODE_ENV: production
