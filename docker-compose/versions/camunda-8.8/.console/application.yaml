@@ -65,13 +65,13 @@ camunda:
             - name: "WebModeler WebApp"
               id: "webModelerWebApp"
               # renovate: datasource=docker depName=camunda/web-modeler-webapp
-              version: "8.8.0-alpha8-rc1"
+              version: "8.8.0-alpha8"
               url: "http://localhost:8070"
               readiness: "http://web-modeler-webapp:8071/health/readiness"
             - name: "WebModeler RestAPI"
               id: "webModelerRestAPI"  
               # renovate: datasource=docker depName=camunda/web-modeler-restapi
-              version: "8.8.0-alpha8-rc1"
+              version: "8.8.0-alpha8"
               url: "http://localhost:8070/api"
               readiness: "http://web-modeler-restapi:8091/health/readiness"
             - name: "Connectors"
