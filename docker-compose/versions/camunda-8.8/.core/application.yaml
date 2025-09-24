@@ -70,20 +70,14 @@ camunda:
 
   security:
     authentication:
-      method: "basic"
-      unprotectedApi: true
+      method: "oidc"
+      unprotectedApi: false
     authorizations:
-      enabled: false
-    initialization:
-      users:
-        - username: "demo"
-          password: "demo"
-          name: "Demo User"
-          email: "demo@demo.com"
-      defaultRoles:
-        admin:
-          users:
-            - "demo"
+      enabled: true
+
+  multitenancy:
+    checksEnabled: true
+    apiEnabled: true
 
   #
   # Camunda Database Configuration.
