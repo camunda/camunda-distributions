@@ -19,33 +19,6 @@ services:
       - "9600:9600"
       - "8088:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
-      - SPRING_PROFILES_ACTIVE=broker,operate,tasklist,identity,consolidated-auth
-      - CAMUNDA_SECURITY_AUTHENTICATION_METHOD=OIDC
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTID=orchestration-cluster
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTSECRET=the-cake-is-a-lie
-      # Host<->container and container<->container communication URLs
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI=http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_TOKENURI=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_JWKSETURI=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI=http://localhost:8088/sso-callback
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_USERNAMECLAIM=preferred_username
-      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTIDCLAIM=client_id
-      - CAMUNDA_SECURITY_INITIALIZATION_DEFAULTROLES_ADMIN_USERS_0=demo
-      - CAMUNDA_SECURITY_AUTHORIZATIONS_ENABLED=true
-      - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=false
-      - ZEEBE_BROKER_GATEWAY_MULTITENANCY_ENABLED=${MULTI_TENANCY_ENABLED}
-      # Database and Elasticsearch configuration
-      - CAMUNDA_DATABASE_CLUSTERNAME=elasticsearch
-      - CAMUNDA_DATABASE_TYPE=elasticsearch
-      - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
-      # default is 1000, see here: https://github.com/camunda/zeebe/blob/main/exporters/elasticsearch-exporter/src/main/java/io/camunda/zeebe/exporter/ElasticsearchExporterConfiguration.java#L259
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
-      # allow running with low disk space
-      - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
-      - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
-      - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
-      - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
       - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
       - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
       - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
@@ -176,8 +149,8 @@ services:
       KEYCLOAK_USERS_0_ROLES_4: "Web Modeler Admin"
       KEYCLOAK_USERS_0_ROLES_5: "Console"
       KEYCLOAK_CLIENTS_0_NAME: orchestration
-      KEYCLOAK_CLIENTS_0_ID: ${ZEEBE_CLIENT_ID}
-      KEYCLOAK_CLIENTS_0_SECRET: ${ZEEBE_CLIENT_SECRET}
+      KEYCLOAK_CLIENTS_0_ID: orchestration-cluster
+      KEYCLOAK_CLIENTS_0_SECRET: orchestration-cluster-secret
       KEYCLOAK_CLIENTS_0_TYPE: M2M
       KEYCLOAK_CLIENTS_0_PERMISSIONS_0_RESOURCE_SERVER_ID: orchestration-api
       KEYCLOAK_CLIENTS_0_PERMISSIONS_0_DEFINITION: write:*
@@ -185,8 +158,15 @@ services:
       KEYCLOAK_CLIENTS_0_PERMISSIONS_1_DEFINITION: read:*
       KEYCLOAK_CLIENTS_0_PERMISSIONS_2_RESOURCE_SERVER_ID: optimize-api
       KEYCLOAK_CLIENTS_0_PERMISSIONS_2_DEFINITION: write:*
-      RESOURCE_PERMISSIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
-      MULTITENANCY_ENABLED: ${MULTI_TENANCY_ENABLED}
+      KEYCLOAK_CLIENTS_1_NAME: camunda-identity
+      KEYCLOAK_CLIENTS_1_ID: camunda-identity
+      KEYCLOAK_CLIENTS_1_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
+      KEYCLOAK_CLIENTS_1_ROOT_URL: http://localhost:8084
+      KEYCLOAK_CLIENTS_1_REDIRECT_URIS_0: /*
+      KEYCLOAK_CLIENTS_1_REDIRECT_URIS_1: /identity/*
+      KEYCLOAK_CLIENTS_1_REDIRECT_URIS_2: /auth/*
+      RESOURCE_PERMISSIONS_ENABLED: false
+      MULTITENANCY_ENABLED: true
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS

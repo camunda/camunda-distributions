@@ -72,8 +72,25 @@ camunda:
     authentication:
       method: "oidc"
       unprotectedApi: false
+      oidc:
+        authorizationUri: "http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/auth"
+        tokenUri: "http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/token"
+        jwkSetUri: "http://keycloak:8080/auth/realms/camunda-platform/protocol/openid-connect/certs"
+        clientId: "orchestration-cluster"
+        clientSecret: "orchestration-cluster-secret"
+        redirectUri: "http://localhost:8080/sso-callback"
+        usernameClaim: "preferred_username"
+        clientIdClaim: "client_id"
     authorizations:
       enabled: true
+    initialization:
+      defaultRoles:
+        admin:
+          users:
+            - "demo"
+          clients:
+            - "desktop-modeler"
+            - "orchestration-cluster"
 
   multitenancy:
     checksEnabled: true
