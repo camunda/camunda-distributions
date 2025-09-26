@@ -1,0 +1,196 @@
+services:
+  orchestration-cluster:
+    image: camunda/camunda:8.8-SNAPSHOT
+    container_name: orchestration-cluster
+    ports:
+      - "26500:26500" # Zeebe
+      - "9600:9600" # Actuator
+      - "8080:8080" # Application (Operate, Tasklist, Identity)
+    environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
+      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
+      - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
+      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
+      - CAMUNDA_DATA_SECONDARY_STORAGE_TYPE=elasticsearch
+      - CAMUNDA_DATA_SECONDARY_STORAGE_ELASTICSEARCH_URL=http://elasticsearch:9200
+      - CAMUNDA_SECURITY_AUTHENTICATION_METHOD=OIDC
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTID=orchestration-cluster
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTSECRET=orchestration-cluster-secret
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI=http://localhost:18080/auth/realms/camunda/protocol/openid-connect/auth
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_TOKENURI=http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/token
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_JWKSETURI=http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/certs
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI=http://localhost:8080/sso-callback
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_USERNAMECLAIM=preferred_username
+      - CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTIDCLAIM=client_id
+      - CAMUNDA_SECURITY_AUTHENTICATION_UNPROTECTEDAPI=false
+      - CAMUNDA_SECURITY_INITIALIZATION_DEFAULTROLES_ADMIN_USERS_0=demo
+      - CAMUNDA_SECURITY_INITIALIZATION_DEFAULTROLES_ADMIN_CLIENTS_0=modeler
+      - CAMUNDA_SECURITY_AUTHORIZATIONS_ENABLED=true
+      - CAMUNDA_SECURITY_MULTITENANCY_CHECKSENABLED=true
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_ARGS_CONNECT_TYPE=elasticsearch
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_ARGS_CONNECT_URL=http://elasticsearch:9200
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_ARGS_CREATESCHEMA=true
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_ARGS_INDEX_SHOULDWAITFORIMPORTERS=false
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_ARGS_RETENTION_ENABLED=false
+      - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_CLASSNAME=io.camunda.exporter.CamundaExporter
+      - ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS=zeebe:26502
+      - ZEEBE_GATEWAY_CLUSTER_MEMBERID=identity
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9600/actuator/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    volumes:
+      - orchestration-cluster:/usr/local/zeebe/data
+    networks:
+      - camunda-platform
+    depends_on:
+      - elasticsearch
+      - keycloak
+
+  connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
+    image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
+    container_name: connectors
+    ports:
+      - "8086:8080"
+    environment:
+      # Zeebe connection
+      - CAMUNDA_CLIENT_MODE=self-managed
+      - CAMUNDA_CLIENT_RESTADDRESS=http://orchestration-cluster:8080
+      - CAMUNDA_CLIENT_GRPCADDRESS=grpc://orchestration-cluster:26500
+      - CAMUNDA_CLIENT_AUTH_METHOD=oidc
+      - CAMUNDA_CLIENT_AUTH_TOKENURL=http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/token
+      - CAMUNDA_CLIENT_AUTH_CLIENTID=camunda-client
+      - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=camunda-client-secret
+      - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/zeebe_auth_cache
+      - CAMUNDA_CLIENT_AUTH_AUDIENCE=orchestration-cluster
+      # management configuration
+      - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
+      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
+      - management.endpoint.health.probes.enabled=true
+    env_file: connector-secrets.txt
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness"]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+    networks:
+      - camunda-platform
+    depends_on:
+      - orchestration-cluster
+
+  management-identity:
+    container_name: management-identity
+    image: camunda/identity:8.8-SNAPSHOT
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: oidc
+      SERVER_PORT: 8081
+      CAMUNDA_IDENTITY_TYPE: GENERIC
+      CAMUNDA_IDENTITY_AUDIENCE: management-identity
+      CAMUNDA_IDENTITY_BASEURL: http://localhost:8081
+      CAMUNDA_IDENTITY_CLIENTID: management-identity
+      CAMUNDA_IDENTITY_CLIENTSECRET: management-identity-secret
+      CAMUNDA_IDENTITY_ISSUER: http://localhost:18080/auth/realms/camunda
+      CAMUNDA_IDENTITY_ISSUERBACKENDURL: http://keycloak:18080/auth/realms/camunda
+      IDENTITY_INITIAL_CLAIM_NAME: preferred_username
+      IDENTITY_INITIAL_CLAIM_VALUE: demo
+      IDENTITY_DATABASE_HOST: postgres
+      IDENTITY_DATABASE_PORT: 5432
+      IDENTITY_DATABASE_NAME: bitnami_keycloak
+      IDENTITY_DATABASE_USERNAME: bn_keycloak
+      IDENTITY_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
+      MULTITENANCY_ENABLED: true
+    healthcheck:
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8082/actuator/health" ]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+    restart: always
+    networks:
+      - camunda-platform
+    depends_on:
+      - keycloak
+  postgres: # https://hub.docker.com/_/postgres
+    container_name: postgres
+    image: postgres:16.6-alpine
+    ports:
+      - "15432:5432"
+    environment:
+      POSTGRES_DB: bitnami_keycloak
+      POSTGRES_USER: bn_keycloak
+      POSTGRES_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - camunda-platform
+  keycloak: # https://hub.docker.com/r/bitnamilegacy/keycloak
+    container_name: keycloak
+    image: bitnamilegacy/keycloak:26.1.0
+    ports:
+      - "18080:18080"
+    environment:
+      KEYCLOAK_HTTP_PORT: 18080
+      KEYCLOAK_HTTP_RELATIVE_PATH: /auth
+      KEYCLOAK_DATABASE_HOST: postgres
+      KEYCLOAK_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
+      KEYCLOAK_ADMIN_USER: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_EXTRA_ARGS: --import-realm --verbose
+    volumes:
+      - ./.keycloak:/opt/bitnami/keycloak/data/import
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:18080/auth"]
+      interval: 30s
+      timeout: 15s
+      retries: 5
+      start_period: 30s
+    networks:
+      - camunda-platform
+    depends_on:
+      - postgres
+  elasticsearch: # https://hub.docker.com/_/elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # allow running with low disk space
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+    networks:
+      - camunda-platform
+volumes:
+  orchestration-cluster:
+  elastic:
+  postgres:
+
+networks:
+  camunda-platform:

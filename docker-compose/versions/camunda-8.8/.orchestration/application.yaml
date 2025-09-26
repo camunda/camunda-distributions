@@ -1,0 +1,194 @@
+spring:
+  profiles:
+    active: "identity,operate,tasklist,broker,consolidated-auth"
+
+management:
+  server:
+    port: 9600
+
+server:
+  forward-headers-strategy: none
+  address: 0.0.0.0
+
+zeebe:
+  host: 0.0.0.0
+  log:
+    level: "info"
+
+  broker:
+    # zeebe.broker.gateway
+    gateway:
+      enable: true
+      network:
+        host: 0.0.0.0
+        port: 26500
+      cluster:
+        initialContactPoints: "orchestration-cluster:26502"
+        memberId: "identity"
+
+    # zeebe.broker.network
+    network:
+      host: 0.0.0.0
+      commandApi:
+        port: 26501
+      internalApi:
+        port: 26502
+
+    # zeebe.broker.data
+    data:
+      snapshotPeriod: 5m
+      freeSpace:
+        processing: 2GB
+        replication: 3GB
+
+    # zeebe.broker.threads
+    threads:
+      cpuThreadCount: "3"
+      ioThreadCount: "3"
+
+    # zeebe.broker.exporters
+    exporters:
+      elasticsearch:
+        className: "io.camunda.zeebe.exporter.ElasticsearchExporter"
+        args:
+          url: "http://elasticsearch:9200"
+          index:
+            prefix: "zeebe-record"
+      CamundaExporter:
+        className: "io.camunda.exporter.CamundaExporter"
+        args:
+          connect:
+            type: elasticsearch
+            url: "http://elasticsearch:9200"
+          createSchema: true
+          index:
+            shouldWaitForImporters: false
+          retention:
+            enabled: false
+
+camunda:
+  persistent:
+    sessions:
+      enabled: true
+
+  rest:
+    query:
+      enabled: true
+
+  data:
+    secondaryStorage:
+      type: elasticsearch
+      elasticsearch:
+        url: "http://elasticsearch:9200"
+
+  security:
+    authentication:
+      method: "oidc"
+      unprotectedApi: false
+      oidc:
+        authorizationUri: "http://localhost:18080/auth/realms/camunda/protocol/openid-connect/auth"
+        tokenUri: "http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/token"
+        jwkSetUri: "http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/certs"
+        clientId: "orchestration-cluster"
+        clientSecret: "orchestration-cluster-secret"
+        redirectUri: "http://localhost:8080/sso-callback"
+        usernameClaim: "preferred_username"
+        clientIdClaim: "client_id"
+    authorizations:
+      enabled: true
+    initialization:
+      defaultRoles:
+        admin:
+          users:
+            - "demo"
+          clients:
+            - "modeler"
+    multitenancy:
+      checksEnabled: true
+
+  multitenancy:
+    checksEnabled: true
+    apiEnabled: true
+
+  #
+  # Camunda Database Configuration.
+  #
+  database:
+    type: elasticsearch
+    # Cluster name
+    clusterName: elasticsearch
+    # Elasticsearch full url
+    url: "http://elasticsearch:9200"
+
+  #
+  # Camunda Operate Configuration.
+  #
+  operate:
+    persistentSessionsEnabled: true
+
+    # ELS instance to store Operate data
+    elasticsearch:
+      # Operate index prefix.
+      # Cluster name
+      clusterName: elasticsearch
+      # Host
+      host: elasticsearch
+      # Transport port
+      port: 9200
+      # Elasticsearch full url
+      url: "http://elasticsearch:9200"
+    # ELS instance to export Zeebe data to
+    zeebeElasticsearch:
+      # Cluster name
+      clusterName: elasticsearch
+      # Host
+      host: elasticsearch
+      # Transport port
+      port: 9200
+      # Index prefix, configured in Zeebe Elasticsearch exporter
+      prefix: "zeebe-record"
+      # Elasticsearch full url
+      url: "http://elasticsearch:9200"
+    # Zeebe instance
+    zeebe:
+      # Gateway address
+      gatewayAddress: "orchestration-cluster:26500"
+
+  #
+  # Camunda Tasklist Configuration.
+  #
+  tasklist:
+
+    # Set Tasklist username and password.
+    # If user with <username> does not exists it will be created.
+    # Default: demo/demo
+    #username:
+    #password:
+    # ELS instance to store Tasklist data
+    elasticsearch:
+      # Tasklist index prefix.
+      # Cluster name
+      clusterName: elasticsearch
+      # Host
+      host: elasticsearch
+      # Transport port
+      port: 9200
+      # Elasticsearch full url
+      url: "http://elasticsearch:9200"
+    # ELS instance to export Zeebe data to
+    zeebeElasticsearch:
+      # Cluster name
+      clusterName: elasticsearch
+      # Host
+      host: elasticsearch
+      # Transport port
+      port: 9200
+      # Index prefix, configured in Zeebe Elasticsearch exporter
+      prefix: "zeebe-record"
+      # Elasticsearch full url
+      url: "http://elasticsearch:9200"
+    # Zeebe instance
+    zeebe:
+      # Gateway address
+      gatewayAddress: orchestration-cluster:26500
+      restAddress: "http://orchestration-cluster:8080"
