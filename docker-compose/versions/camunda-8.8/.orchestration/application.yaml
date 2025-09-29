@@ -98,6 +98,9 @@ camunda:
       enabled: true
     initialization:
       defaultRoles:
+        connectors:
+          clients:
+            - "camunda-client"
         admin:
           users:
             - "demo"

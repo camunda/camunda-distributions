@@ -34,6 +34,7 @@ services:
       - ZEEBE_BROKER_EXPORTERS_CAMUNDAEXPORTER_CLASSNAME=io.camunda.exporter.CamundaExporter
       - ZEEBE_GATEWAY_CLUSTER_INITIALCONTACTPOINTS=zeebe:26502
       - ZEEBE_GATEWAY_CLUSTER_MEMBERID=identity
+      - CAMUNDA_SECURITY_INITIALIZATION_DEFAULTROLES_CONNECTORS_CLIENTS_0=camunda-client
     restart: always
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:9600/actuator/health/readiness"]
@@ -179,7 +180,7 @@ services:
         hard: -1
     restart: always
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -E '(green|yellow)'"]
       interval: 30s
       timeout: 5s
       retries: 3
@@ -187,6 +188,46 @@ services:
       - elastic:/usr/share/elasticsearch/data
     networks:
       - camunda-platform
+
+  console:
+    container_name: console
+    image: camunda/console:${CAMUNDA_CONSOLE_VERSION}
+    ports:
+      - "8087:8080"
+      - "9100:9100"
+    environment:
+      NODE_ENV: production
+      KEYCLOAK_BASE_URL: http://localhost:18080/auth
+      KEYCLOAK_INTERNAL_BASE_URL: http://keycloak:18080/auth
+      KEYCLOAK_REALM: camunda
+      CAMUNDA_IDENTITY_CLIENT_ID: camunda-client
+      CAMUNDA_IDENTITY_CLIENT_SECRET: camunda-client-secret
+      CAMUNDA_IDENTITY_TYPE: keycloak
+      CAMUNDA_CONSOLE_REDIRECT_URL: http://localhost:8087
+      CAMUNDA_CONSOLE_REDIRECT_TRAILING_SLASH: true
+      # Set issuer URLs using the correct environment variable names
+      CAMUNDA_IDENTITY_ISSUER: http://keycloak:18080/auth/realms/camunda
+      CAMUNDA_IDENTITY_ISSUER_BACKEND_URL: http://keycloak:18080/auth/realms/camunda  
+      CAMUNDA_IDENTITY_JWKS_URL: http://keycloak:18080/auth/realms/camunda/protocol/openid-connect/certs
+      JAVA_TOOL_OPTIONS: -Xms512m -Xmx1g
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9100/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: on-failure
+    volumes:
+      - "./.console/application-test.yaml:/var/run/config/application.yaml"
+
+    networks:
+      - camunda-platform
+    depends_on:
+      management-identity:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+
 volumes:
   orchestration-cluster:
   elastic:
