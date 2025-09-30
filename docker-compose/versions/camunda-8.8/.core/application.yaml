@@ -88,6 +88,9 @@ camunda:
   #
   # Camunda Data Configuration.
   #
+  database:
+    index:
+      numberOfReplicas: 0
   data:
     secondary-storage:
       type: elasticsearch
