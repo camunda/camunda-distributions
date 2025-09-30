@@ -34,15 +34,15 @@ test('Console login and cluster health monitoring', async ({ page }) => {
   // Verify automation components section loads
   await expect(page.locator('h3:has-text("Automation components")')).toBeVisible({ timeout: 30000 });
   
-  // Verify core automation components are healthy
-  await expect(page.locator('h6:has-text("Zeebe")')).toBeVisible({ timeout: 15000 });
+  // Verify orchestration automation components are healthy
+  await expect(page.locator('h6:has-text("Orchestration")')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('h6:has-text("Tasklist")')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('h6:has-text("Operate")')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('h6:has-text("Optimize")')).toBeVisible({ timeout: 15000 });
   
   // Verify all automation components show healthy status
   const automationHealthyCount = await page.locator('span:has-text("Healthy")').count();
-  expect(automationHealthyCount).toBeGreaterThanOrEqual(4); // At least Zeebe, Tasklist, Operate, Optimize
+  expect(automationHealthyCount).toBeGreaterThanOrEqual(4); // At least Orchestration, Tasklist, Operate, Optimize
   
   // Verify no error messages are present
   await expect(page.locator('text=/error|failed|invalid|incorrect/i')).not.toBeVisible();

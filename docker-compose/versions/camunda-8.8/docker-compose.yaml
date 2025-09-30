@@ -6,14 +6,14 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/platform-deployment/helm-kubernetes/guides/local-kubernetes-cluster/
 
-# This is a full configuration with Zeebe, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
-# See docker-compose-core.yml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
+# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
+# See docker-compose-orchestration.yml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
 
-  zeebe: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
+  orchestration: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
     image: camunda/camunda:${CAMUNDA_VERSION}
-    container_name: zeebe
+    container_name: orchestration
     ports:
       - "26500:26500"
       - "9600:9600"
@@ -44,8 +44,8 @@ services:
       retries: 5
       start_period: 30s
     volumes:
-      - zeebe:/usr/local/zeebe/data
-      - "./.core/application.yaml:/usr/local/camunda/config/application.yaml"
+      - orchestration:/usr/local/zeebe/data
+      - "./.orchestration/application.yaml:/usr/local/camunda/config/application.yaml"
     networks:
       - camunda-platform
     depends_on:
@@ -57,15 +57,15 @@ services:
     ports:
       - "8086:8080"
     environment:
-      # Zeebe connection
+      # Orchestration connection
       - CAMUNDA_CLIENT_MODE=self-managed
-      - CAMUNDA_CLIENT_RESTADDRESS=http://zeebe:8080
-      - CAMUNDA_CLIENT_GRPCADDRESS=http://zeebe:26500
+      - CAMUNDA_CLIENT_RESTADDRESS=http://orchestration:8080
+      - CAMUNDA_CLIENT_GRPCADDRESS=http://orchestration:26500
       - CAMUNDA_CLIENT_AUTH_METHOD=oidc
       - CAMUNDA_CLIENT_AUTH_TOKENURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - CAMUNDA_CLIENT_AUTH_CLIENTID=${ZEEBE_CLIENT_ID}
-      - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=${ZEEBE_CLIENT_SECRET}
-      - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/zeebe_auth_cache
+      - CAMUNDA_CLIENT_AUTH_CLIENTID=${ORCHESTRATION_CLIENT_ID}
+      - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=${ORCHESTRATION_CLIENT_SECRET}
+      - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/orchestration_auth_cache
       - CAMUNDA_CLIENT_AUTH_AUDIENCE=orchestration-api
       # management configuration
       - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
@@ -81,7 +81,7 @@ services:
     networks:
       - camunda-platform
     depends_on:
-      - zeebe
+      - orchestration
 
   optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
     image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
@@ -158,8 +158,8 @@ services:
       KEYCLOAK_USERS_0_ROLES_4: "Web Modeler Admin"
       KEYCLOAK_USERS_0_ROLES_5: "Console"
       KEYCLOAK_CLIENTS_0_NAME: orchestration
-      KEYCLOAK_CLIENTS_0_ID: ${ZEEBE_CLIENT_ID}
-      KEYCLOAK_CLIENTS_0_SECRET: ${ZEEBE_CLIENT_SECRET}
+      KEYCLOAK_CLIENTS_0_ID: ${ORCHESTRATION_CLIENT_ID}
+      KEYCLOAK_CLIENTS_0_SECRET: ${ORCHESTRATION_CLIENT_SECRET}
       KEYCLOAK_CLIENTS_0_TYPE: M2M
       KEYCLOAK_CLIENTS_0_PERMISSIONS_0_RESOURCE_SERVER_ID: orchestration-api
       KEYCLOAK_CLIENTS_0_PERMISSIONS_0_DEFINITION: write:*
@@ -327,11 +327,11 @@ services:
       RESTAPI_MAIL_PORT: 1025
       RESTAPI_MAIL_ENABLE_TLS: "false"
       RESTAPI_MAIL_FROM_ADDRESS: "noreply@example.com"
-      CAMUNDA_MODELER_CLUSTERS_0_ID: "local-zeebe"
-      CAMUNDA_MODELER_CLUSTERS_0_NAME: "Local Zeebe instance"
+      CAMUNDA_MODELER_CLUSTERS_0_ID: "local-orchestration"
+      CAMUNDA_MODELER_CLUSTERS_0_NAME: "Local Orchestration instance"
       CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_VERSION}
-      CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://zeebe:26500
-      CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://zeebe:8080
+      CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://orchestration:26500
+      CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://orchestration:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
       CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: NONE
 #       CAMUNDA_MODELER_CLUSTERS_0_OAUTH_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
@@ -431,7 +431,7 @@ services:
         condition: service_healthy
 
 volumes:
-  zeebe:
+  orchestration:
   elastic:
   postgres:
   keycloak-theme:
@@ -443,7 +443,7 @@ networks:
   # Note there are three bridge networks: One for Camunda Platform, one for Identity and one for Web Modeler.
   # Identity and Keycloak are part of the first two as they need to be accessible by platform components.
   # Web Modeler has its own network because it consists of three components that communicate with each other.
-  # It is also part of the canunda-platform network to communicate with the platform components like Zeebe to run
+  # It is also part of the canunda-platform network to communicate with the platform components like Orchestration to run
   # processes or Identity to log in.
   camunda-platform:
   identity-network:
