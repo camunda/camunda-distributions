@@ -12,7 +12,7 @@
 services:
 
   zeebe: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#zeebe
-    image: camunda/camunda:${CAMUNDA_ZEEBE_VERSION}
+    image: camunda/camunda:${CAMUNDA_VERSION}
     container_name: zeebe
     ports:
       - "26500:26500"
@@ -26,7 +26,6 @@ services:
       # allow running with low disk space
       - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
       - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
-      - CAMUNDA_DATABASE_URL=http://elasticsearch:9200
       - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
       - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
       - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
@@ -330,7 +329,7 @@ services:
       RESTAPI_MAIL_FROM_ADDRESS: "noreply@example.com"
       CAMUNDA_MODELER_CLUSTERS_0_ID: "local-zeebe"
       CAMUNDA_MODELER_CLUSTERS_0_NAME: "Local Zeebe instance"
-      CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_ZEEBE_VERSION}
+      CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_VERSION}
       CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://zeebe:26500
       CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://zeebe:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088

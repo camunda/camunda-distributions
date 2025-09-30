@@ -87,7 +87,7 @@ jobs:
             e2e-test-directory: "docker-compose/versions/camunda-8.8/tests"
           - name: Camunda Alpha 8.8 - Identity Disabled
             camunda-version: "8.8"
-            main-compose-args: "-f docker-compose-core.yaml"
+            main-compose-args: "-f docker-compose-orchestration.yaml"
             e2e-test-enabled: false
           - name: Camunda Alpha 8.8 - Web Modeler Standalone
             camunda-version: "8.8"
