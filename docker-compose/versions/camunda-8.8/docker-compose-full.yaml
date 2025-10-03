@@ -25,7 +25,7 @@ services:
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_0: orchestration
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_1: orchestration-api
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_2: web-modeler-api
-      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI: http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_TOKENURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/token
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_JWKSETURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI: http://${HOST}:8088/sso-callback
@@ -306,7 +306,7 @@ services:
       RESTAPI_PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
       RESTAPI_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
       RESTAPI_PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
-      RESTAPI_OAUTH2_TOKEN_ISSUER: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      RESTAPI_OAUTH2_TOKEN_ISSUER: http://${HOST}:18080/auth/realms/camunda-platform
       RESTAPI_OAUTH2_TOKEN_ISSUER_BACKEND_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
       RESTAPI_SERVER_URL: http://localhost:8070
       RESTAPI_MAIL_HOST: mailpit
@@ -359,7 +359,7 @@ services:
       OAUTH2_CLIENT_ID: web-modeler
       OAUTH2_JWKS_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
       OAUTH2_TOKEN_AUDIENCE: web-modeler-api
-      OAUTH2_TOKEN_ISSUER: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      OAUTH2_TOKEN_ISSUER: http://${HOST}:18080/auth/realms/camunda-platform
       IDENTITY_BASE_URL: http://identity:8084/
       PLAY_ENABLED: "true"
     networks:
@@ -395,7 +395,7 @@ services:
       - "9100:9100"
     environment:
       NODE_ENV: production
-      KEYCLOAK_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
+      KEYCLOAK_BASE_URL: http://${HOST}:18080/auth
       KEYCLOAK_INTERNAL_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
       KEYCLOAK_REALM: camunda-platform
       CAMUNDA_IDENTITY_CLIENT_ID: console
