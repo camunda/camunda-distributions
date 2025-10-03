@@ -4,8 +4,8 @@ identity:
     multi-tenancy: "false"
 
   authProvider:
-    issuer-url: "http://${HOST}:18080/auth/realms/camunda-platform"
-    backend-url: "http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform"
+    issuer-url: "http://${HOST:localhost}:18080/auth/realms/camunda-platform"
+    backend-url: "http://${KEYCLOAK_HOST:keycloak}:18080/auth/realms/camunda-platform"
 
   component-presets:
     connectors:
@@ -139,7 +139,7 @@ identity:
               definition: admin:*
 
 keycloak:
-  url: "http://${KEYCLOAK_HOST}:18080/auth"
+  url: "http://${KEYCLOAK_HOST:keycloak}:18080/auth"
   setup:
     user: "${KEYCLOAK_ADMIN_USER:admin}"
     password: "${KEYCLOAK_ADMIN_PASSWORD:admin}"
