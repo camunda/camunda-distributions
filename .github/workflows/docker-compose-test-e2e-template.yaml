@@ -69,16 +69,28 @@ jobs:
       #
       # Docker Compose.
 
+      - name: Set environment variables for CI
+        working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
+        run: |
+          # Create .env file with CI-specific values if it doesn't exist
+          if [ ! -f .env ]; then
+            echo "Creating .env file for CI environment"
+          fi
+          # Set HOST and KEYCLOAK_HOST for CI (Linux) environment
+          echo "HOST=localhost" >> .env
+          echo "KEYCLOAK_HOST=host.docker.internal" >> .env
       - name: ⭐ Bring up containers dependencies
         if: inputs.deps-compose-args
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
         run: |
           docker compose ${{ inputs.deps-compose-args }} \
+            --add-host host.docker.internal:host-gateway \
             up --quiet-pull -d
       - name: ⭐ Bring up containers
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
         run: |
           docker compose ${{ inputs.main-compose-args }} \
+            --add-host host.docker.internal:host-gateway \
             up --quiet-pull -d
       - name: Wait until all containers are healthy
         timeout-minutes: 5
