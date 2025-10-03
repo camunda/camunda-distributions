@@ -7,7 +7,7 @@
 # https://docs.camunda.io/docs/self-managed/platform-deployment/helm-kubernetes/guides/local-kubernetes-cluster/
 
 # This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
-# See docker-compose-orchestration.yml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
+# See docker-compose-orchestration.yaml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
 
@@ -19,24 +19,29 @@ services:
       - "9600:9600"
       - "8088:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
-      - CAMUNDA_SECURITY_AUTHENTICATION_MODE=none
-      - ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      # default is 1000, see here: https://github.com/camunda/zeebe/blob/main/exporters/elasticsearch-exporter/src/main/java/io/camunda/zeebe/exporter/ElasticsearchExporterConfiguration.java#L259
-      - ZEEBE_BROKER_EXPORTERS_ELASTICSEARCH_ARGS_BULK_SIZE=1
-      # allow running with low disk space
-      - ZEEBE_BROKER_DATA_DISKUSAGECOMMANDWATERMARK=0.998
-      - ZEEBE_BROKER_DATA_DISKUSAGEREPLICATIONWATERMARK=0.999
-      - CAMUNDA_IDENTITY_ISSUERBACKENDURL=http://keycloak:18080/auth/realms/camunda-platform
-      - CAMUNDA_IDENTITY_BASEURL=http://identity:8084
-      - CAMUNDA_IDENTITY_AUDIENCE=zeebe-api
-      - SPRING_PROFILES_ACTIVE=operate,tasklist,broker,identity,consolidated-auth
-      - "JAVA_TOOL_OPTIONS=-Xms512m -Xmx512m"
-      - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
-      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
+      # OIDC Authentication - Environment-specific URLs and secrets
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTID: ${ORCHESTRATION_CLIENT_ID}
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTSECRET: ${ORCHESTRATION_CLIENT_SECRET}
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_0: orchestration
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_1: orchestration-api
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUDIENCES_2: web-modeler-api
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_TOKENURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_JWKSETURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI: http://${HOST}:8088/sso-callback
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_USERNAMECLAIM: preferred_username
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTIDCLAIM: client_id
+      ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      # Identity integration
+      CAMUNDA_IDENTITY_ISSUERBACKENDURL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      CAMUNDA_IDENTITY_BASEURL: http://identity:8084
+      CAMUNDA_IDENTITY_AUDIENCE: orchestration-api
+      # Resource limits
+      JAVA_TOOL_OPTIONS: "-Xms512m -Xmx512m"
     env_file:
       - path: .env
         required: true
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1"]
       interval: 30s
@@ -49,7 +54,8 @@ services:
     networks:
       - camunda-platform
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
 
   connectors: # https://docs.camunda.io/docs/components/integration-framework/connectors/out-of-the-box-connectors/available-connectors-overview/
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
@@ -57,31 +63,27 @@ services:
     ports:
       - "8086:8080"
     environment:
-      # Orchestration connection
-      - CAMUNDA_CLIENT_MODE=self-managed
-      - CAMUNDA_CLIENT_RESTADDRESS=http://orchestration:8080
-      - CAMUNDA_CLIENT_GRPCADDRESS=http://orchestration:26500
-      - CAMUNDA_CLIENT_AUTH_METHOD=oidc
-      - CAMUNDA_CLIENT_AUTH_TOKENURL=http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      - CAMUNDA_CLIENT_AUTH_CLIENTID=${ORCHESTRATION_CLIENT_ID}
-      - CAMUNDA_CLIENT_AUTH_CLIENTSECRET=${ORCHESTRATION_CLIENT_SECRET}
-      - CAMUNDA_CLIENT_AUTH_CREDENTIALSCACHEPATH=/tmp/orchestration_auth_cache
-      - CAMUNDA_CLIENT_AUTH_AUDIENCE=orchestration-api
-      # management configuration
-      - management.endpoints.web.exposure.include=health,info,metrics,prometheus,configprops
-      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
-      - management.endpoint.health.probes.enabled=true
+      # Orchestration connection - service addresses and credentials
+      CAMUNDA_CLIENT_RESTADDRESS: http://orchestration:8080
+      CAMUNDA_CLIENT_GRPCADDRESS: http://orchestration:26500
+      CAMUNDA_CLIENT_AUTH_TOKENURL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/token
+      CAMUNDA_CLIENT_AUTH_CLIENTID: ${CONNECTORS_CLIENT_ID}
+      CAMUNDA_CLIENT_AUTH_CLIENTSECRET: ${CONNECTORS_CLIENT_SECRET}
     env_file: connector-secrets.txt
+    restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness"]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health/readiness"]
       interval: 30s
-      timeout: 1s
+      timeout: 5s
       retries: 5
       start_period: 30s
+    volumes:
+      - "./.connectors/application.yaml:/app/application.yaml"
     networks:
       - camunda-platform
     depends_on:
-      - orchestration
+      orchestration:
+        condition: service_healthy
 
   optimize: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#optimize
     image: camunda/optimize:${CAMUNDA_OPTIMIZE_VERSION}
@@ -89,26 +91,25 @@ services:
     ports:
       - "8083:8090"
     environment: # https://docs.camunda.io/docs/self-managed/optimize-deployment/setup/installation/#available-environment-variables
-      - OPTIMIZE_ELASTICSEARCH_HOST=elasticsearch
-      - OPTIMIZE_ELASTICSEARCH_HTTP_PORT=9200
-      - SPRING_PROFILES_ACTIVE=ccsm
-      - CAMUNDA_OPTIMIZE_ZEEBE_ENABLED=true
-      - CAMUNDA_OPTIMIZE_ENTERPRISE=false
-      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_URL=http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
-      - CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_BACKEND_URL=http://keycloak:18080/auth/realms/camunda-platform
-      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTID=optimize
-      - CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET=XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      - CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE=optimize-api
-      - CAMUNDA_OPTIMIZE_IDENTITY_BASE_URL=http://identity:8080/identity
-      - CAMUNDA_OPTIMIZE_SECURITY_AUTH_COOKIE_SAME_SITE_ENABLED=false
-      - CAMUNDA_OPTIMIZE_UI_LOGOUT_HIDDEN=true
-      - management.endpoints.web.exposure.include=health,configprops
-      - MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES=ALWAYS
-      - management.endpoint.health.probes.enabled=true
+      # Elasticsearch connection
+      OPTIMIZE_ELASTICSEARCH_HOST: elasticsearch
+      OPTIMIZE_ELASTICSEARCH_HTTP_PORT: "9200"
+      SPRING_PROFILES_ACTIVE: ccsm
+      # Identity integration - URLs and credentials
+      CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      CAMUNDA_OPTIMIZE_IDENTITY_ISSUER_BACKEND_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
+      CAMUNDA_OPTIMIZE_IDENTITY_CLIENTID: optimize
+      CAMUNDA_OPTIMIZE_IDENTITY_CLIENTSECRET: ${OPTIMIZE_CLIENT_SECRET}
+      CAMUNDA_OPTIMIZE_IDENTITY_AUDIENCE: optimize-api
+      CAMUNDA_OPTIMIZE_IDENTITY_BASE_URL: http://identity:8084
+      # Management endpoints
+      management.endpoints.web.exposure.include: health,configprops
+      MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
+      management.endpoint.health.probes.enabled: "true"
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8090/api/readyz"]
+      test: ["CMD", "curl", "-f", "http://localhost:8090/api/readyz"]
       interval: 30s
-      timeout: 1s
+      timeout: 5s
       retries: 5
       start_period: 30s
     volumes:
@@ -117,8 +118,10 @@ services:
     networks:
       - camunda-platform
     depends_on:
-      - identity
-      - elasticsearch
+      identity:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
 
   identity: # https://docs.camunda.io/docs/self-managed/platform-deployment/docker/#identity
     container_name: identity
@@ -126,47 +129,18 @@ services:
     ports:
       - "8084:8084"
     environment: # https://docs.camunda.io/docs/self-managed/identity/deployment/configuration-variables/
-      SERVER_PORT: 8084
-      IDENTITY_RETRY_DELAY_SECONDS: 30
-      IDENTITY_URL: http://${HOST}:8084
-      KEYCLOAK_URL: http://keycloak:18080/auth
-      IDENTITY_AUTH_PROVIDER_ISSUER_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
-      IDENTITY_AUTH_PROVIDER_BACKEND_URL: http://keycloak:18080/auth/realms/camunda-platform
       IDENTITY_DATABASE_HOST: postgres
       IDENTITY_DATABASE_PORT: 5432
-      IDENTITY_DATABASE_NAME: bitnami_keycloak
-      IDENTITY_DATABASE_USERNAME: bn_keycloak
-      IDENTITY_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
-      KEYCLOAK_INIT_ORCHESTRATION_NAME: Orchestration
-      KEYCLOAK_INIT_ORCHESTRATION_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      KEYCLOAK_INIT_ORCHESTRATION_ROOT_URL: http://${HOST}:8088
-      KEYCLOAK_INIT_OPTIMIZE_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      KEYCLOAK_INIT_OPTIMIZE_ROOT_URL: http://${HOST}:8083
-      KEYCLOAK_INIT_WEBMODELER_ROOT_URL: http://${HOST}:8070
-      KEYCLOAK_INIT_CONNECTORS_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      KEYCLOAK_INIT_CONNECTORS_ROOT_URL: http://${HOST}:8085
-      KEYCLOAK_INIT_CONSOLE_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
-      KEYCLOAK_INIT_CONSOLE_ROOT_URL: http://${HOST}:8087
-      KEYCLOAK_USERS_0_USERNAME: "demo"
-      KEYCLOAK_USERS_0_PASSWORD: "demo"
-      KEYCLOAK_USERS_0_FIRST_NAME: "demo"
-      KEYCLOAK_USERS_0_EMAIL: "demo@acme.com"
-      KEYCLOAK_USERS_0_ROLES_0: "ManagementIdentity"
-      KEYCLOAK_USERS_0_ROLES_1: "Orchestration"
-      KEYCLOAK_USERS_0_ROLES_2: "Optimize"
-      KEYCLOAK_USERS_0_ROLES_3: "Web Modeler"
-      KEYCLOAK_USERS_0_ROLES_4: "Web Modeler Admin"
-      KEYCLOAK_USERS_0_ROLES_5: "Console"
-      KEYCLOAK_CLIENTS_0_NAME: orchestration
-      KEYCLOAK_CLIENTS_0_ID: ${ORCHESTRATION_CLIENT_ID}
-      KEYCLOAK_CLIENTS_0_SECRET: ${ORCHESTRATION_CLIENT_SECRET}
-      KEYCLOAK_CLIENTS_0_TYPE: M2M
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_0_RESOURCE_SERVER_ID: orchestration-api
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_0_DEFINITION: write:*
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_1_RESOURCE_SERVER_ID: orchestration-api
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_1_DEFINITION: read:*
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_2_RESOURCE_SERVER_ID: optimize-api
-      KEYCLOAK_CLIENTS_0_PERMISSIONS_2_DEFINITION: write:*
+      IDENTITY_DATABASE_NAME: ${POSTGRES_DB}
+      IDENTITY_DATABASE_USERNAME: ${POSTGRES_USER}
+      IDENTITY_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      VALUES_KEYCLOAK_INIT_ORCHESTRATION_SECRET: ${ORCHESTRATION_CLIENT_SECRET}
+      VALUES_KEYCLOAK_INIT_CONSOLE_SECRET: ${CONSOLE_CLIENT_SECRET}
+      VALUES_KEYCLOAK_INIT_OPTIMIZE_SECRET: ${OPTIMIZE_CLIENT_SECRET}
+      VALUES_KEYCLOAK_INIT_CONNECTORS_SECRET: ${CONNECTORS_CLIENT_SECRET}
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KEYCLOAK_HOST: ${KEYCLOAK_HOST}
       RESOURCE_PERMISSIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
@@ -180,6 +154,7 @@ services:
     restart: on-failure
     volumes:
       - keycloak-theme:/app/keycloak-theme
+      - "./.identity/application.yaml:/app/application.yaml"
     networks:
       - camunda-platform
       - identity-network
@@ -191,15 +166,16 @@ services:
     container_name: postgres
     image: postgres:${POSTGRES_VERSION}
     environment:
-      POSTGRES_DB: bitnami_keycloak
-      POSTGRES_USER: bn_keycloak
-      POSTGRES_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
+      start_period: 10s
     volumes:
       - postgres:/var/lib/postgresql/data
     networks:
@@ -216,9 +192,9 @@ services:
       KEYCLOAK_HTTP_PORT: 18080
       KEYCLOAK_HTTP_RELATIVE_PATH: /auth
       KEYCLOAK_DATABASE_HOST: postgres
-      KEYCLOAK_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
-      KEYCLOAK_ADMIN_USER: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KEYCLOAK_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
     restart: on-failure
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:18080/auth"]
@@ -230,7 +206,8 @@ services:
       - camunda-platform
       - identity-network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
   elasticsearch: # https://hub.docker.com/_/elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
@@ -249,12 +226,13 @@ services:
       memlock:
         soft: -1
         hard: -1
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green"]
       interval: 30s
       timeout: 5s
-      retries: 3
+      retries: 5
+      start_period: 60s
     volumes:
       - elastic:/usr/share/elasticsearch/data
     networks:
@@ -263,15 +241,17 @@ services:
   web-modeler-db:
     container_name: web-modeler-db
     image: postgres:${POSTGRES_VERSION}
+    restart: on-failure
     healthcheck:
-      test: pg_isready -d web-modeler-db -U web-modeler-db-user
-      interval: 5s
-      timeout: 15s
-      retries: 30
+      test: ["CMD", "pg_isready", "-d", "${WEBMODELER_DB_NAME}", "-U", "${WEBMODELER_DB_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     environment:
-      POSTGRES_DB: web-modeler-db
-      POSTGRES_USER: web-modeler-db-user
-      POSTGRES_PASSWORD: web-modeler-db-password
+      POSTGRES_DB: ${WEBMODELER_DB_NAME}
+      POSTGRES_USER: ${WEBMODELER_DB_USER}
+      POSTGRES_PASSWORD: ${WEBMODELER_DB_PASSWORD}
     networks:
       - web-modeler
     volumes:
@@ -286,57 +266,61 @@ services:
     ports:
       - "1025:1025"
       - "8075:8025"
+    restart: on-failure
     healthcheck:
-      test: /usr/bin/nc -v localhost 1025
+      test: ["CMD", "/usr/bin/nc", "-z", "localhost", "1025"]
       interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks:
       - web-modeler
 
   web-modeler-restapi:
     container_name: web-modeler-restapi
     image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION}
+    restart: on-failure
     depends_on:
       web-modeler-db:
         condition: service_healthy
       mailpit:
-        condition: service_started
+        condition: service_healthy
       identity:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8091/health/readiness"]
-      interval: 5s
-      timeout: 15s
-      retries: 30
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:8091/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
     environment:
       JAVA_OPTIONS: -Xmx512m
       LOGGING_LEVEL_IO_CAMUNDA_MODELER: DEBUG
       CAMUNDA_IDENTITY_BASEURL: http://identity:8084/
-      SPRING_DATASOURCE_URL: jdbc:postgresql://web-modeler-db:5432/web-modeler-db
-      SPRING_DATASOURCE_USERNAME: web-modeler-db-user
-      SPRING_DATASOURCE_PASSWORD: web-modeler-db-password
+      SPRING_DATASOURCE_URL: jdbc:postgresql://web-modeler-db:5432/${WEBMODELER_DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${WEBMODELER_DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${WEBMODELER_DB_PASSWORD}
       SPRING_PROFILES_INCLUDE: default-logging
       RESTAPI_PUSHER_HOST: web-modeler-websockets
       RESTAPI_PUSHER_PORT: "8060"
-      RESTAPI_PUSHER_APP_ID: web-modeler-app
-      RESTAPI_PUSHER_KEY: web-modeler-app-key
-      RESTAPI_PUSHER_SECRET: web-modeler-app-secret
+      RESTAPI_PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
+      RESTAPI_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
+      RESTAPI_PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
       RESTAPI_OAUTH2_TOKEN_ISSUER: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
-      RESTAPI_OAUTH2_TOKEN_ISSUER_BACKEND_URL: http://keycloak:18080/auth/realms/camunda-platform
+      RESTAPI_OAUTH2_TOKEN_ISSUER_BACKEND_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
       RESTAPI_SERVER_URL: http://localhost:8070
       RESTAPI_MAIL_HOST: mailpit
       RESTAPI_MAIL_PORT: 1025
       RESTAPI_MAIL_ENABLE_TLS: "false"
-      RESTAPI_MAIL_FROM_ADDRESS: "noreply@example.com"
+      RESTAPI_MAIL_FROM_ADDRESS: ${WEBMODELER_MAIL_FROM_ADDRESS}
       CAMUNDA_MODELER_CLUSTERS_0_ID: "local-orchestration"
       CAMUNDA_MODELER_CLUSTERS_0_NAME: "Local Orchestration instance"
       CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_VERSION}
       CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://orchestration:26500
       CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://orchestration:8080
       CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
-      CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: NONE
-#       CAMUNDA_MODELER_CLUSTERS_0_OAUTH_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/token
-      CAMUNDA_BASIC_AUTH_USERNAME: demo
-      CAMUNDA_BASIC_AUTH_PASSWORD: demo
+      CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: BEARER_TOKEN
+      CAMUNDA_MODELER_CLUSTERS_0_AUTHORIZATIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
@@ -349,29 +333,31 @@ services:
     image: camunda/web-modeler-webapp:${CAMUNDA_WEB_MODELER_VERSION}
     ports:
       - "8070:8070"
+    restart: on-failure
     depends_on:
       web-modeler-restapi:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8071/health/readiness"]
-      interval: 5s
-      timeout: 15s
-      retries: 30
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:8071/health/readiness"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     environment:
       RESTAPI_HOST: web-modeler-restapi
       SERVER_HTTPS_ONLY: "false"
       SERVER_URL: http://localhost:8070
-      PUSHER_APP_ID: web-modeler-app
-      PUSHER_KEY: web-modeler-app-key
-      PUSHER_SECRET: web-modeler-app-secret
+      PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
+      PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
+      PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
       PUSHER_HOST: web-modeler-websockets
       PUSHER_PORT: "8060"
       CLIENT_PUSHER_HOST: localhost
       CLIENT_PUSHER_PORT: "8060"
       CLIENT_PUSHER_FORCE_TLS: "false"
-      CLIENT_PUSHER_KEY: web-modeler-app-key
+      CLIENT_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
       OAUTH2_CLIENT_ID: web-modeler
-      OAUTH2_JWKS_URL: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+      OAUTH2_JWKS_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
       OAUTH2_TOKEN_AUDIENCE: web-modeler-api
       OAUTH2_TOKEN_ISSUER: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
       IDENTITY_BASE_URL: http://identity:8084/
@@ -385,17 +371,19 @@ services:
     image: camunda/web-modeler-websockets:${CAMUNDA_WEB_MODELER_VERSION}
     ports:
       - "8060:8060"
+    restart: on-failure
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:8060/up"]
-      interval: 5s
-      timeout: 15s
-      retries: 30
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://127.0.0.1:8060/up"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     environment:
       APP_NAME: "Web Modeler Self-Managed WebSockets"
       APP_DEBUG: "true"
-      PUSHER_APP_ID: web-modeler-app
-      PUSHER_APP_KEY: web-modeler-app-key
-      PUSHER_APP_SECRET: web-modeler-app-secret
+      PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
+      PUSHER_APP_KEY: ${WEBMODELER_PUSHER_KEY}
+      PUSHER_APP_SECRET: ${WEBMODELER_PUSHER_SECRET}
     networks:
       - web-modeler
 
@@ -408,7 +396,7 @@ services:
     environment:
       NODE_ENV: production
       KEYCLOAK_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
-      KEYCLOAK_INTERNAL_BASE_URL: http://keycloak:18080/auth
+      KEYCLOAK_INTERNAL_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
       KEYCLOAK_REALM: camunda-platform
       CAMUNDA_IDENTITY_CLIENT_ID: console
       CAMUNDA_IDENTITY_AUDIENCE: console
@@ -435,15 +423,13 @@ volumes:
   elastic:
   postgres:
   keycloak-theme:
-  operate_tmp:
-  tasklist_tmp:
   postgres-web:
 
 networks:
   # Note there are three bridge networks: One for Camunda Platform, one for Identity and one for Web Modeler.
   # Identity and Keycloak are part of the first two as they need to be accessible by platform components.
   # Web Modeler has its own network because it consists of three components that communicate with each other.
-  # It is also part of the canunda-platform network to communicate with the platform components like Orchestration to run
+  # It is also part of the camunda-platform network to communicate with the platform components like Orchestration to run
   # processes or Identity to log in.
   camunda-platform:
   identity-network:
