@@ -8,20 +8,20 @@ test('Tasklist login and dashboard access', async ({ page }) => {
   
   // Wait for page to load and verify login form
   await page.waitForLoadState('networkidle');
-  await expect(page.getByPlaceholder('Username')).toBeVisible();
-  await expect(page.getByPlaceholder('Password')).toBeVisible();
+  await expect(page.getByLabel('Username or email')).toBeVisible();
+  await expect(page.getByLabel('Password')).toBeVisible();
   
   // Perform login
-  await page.getByPlaceholder('Username').fill('demo');
-  await page.getByPlaceholder('Password').fill('demo');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Username or email').fill('demo');
+  await page.getByLabel('Password').fill('demo');
+  await page.getByRole('button', { name: 'Log in' }).click();
   
   // Wait for navigation after login
   await page.waitForLoadState('networkidle');
   
   // Verify successful login by checking URL and absence of login form
   await expect(page).toHaveURL(/.*tasklist(?!.*login).*$/);
-  await expect(page.locator('input[placeholder="Username"]')).not.toBeVisible();
+  await expect(page.locator('input[type="password"]')).not.toBeVisible();
   
   // Verify no login errors
   await expect(page.locator('text=/invalid.*credential|login.*failed|authentication.*error|unauthorized/i')).not.toBeVisible();

@@ -8,13 +8,13 @@ test('Operate login and dashboard access', async ({ page }) => {
   
   // Wait for page to load and verify login form is present
   await page.waitForLoadState('networkidle');
-  await expect(page.getByPlaceholder('Username')).toBeVisible();
-  await expect(page.getByPlaceholder('Password')).toBeVisible();
+  await expect(page.getByLabel('Username or email')).toBeVisible();
+  await expect(page.getByLabel('Password')).toBeVisible();
   
   // Perform login
-  await page.getByPlaceholder('Username').fill('demo');
-  await page.getByPlaceholder('Password').fill('demo');
-  await page.getByRole('button', { name: 'Login' }).click();
+  await page.getByLabel('Username or email').fill('demo');
+  await page.getByLabel('Password').fill('demo');
+  await page.getByRole('button', { name: 'Log in' }).click();
   
   // Wait for navigation after successful login
   await page.waitForLoadState('networkidle');
