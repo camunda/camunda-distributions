@@ -34,7 +34,7 @@ test('Console login and cluster health monitoring', async ({ page }) => {
   // Verify automation components section loads
   await expect(page.locator('h3:has-text("Automation components")')).toBeVisible({ timeout: 30000 });
   
-  // Verify core automation components are healthy
+  // Verify orchestration automation components are healthy
   await expect(page.locator('h6:has-text("Zeebe")')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('h6:has-text("Tasklist")')).toBeVisible({ timeout: 15000 });
   await expect(page.locator('h6:has-text("Operate")')).toBeVisible({ timeout: 15000 });

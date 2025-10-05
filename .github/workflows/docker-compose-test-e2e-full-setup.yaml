@@ -82,12 +82,12 @@ jobs:
           # Camunda Alpha 8.8
           - name: Camunda Alpha 8.8 ⭐
             camunda-version: "8.8"
-            main-compose-args: "-f docker-compose.yaml"
+            main-compose-args: "-f docker-compose-full.yaml"
             e2e-test-enabled: true
             e2e-test-directory: "docker-compose/versions/camunda-8.8/tests"
           - name: Camunda Alpha 8.8 - Identity Disabled
             camunda-version: "8.8"
-            main-compose-args: "-f docker-compose-orchestration.yaml"
+            main-compose-args: "-f docker-compose.yaml"
             e2e-test-enabled: false
           - name: Camunda Alpha 8.8 - Web Modeler Standalone
             camunda-version: "8.8"
