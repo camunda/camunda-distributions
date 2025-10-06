@@ -53,6 +53,8 @@ services:
       - "./.orchestration/application.yaml:/usr/local/camunda/config/application.yaml"
     networks:
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -81,6 +83,8 @@ services:
       - "./.connectors/application.yaml:/app/application.yaml"
     networks:
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       orchestration:
         condition: service_healthy
@@ -117,6 +121,8 @@ services:
     restart: on-failure
     networks:
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       identity:
         condition: service_healthy
@@ -159,6 +165,8 @@ services:
     networks:
       - camunda-platform
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       keycloak:
         condition: service_healthy
@@ -181,6 +189,8 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   keycloak: # https://hub.docker.com/r/bitnamilegacy/keycloak
     container_name: keycloak
@@ -206,6 +216,8 @@ services:
     networks:
       - camunda-platform
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy
@@ -238,6 +250,8 @@ services:
       - elastic:/usr/share/elasticsearch/data
     networks:
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-db:
     container_name: web-modeler-db
@@ -255,6 +269,8 @@ services:
       POSTGRES_PASSWORD: ${WEBMODELER_DB_PASSWORD}
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - postgres-web:/var/lib/postgresql/data
 
@@ -276,6 +292,8 @@ services:
       start_period: 10s
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-restapi:
     container_name: web-modeler-restapi
@@ -328,6 +346,8 @@ services:
     networks:
       - web-modeler
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-webapp:
     container_name: web-modeler-webapp
@@ -366,6 +386,8 @@ services:
     networks:
       - web-modeler
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-websockets:
     container_name: web-modeler-websockets
@@ -387,6 +409,8 @@ services:
       PUSHER_APP_SECRET: ${WEBMODELER_PUSHER_SECRET}
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   console:
     container_name: console
@@ -413,6 +437,8 @@ services:
       - "./.console:/var/run/config"
     networks:
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       identity:
         condition: service_healthy

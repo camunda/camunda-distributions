@@ -21,6 +21,8 @@ services:
       POSTGRES_PASSWORD: ${WEBMODELER_DB_PASSWORD}
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     volumes:
       - postgres-web:/var/lib/postgresql/data
 
@@ -44,6 +46,8 @@ services:
       PUSHER_APP_SECRET: ${WEBMODELER_PUSHER_SECRET}
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   mailpit:
     # If you want to use your own SMTP server, you can remove this container
@@ -63,6 +67,8 @@ services:
       start_period: 10s
     networks:
       - web-modeler
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-restapi:
     container_name: web-modeler-restapi
@@ -107,6 +113,8 @@ services:
     networks:
       - web-modeler
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   web-modeler-webapp:
     container_name: web-modeler-webapp
@@ -145,6 +153,8 @@ services:
     networks:
       - web-modeler
       - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   identity: # https://docs.camunda.io/docs/self-managed/setup/deploy/other/docker/#identity
     container_name: identity
@@ -183,6 +193,8 @@ services:
     networks:
       - camunda-platform
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       keycloak:
         condition: service_healthy
@@ -205,6 +217,8 @@ services:
       - postgres:/var/lib/postgresql/data
     networks:
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   keycloak: # https://hub.docker.com/r/bitnamilegacy/keycloak
     container_name: keycloak
@@ -230,6 +244,8 @@ services:
     networks:
       - camunda-platform
       - identity-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       postgres:
         condition: service_healthy

@@ -69,16 +69,6 @@ jobs:
       #
       # Docker Compose.
 
-      - name: Set environment variables for CI
-        working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
-        run: |
-          # Create .env file with CI-specific values if it doesn't exist
-          if [ ! -f .env ]; then
-            echo "Creating .env file for CI environment"
-          fi
-          # Set HOST and KEYCLOAK_HOST for CI (Linux) environment
-          echo "HOST=localhost" >> .env
-          echo "KEYCLOAK_HOST=keycloak" >> .env
       - name: ⭐ Bring up containers dependencies
         if: inputs.deps-compose-args
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
