@@ -58,7 +58,13 @@
       matchUpdateTypes: ["patch"],
     },
     {
-      groupName: "camunda-docker-compose-alpha-8.8",
+      groupName: "camunda-docker-compose-8.8",
+      addLabels: ["version/8.8", "deps/docker-compose"],
+      matchFileNames: ["docker-compose/versions/camunda-8.8/**"],
+      matchUpdateTypes: ["patch"],
+    },
+    {
+      groupName: "camunda-docker-compose-8.9",
       addLabels: ["version/8.8", "deps/docker-compose"],
       matchFileNames: ["docker-compose/versions/camunda-8.8/**"],
       // Allows only patch and alpha, but no -rc (e.g., 8.7.0, 8.7.0-alpha3, but no 8.7.0-alpha3-rc1).
