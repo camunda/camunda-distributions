@@ -1,0 +1,137 @@
+# While the Docker images themselves are supported for production usage,
+# this docker-compose.yaml is designed to be used by developers to run
+# an environment locally. It is not designed to be used in production.
+# We recommend to use Kubernetes in production with our Helm Charts:
+# https://docs.camunda.io/docs/self-managed/setup/install/
+# For local development, we recommend using KIND instead of `docker-compose`:
+# https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
+
+# This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist), Connectors, and Elasticsearch
+# See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, Web Modeler, and Console.
+services:
+  orchestration: # Consolidated Zeebe + Operate + Tasklist - https://docs.camunda.io/docs/self-managed/setup/deploy/other/docker/#zeebe
+    image: camunda/camunda:${CAMUNDA_VERSION}
+    container_name: orchestration
+    ports:
+      - "26500:26500"
+      - "9600:9600"
+      - "8088:8080"
+    environment:
+      - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
+    mem_limit: 1g
+    restart: always
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9600 && echo -e \"GET /actuator/health/status HTTP/1.1\r\nHost: localhost\r\n\r\n\" >&3 && head -n 1 <&3'"]
+      interval: 1s
+      retries: 30
+      start_period: 30s
+    volumes:
+      - zeebe:/usr/local/zeebe/data
+    configs:
+      - source: orchestration-config
+        target: /usr/local/camunda/config/application.yaml
+    networks:
+      - camunda
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # Camunda Connectors - executes outbound and inbound connector logic
+  # Docs: https://docs.camunda.io/docs/self-managed/connectors-deployment/connectors-configuration/
+  connectors:
+    image: camunda/connectors:${CAMUNDA_CONNECTORS_VERSION}
+    container_name: connectors
+    ports:
+      - "8086:8080"
+    environment:
+      - management.endpoints.web.exposure.include=health,configprops
+      - management.endpoint.health.probes.enabled=true
+    env_file: connector-secrets.txt
+    mem_limit: 512m
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness"]
+      interval: 30s
+      timeout: 1s
+      retries: 5
+      start_period: 30s
+    configs:
+      - source: connectors-config
+        target: application.yaml
+    networks:
+      - camunda
+    depends_on:
+      orchestration:
+        # Wait for orchestration service to be healthy, otherwise we get a lot of noisy logs from connection errors
+        condition: service_healthy
+
+  elasticsearch: # https://hub.docker.com/_/elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # allow running with low disk space
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      # Disable noisy deprecation logs, see https://github.com/camunda/camunda/issues/26285
+      - logger.org.elasticsearch.deprecation="OFF"
+    mem_limit: 1g
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
+      interval: 1s
+      retries: 30
+      start_period: 30s
+      timeout: 1s
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+    networks:
+      - camunda
+
+volumes:
+  zeebe:
+  elastic:
+
+networks:
+  camunda:
+
+configs:
+  connectors-config:
+    content: |
+      camunda:
+        client:
+          mode: self-managed
+          grpc-address: http://orchestration:26500
+          rest-address: http://orchestration:8080
+
+  orchestration-config:
+    content: |
+      management.endpoints.configprops.show-values: always
+      camunda:
+        system:
+          cpu-thread-count: "3"
+          io-thread-count: "3"
+        security:
+          authentication:
+            method: "basic"
+            unprotectedApi: true
+          authorizations:
+            enabled: false
+          initialization:
+            users:
+              - username: "demo"
+                password: "demo"
+                name: "Demo User"
+                email: "demo@demo.com"
+            defaultRoles.admin.users:
+              - "demo"
+        database.index.numberOfReplicas: 0 # Single node elasticsearch so we disable replication
+        data:
+          secondary-storage:
+            type: elasticsearch
+            elasticsearch:
+              cluster-name: elasticsearch
+              url: "http://elasticsearch:9200"
