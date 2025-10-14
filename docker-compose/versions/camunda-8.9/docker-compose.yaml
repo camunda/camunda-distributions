@@ -39,7 +39,7 @@ services:
   # Camunda Connectors - executes outbound and inbound connector logic
   # Docs: https://docs.camunda.io/docs/self-managed/connectors-deployment/connectors-configuration/
   connectors:
-    image: camunda/connectors:${CAMUNDA_CONNECTORS_VERSION}
+    image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
     container_name: connectors
     ports:
       - "8086:8080"
