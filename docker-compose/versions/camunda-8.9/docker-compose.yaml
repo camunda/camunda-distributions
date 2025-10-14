@@ -106,6 +106,10 @@ configs:
           mode: self-managed
           grpc-address: http://orchestration:26500
           rest-address: http://orchestration:8080
+        connectors:
+          secretprovider:
+            environment:
+              prefix: "CONNECTORS_SECRET"
 
   orchestration-config:
     content: |
