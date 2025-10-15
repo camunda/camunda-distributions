@@ -100,9 +100,6 @@ camunda:
           clients:
             - connectors
 
-  #
-  # Camunda Data Configuration.
-  #
   database:
     index:
       numberOfReplicas: 0
@@ -112,80 +109,12 @@ camunda:
       elasticsearch:
         url: "http://elasticsearch:9200"
 
-  #
-  # Camunda Operate Configuration.
-  #
   operate:
     persistentSessionsEnabled: true
     identity:
       redirectRootUrl: "http://localhost:8088/operate"
 
-    # ELS instance to store Operate data
-    elasticsearch:
-      # Operate index prefix.
-      # Cluster name
-      clusterName: elasticsearch
-      # Host
-      host: elasticsearch
-      # Transport port
-      port: 9200
-      # Elasticsearch full url
-      url: "http://elasticsearch:9200"
-    # ELS instance to export Zeebe data to
-    zeebeElasticsearch:
-      # Cluster name
-      clusterName: elasticsearch
-      # Host
-      host: elasticsearch
-      # Transport port
-      port: 9200
-      # Index prefix, configured in Zeebe Elasticsearch exporter
-      prefix: "zeebe-record"
-      # Elasticsearch full url
-      url: "http://elasticsearch:9200"
-    # Zeebe instance
-    zeebe:
-      # Gateway address
-      gatewayAddress: "zeebe:26500"
-
-  #
-  # Camunda Tasklist Configuration.
-  #
   tasklist:
     identity:
       redirectRootUrl: "http://localhost:8088/tasklist"
-
-    # Set Tasklist username and password.
-    # If user with <username> does not exists it will be created.
-    # Default: demo/demo
-    #username:
-    #password:
-    # ELS instance to store Tasklist data
-    elasticsearch:
-      # Tasklist index prefix.
-      # Cluster name
-      clusterName: elasticsearch
-      # Host
-      host: elasticsearch
-      # Transport port
-      port: 9200
-      # Elasticsearch full url
-      url: "http://elasticsearch:9200"
-    # ELS instance to export Zeebe data to
-    zeebeElasticsearch:
-      # Cluster name
-      clusterName: elasticsearch
-      # Host
-      host: elasticsearch
-      # Transport port
-      port: 9200
-      # Index prefix, configured in Zeebe Elasticsearch exporter
-      prefix: "zeebe-record"
-      # Elasticsearch full url
-      url: "http://elasticsearch:9200"
-    # Zeebe instance
-    zeebe:
-      # Gateway address
-      gatewayAddress: zeebe:26500
-      restAddress: "http://zeebe:8080"
 
