@@ -16,8 +16,6 @@ services:
       - "26500:26500"
       - "9600:9600"
       - "8088:8080"
-    environment:
-      - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9600 && echo -e \"GET /actuator/health/status HTTP/1.1\r\nHost: localhost\r\n\r\n\" >&3 && head -n 1 <&3'"]
