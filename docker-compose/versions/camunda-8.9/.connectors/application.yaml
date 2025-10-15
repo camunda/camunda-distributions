@@ -8,6 +8,10 @@ camunda:
       method: oidc
       credentialsCachePath: /tmp/orchestration_auth_cache
       audience: orchestration-api
+  connectors:
+    secretprovider:
+      environment:
+        prefix: "CONNECTORS_SECRET"
 
 management:
   endpoints:
