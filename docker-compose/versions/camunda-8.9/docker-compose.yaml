@@ -18,7 +18,6 @@ services:
       - "8088:8080"
     environment:
       - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
-    mem_limit: 1g
     restart: always
     healthcheck:
       test: ["CMD-SHELL", "bash -c 'exec 3<>/dev/tcp/127.0.0.1/9600 && echo -e \"GET /actuator/health/status HTTP/1.1\r\nHost: localhost\r\n\r\n\" >&3 && head -n 1 <&3'"]
@@ -49,7 +48,6 @@ services:
       - management.endpoints.web.exposure.include=health,configprops
       - management.endpoint.health.probes.enabled=true
     env_file: connector-secrets.txt
-    mem_limit: 512m
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness"]
@@ -81,7 +79,6 @@ services:
       - cluster.routing.allocation.disk.threshold_enabled=false
       # Disable noisy deprecation logs, see https://github.com/camunda/camunda/issues/26285
       - logger.org.elasticsearch.deprecation="OFF"
-    mem_limit: 1g
     restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
