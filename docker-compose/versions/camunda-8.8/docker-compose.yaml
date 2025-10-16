@@ -22,7 +22,7 @@ services:
       interval: 1s
       retries: 30
       start_period: 30s
-    mem_limit: 3g
+    mem_limit: 1g
     volumes:
       - zeebe:/usr/local/zeebe/data
     configs:
@@ -39,7 +39,7 @@ services:
   connectors:
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
     container_name: connectors
-    mem_limit: 2g
+    mem_limit: 512m
     ports:
       - "8086:8080"
     environment:
@@ -66,7 +66,7 @@ services:
   elasticsearch: # https://hub.docker.com/_/elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
     container_name: elasticsearch
-    mem_limit: 2g
+    mem_limit: 1g
     ports:
       - "9200:9200"
       - "9300:9300"
