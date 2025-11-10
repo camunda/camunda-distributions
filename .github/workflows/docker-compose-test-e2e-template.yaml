@@ -105,7 +105,7 @@ jobs:
           npx playwright test ${{ inputs.e2e-test-args }}
       - name: Upload Playwright reports
         if: always() && steps.test.conclusion != 'skipped'
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@330a01c490aca151604b8cf639adc76d48f6c5d4 # v5
         with:
           name: docker-compose-playwright-report-${{ inputs.camunda-version }}-${{ steps.test.conclusion }}-${{ github.run_id }}
           path: ${{ inputs.e2e-test-directory }}/playwright-report/
