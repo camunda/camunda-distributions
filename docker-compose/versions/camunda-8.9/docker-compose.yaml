@@ -49,12 +49,6 @@ services:
     env_file: connector-secrets.txt
     mem_limit: 512m
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health/readiness"]
-      interval: 30s
-      timeout: 1s
-      retries: 5
-      start_period: 30s
     configs:
       - source: connectors-config
         target: application.yaml
