@@ -73,12 +73,6 @@ services:
       CAMUNDA_CLIENT_AUTH_CLIENTSECRET: ${CONNECTORS_CLIENT_SECRET}
     env_file: connector-secrets.txt
     restart: on-failure
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health/readiness"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
     volumes:
       - "./.connectors/application.yaml:/app/application.yaml"
     networks:
