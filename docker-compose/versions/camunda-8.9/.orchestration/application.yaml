@@ -103,14 +103,12 @@ camunda:
   #
   # Camunda Data Configuration.
   #
-  database:
-    index:
-      numberOfReplicas: 0
   data:
     secondary-storage:
       type: elasticsearch
       elasticsearch:
         url: "http://elasticsearch:9200"
+        number-of-replicas: 0
 
   #
   # Camunda Operate Configuration.
