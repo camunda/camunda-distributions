@@ -292,6 +292,8 @@ services:
   web-modeler-restapi:
     container_name: web-modeler-restapi
     image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION}
+    ports:
+      - "8081:8081"
     restart: on-failure
     depends_on:
       web-modeler-db:
@@ -337,6 +339,8 @@ services:
       management.endpoints.web.exposure.include: health,configprops
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
+      CAMUNDA_MODELER_CORS_INTERNAL_API_ENABLED: true
+      CAMUNDA_MODELER_CORS_INTERNAL_API_ALLOWED_ORIGINS: http://localhost:8070
     networks:
       - web-modeler
       - camunda-platform
@@ -360,6 +364,7 @@ services:
       start_period: 30s
     environment:
       RESTAPI_HOST: web-modeler-restapi
+      RESTAPI_PUBLIC_URL: http://localhost:8081
       SERVER_HTTPS_ONLY: "false"
       SERVER_URL: http://localhost:8070
       PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
