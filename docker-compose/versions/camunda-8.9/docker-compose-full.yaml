@@ -17,7 +17,7 @@ services:
     ports:
       - "26500:26500"
       - "9600:9600"
-      - "8088:8080"
+      - "8080:8080"
     environment: # https://docs.camunda.io/docs/self-managed/zeebe-deployment/configuration/environment-variables/
       # OIDC Authentication - Environment-specific URLs and secrets
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTID: ${ORCHESTRATION_CLIENT_ID}
@@ -28,7 +28,7 @@ services:
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_AUTHORIZATIONURI: http://${HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/auth
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_TOKENURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/token
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_JWKSETURI: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
-      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI: http://${HOST}:8088/sso-callback
+      CAMUNDA_SECURITY_AUTHENTICATION_OIDC_REDIRECTURI: http://${HOST}:8080/sso-callback
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_USERNAMECLAIM: preferred_username
       CAMUNDA_SECURITY_AUTHENTICATION_OIDC_CLIENTIDCLAIM: client_id
       ZEEBE_BROKER_GATEWAY_SECURITY_AUTHENTICATION_IDENTITY_ISSUERBACKENDURL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
@@ -331,7 +331,7 @@ services:
       CAMUNDA_MODELER_CLUSTERS_0_VERSION: ${CAMUNDA_VERSION}
       CAMUNDA_MODELER_CLUSTERS_0_URL_GRPC: grpc://orchestration:26500
       CAMUNDA_MODELER_CLUSTERS_0_URL_REST: http://orchestration:8080
-      CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
+      CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8080
       CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: BEARER_TOKEN
       CAMUNDA_MODELER_CLUSTERS_0_AUTHORIZATIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
       management.endpoints.web.exposure.include: health,configprops

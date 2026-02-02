@@ -4,7 +4,7 @@ test('Operate login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
   // Navigate to Operate
-  await page.goto('http://localhost:8088/operate');
+  await page.goto('http://localhost:8080/operate');
 
   // Wait for page to load and verify login form is present
   await page.waitForLoadState('networkidle');
