@@ -4,7 +4,7 @@ test('Tasklist login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
   // Navigate to Tasklist
-  await page.goto('http://localhost:8088/tasklist');
+  await page.goto('http://localhost:8080/tasklist');
 
   // Wait for page to load and verify login form
   await page.waitForLoadState('networkidle');

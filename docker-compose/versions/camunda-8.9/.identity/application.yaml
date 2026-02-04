@@ -62,7 +62,7 @@ identity:
           id: orchestration
           type: confidential
           secret: ${VALUES_KEYCLOAK_INIT_ORCHESTRATION_SECRET:secret}
-          root-url: "http://localhost:8088"
+          root-url: "http://localhost:8080"
           redirect-uris:
             - "/sso-callback"
       apis:
