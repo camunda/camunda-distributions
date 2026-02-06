@@ -73,6 +73,9 @@ zeebe:
           createSchema: true
 
 camunda:
+  backup:
+    webapps:
+      enabled: false
   persistent:
     sessions:
       enabled: true
@@ -105,10 +108,13 @@ camunda:
   #
   data:
     secondary-storage:
-      type: elasticsearch
-      elasticsearch:
-        url: "http://elasticsearch:9200"
-        number-of-replicas: 0
+      type: rdbms
+      rdbms:
+        url: jdbc:h2:file:./camunda-data/h2db
+        username: sa
+        password:
+        flushInterval: PT0.5S
+        queueSize: 1000
 
   #
   # Camunda Operate Configuration.
@@ -186,4 +192,3 @@ camunda:
       # Gateway address
       gatewayAddress: zeebe:26500
       restAddress: "http://zeebe:8080"
-
