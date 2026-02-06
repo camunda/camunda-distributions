@@ -18,6 +18,12 @@ services:
       - "8080:8080"
     environment:
       - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
+      - CAMUNDA_DATA_SECONDARY_STORAGE_TYPE=rdbms
+      - CAMUNDA_DATA_SECONDARY_STORAGE_RDBMS_URL=jdbc:h2:file:./camunda-data/h2db
+      - CAMUNDA_DATA_SECONDARY_STORAGE_RDBMS_USERNAME=sa
+      - CAMUNDA_DATA_SECONDARY_STORAGE_RDBMS_PASSWORD=
+      - CAMUNDA_DATA_SECONDARY_STORAGE_RDBMS_FLUSHINTERVAL=PT0.5S
+      - CAMUNDA_DATA_SECONDARY_STORAGE_RDBMS_QUEUESIZE=1000
     mem_limit: 1g
     restart: always
     healthcheck:
@@ -109,6 +115,9 @@ configs:
     content: |
       management.endpoints.configprops.show-values: always
       camunda:
+        backup:
+          webapps:
+            enabled: false
         system:
           cpu-thread-count: "3"
           io-thread-count: "3"
@@ -129,7 +138,10 @@ configs:
         database.index.numberOfReplicas: 0 # Single node elasticsearch so we disable replication
         data:
           secondary-storage:
-            type: elasticsearch
-            elasticsearch:
-              cluster-name: elasticsearch
-              url: "http://elasticsearch:9200"
+            type: rdbms
+            rdbms:
+              url: jdbc:h2:file:./camunda-data/h2db
+              username: sa
+              password:
+              flushInterval: PT0.5S
+              queueSize: 1000
