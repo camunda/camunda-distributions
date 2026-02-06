@@ -120,6 +120,17 @@ identity:
               description: "Write permission"
             - definition: admin:*
               description: "Admin permission"
+        - name: Web Modeler API
+          audience: "web-modeler-public-api"
+          permissions:
+            - definition: create:*
+              description: "Allows create access for all resources"
+            - definition: read:*
+              description: "Allows read access to all resources"
+            - definition: update:*
+              description: "Allows update access to all resources"
+            - definition: delete:*
+              description: "Allows delete access for all resources"
       roles:
         - name: "Web Modeler"
           description: "Grants full access to Web Modeler"
