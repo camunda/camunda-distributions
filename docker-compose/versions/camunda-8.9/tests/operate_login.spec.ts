@@ -4,7 +4,22 @@ test('Operate login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
   // Navigate to Operate (will redirect through Identity / Keycloak)
-  await page.goto('http://localhost:8088/operate');
+  // Compose startup can take a few seconds, so retry the navigation if the port isn't ready yet.
+  const targetUrl = 'http://localhost:8088/operate';
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 5; attempt += 1) {
+    try {
+      await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
+      lastError = undefined;
+      break;
+    } catch (error) {
+      lastError = error;
+      await page.waitForTimeout(2000);
+    }
+  }
+  if (lastError) {
+    throw lastError;
+  }
 
   // Keycloak page shows either "Username or email" or "Username"
   const usernameField = page.locator('input[name="username"], input[name="email"], input[id="username"], input[label="Username or email"]');
