@@ -33,6 +33,7 @@ services:
       start_period: 30s
     volumes:
       - zeebe:/usr/local/zeebe/data
+      - ./camunda-data:/usr/local/camunda/camunda-data
     configs:
       - source: orchestration-config
         target: /usr/local/camunda/config/application.yaml
@@ -115,6 +116,8 @@ configs:
     content: |
       management.endpoints.configprops.show-values: always
       camunda:
+        database:
+          type: rdbms
         backup:
           webapps:
             enabled: false
@@ -145,3 +148,7 @@ configs:
               password:
               flushInterval: PT0.5S
               queueSize: 1000
+        operate:
+          database: rdbms
+        tasklist:
+          database: rdbms

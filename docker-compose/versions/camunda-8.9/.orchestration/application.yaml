@@ -64,21 +64,16 @@ zeebe:
             size: 1
           index:
             prefix: "zeebe-record"
-      CamundaExporter:
-        className: "io.camunda.exporter.CamundaExporter"
-        args:
-          connect:
-            type: elasticsearch
-            url: "http://elasticsearch:9200"
-          createSchema: true
 
 camunda:
+  database:
+    type: rdbms
   backup:
     webapps:
       enabled: false
   persistent:
     sessions:
-      enabled: true
+      enabled: false
 
   rest:
     query:
@@ -120,7 +115,8 @@ camunda:
   # Camunda Operate Configuration.
   #
   operate:
-    persistentSessionsEnabled: true
+    database: rdbms
+    persistentSessionsEnabled: false
     identity:
       redirectRootUrl: "http://localhost:8080/operate"
 
@@ -156,6 +152,7 @@ camunda:
   # Camunda Tasklist Configuration.
   #
   tasklist:
+    database: rdbms
     identity:
       redirectRootUrl: "http://localhost:8080/tasklist"
 
