@@ -3,61 +3,22 @@ import { test, expect } from '@playwright/test';
 test('Operate login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
-  // Wait until Operate publishes a healthy readiness endpoint before hitting the UI.
-  const readinessUrl = 'http://localhost:9600/actuator/health/readiness';
-  const operateUrl = 'http://localhost:8088/operate';
-  const readinessTimeoutMs = 120_000;
-  const pollIntervalMs = 2_000;
-  const start = Date.now();
-  while (true) {
-    try {
-      const response = await page.request.get(readinessUrl);
-      if (response.ok()) {
-        break;
-      }
-    } catch {
-      // ignore errors while the service starts
-    }
-    if (Date.now() - start > readinessTimeoutMs) {
-      throw new Error(`Timed out waiting for Operate readiness at ${readinessUrl}`);
-    }
-    await page.waitForTimeout(pollIntervalMs);
-  }
+  // Navigate to Operate (OIDC flow will redirect through Keycloak)
+  await page.goto('http://localhost:8080/operate');
 
-  // Ensure the Operate web port is accepting connections before using the browser.
-  const portStart = Date.now();
-  while (true) {
-    try {
-      const response = await page.request.get(operateUrl, { maxRedirects: 0 });
-      if (response.status() < 500) {
-        break;
-      }
-    } catch {
-      // ignore until the port opens
-    }
-    if (Date.now() - portStart > readinessTimeoutMs) {
-      throw new Error(`Timed out waiting for Operate web port at ${operateUrl}`);
-    }
-    await page.waitForTimeout(pollIntervalMs);
-  }
-
-  // Navigate to Operate (will redirect through Identity / Keycloak)
-  await page.goto(operateUrl);
-
-  // Keycloak page shows either "Username or email" or "Username"
+  // Identity login page shows either "Username" or "Username or email"
   const usernameField = page.locator('input[name="username"], input[name="email"], input[id="username"], input[label="Username or email"]');
   await usernameField.first().waitFor({ state: 'visible' });
   const passwordField = page.locator('input[type="password"]');
   await passwordField.first().waitFor({ state: 'visible' });
 
-  // Perform login
   await usernameField.first().fill('demo');
   await passwordField.first().fill('demo');
   await page.getByRole('button', { name: /sign in|log in/i }).click();
 
-  // Wait for navigation after successful login
+  // Wait for navigation after successful login back to Operate
   await page.waitForLoadState('load');
-  await page.waitForURL(/http:\/\/localhost:8088\/operate(?!.*login).*$/);
+  await page.waitForURL(/http:\/\/localhost:8080\/operate(?!.*login).*$/);
 
   // Verify successful login by checking URL change and absence of login form
   await expect(page).toHaveURL(/.*operate(?!.*login).*$/);
