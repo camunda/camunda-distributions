@@ -18,6 +18,8 @@ playwright/.cache/
 .env.development.local
 .env.test.local
 .env.production.local
+docker-compose/versions/*/driver-lib/*
+!docker-compose/versions/*/driver-lib/.gitkeep
 
 # Logs
 logs/
