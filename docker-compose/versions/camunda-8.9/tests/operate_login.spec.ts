@@ -3,23 +3,29 @@ import { test, expect } from '@playwright/test';
 test('Operate login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
-  // Navigate to Operate (will redirect through Identity / Keycloak)
-  // Compose startup can take a few seconds, so retry the navigation if the port isn't ready yet.
-  const targetUrl = 'http://localhost:8088/operate';
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 5; attempt += 1) {
+  // Wait until Operate publishes a healthy readiness endpoint before hitting the UI.
+  const readinessUrl = 'http://localhost:9600/actuator/health/readiness';
+  const operateUrl = 'http://localhost:8088/operate';
+  const readinessTimeoutMs = 120_000;
+  const pollIntervalMs = 2_000;
+  const start = Date.now();
+  while (true) {
     try {
-      await page.goto(targetUrl, { waitUntil: 'domcontentloaded' });
-      lastError = undefined;
-      break;
-    } catch (error) {
-      lastError = error;
-      await page.waitForTimeout(2000);
+      const response = await page.request.get(readinessUrl);
+      if (response.ok()) {
+        break;
+      }
+    } catch {
+      // ignore errors while the service starts
     }
+    if (Date.now() - start > readinessTimeoutMs) {
+      throw new Error(`Timed out waiting for Operate readiness at ${readinessUrl}`);
+    }
+    await page.waitForTimeout(pollIntervalMs);
   }
-  if (lastError) {
-    throw lastError;
-  }
+
+  // Navigate to Operate (will redirect through Identity / Keycloak)
+  await page.goto(operateUrl);
 
   // Keycloak page shows either "Username or email" or "Username"
   const usernameField = page.locator('input[name="username"], input[name="email"], input[id="username"], input[label="Username or email"]');
