@@ -24,6 +24,23 @@ test('Operate login and dashboard access', async ({ page }) => {
     await page.waitForTimeout(pollIntervalMs);
   }
 
+  // Ensure the Operate web port is accepting connections before using the browser.
+  const portStart = Date.now();
+  while (true) {
+    try {
+      const response = await page.request.get(operateUrl, { maxRedirects: 0 });
+      if (response.status() < 500) {
+        break;
+      }
+    } catch {
+      // ignore until the port opens
+    }
+    if (Date.now() - portStart > readinessTimeoutMs) {
+      throw new Error(`Timed out waiting for Operate web port at ${operateUrl}`);
+    }
+    await page.waitForTimeout(pollIntervalMs);
+  }
+
   // Navigate to Operate (will redirect through Identity / Keycloak)
   await page.goto(operateUrl);
 

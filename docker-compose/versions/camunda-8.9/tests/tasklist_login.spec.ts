@@ -24,6 +24,22 @@ test('Tasklist login and dashboard access', async ({ page }) => {
     await page.waitForTimeout(pollIntervalMs);
   }
 
+  const portStart = Date.now();
+  while (true) {
+    try {
+      const response = await page.request.get(tasklistUrl, { maxRedirects: 0 });
+      if (response.status() < 500) {
+        break;
+      }
+    } catch {
+      // ignore until the port opens
+    }
+    if (Date.now() - portStart > readinessTimeoutMs) {
+      throw new Error(`Timed out waiting for Tasklist web port at ${tasklistUrl}`);
+    }
+    await page.waitForTimeout(pollIntervalMs);
+  }
+
   await page.goto(tasklistUrl);
 
   // Wait for page to load and verify login form
