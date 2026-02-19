@@ -43,3 +43,7 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+
+# Local H2 database files used by docker-compose v8.9
+docker-compose/versions/camunda-8.9/camunda-data/*
+!docker-compose/versions/camunda-8.9/camunda-data/.gitkeep

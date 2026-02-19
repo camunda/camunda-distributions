@@ -50,6 +50,7 @@ services:
       start_period: 30s
     volumes:
       - orchestration:/usr/local/zeebe/data
+      - ./camunda-data:/usr/local/camunda/camunda-data
       - "./.orchestration/application.yaml:/usr/local/camunda/config/application.yaml"
     networks:
       - camunda-platform
