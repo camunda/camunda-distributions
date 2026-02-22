@@ -340,7 +340,7 @@ services:
       CAMUNDA_MODELER_CLUSTERS_0_URL_WEBAPP: http://localhost:8088
       CAMUNDA_MODELER_CLUSTERS_0_AUTHENTICATION: BEARER_TOKEN
       CAMUNDA_MODELER_CLUSTERS_0_AUTHORIZATIONS_ENABLED: ${RESOURCE_AUTHORIZATIONS_ENABLED}
-      management.endpoints.web.exposure.include: health,configprops
+      management.endpoints.web.exposure.include: health,configprops,info
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
     networks:
