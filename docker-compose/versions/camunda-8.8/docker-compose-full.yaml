@@ -111,7 +111,7 @@ services:
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
       management.endpoint.health.probes.enabled: "true"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/api/readyz"]
+      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:8090/api/readyz"]
       interval: 30s
       timeout: 5s
       retries: 5
