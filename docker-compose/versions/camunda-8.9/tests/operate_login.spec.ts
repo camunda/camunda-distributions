@@ -3,21 +3,22 @@ import { test, expect } from '@playwright/test';
 test('Operate login and dashboard access', async ({ page }) => {
   test.setTimeout(120000);
 
-  // Navigate to Operate
+  // Navigate to Operate (OIDC flow will redirect through Keycloak)
   await page.goto('http://localhost:8080/operate');
 
-  // Wait for page to load and verify login form is present
-  await page.waitForLoadState('networkidle');
-  await expect(page.getByLabel('Username or email')).toBeVisible();
-  await expect(page.getByLabel('Password')).toBeVisible();
+  // Identity login page shows either "Username" or "Username or email"
+  const usernameField = page.locator('input[name="username"], input[name="email"], input[id="username"], input[label="Username or email"]');
+  await usernameField.first().waitFor({ state: 'visible' });
+  const passwordField = page.locator('input[type="password"]');
+  await passwordField.first().waitFor({ state: 'visible' });
 
-  // Perform login
-  await page.getByLabel('Username or email').fill('demo');
-  await page.getByLabel('Password').fill('demo');
-  await page.getByRole('button', { name: 'Log in' }).click();
+  await usernameField.first().fill('demo');
+  await passwordField.first().fill('demo');
+  await page.getByRole('button', { name: /sign in|log in/i }).click();
 
-  // Wait for navigation after successful login
-  await page.waitForLoadState('networkidle');
+  // Wait for navigation after successful login back to Operate
+  await page.waitForLoadState('load');
+  await page.waitForURL(/http:\/\/localhost:8080\/operate(?!.*login).*$/);
 
   // Verify successful login by checking URL change and absence of login form
   await expect(page).toHaveURL(/.*operate(?!.*login).*$/);
