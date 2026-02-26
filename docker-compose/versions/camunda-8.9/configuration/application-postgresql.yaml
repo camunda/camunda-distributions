@@ -20,7 +20,6 @@ camunda:
           email: "demo@demo.com"
       defaultRoles.admin.users:
         - "demo"
-  database.index.numberOfReplicas: 0
   data:
     secondary-storage:
       type: rdbms
