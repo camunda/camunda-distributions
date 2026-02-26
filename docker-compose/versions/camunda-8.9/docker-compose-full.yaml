@@ -294,7 +294,7 @@ services:
     container_name: web-modeler-restapi
     image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION}
     ports:
-      - "8081:8081"
+      - "8070:8081"
     restart: on-failure
     depends_on:
       web-modeler-db:
@@ -340,48 +340,12 @@ services:
       management.endpoints.web.exposure.include: health,configprops,info
       management.endpoint.health.probes.enabled: true
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
-      CAMUNDA_MODELER_CORS_INTERNAL_API_ENABLED: true
-      CAMUNDA_MODELER_CORS_INTERNAL_API_ALLOWED_ORIGINS: http://localhost:8070
-    networks:
-      - web-modeler
-      - camunda-platform
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  web-modeler-webapp:
-    container_name: web-modeler-webapp
-    image: camunda/web-modeler-webapp:${CAMUNDA_WEB_MODELER_VERSION}
-    ports:
-      - "8070:8070"
-    restart: on-failure
-    depends_on:
-      web-modeler-restapi:
-        condition: service_healthy
-    healthcheck:
-      test: [ "CMD", "wget", "-O-", "--no-verbose", "--tries=1", "http://localhost:8071/health/readiness" ]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    environment:
-      RESTAPI_HOST: web-modeler-restapi
-      RESTAPI_PUBLIC_URL: http://localhost:8081
+      CAMUNDA_MODELER_SECURITY_JWT_AUDIENCE_INTERNAL_API: web-modeler-api
       SERVER_HTTPS_ONLY: "false"
-      SERVER_URL: http://localhost:8070
-      PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
-      PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
-      PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
-      PUSHER_HOST: web-modeler-websockets
-      PUSHER_PORT: "8060"
       CLIENT_PUSHER_HOST: localhost
       CLIENT_PUSHER_PORT: "8060"
       CLIENT_PUSHER_FORCE_TLS: "false"
-      CLIENT_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
       OAUTH2_CLIENT_ID: web-modeler
-      OAUTH2_JWKS_URL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
-      OAUTH2_TOKEN_AUDIENCE: web-modeler-api
-      OAUTH2_TOKEN_ISSUER: http://${HOST}:18080/auth/realms/camunda-platform
-      IDENTITY_BASE_URL: http://identity:8084/
       PLAY_ENABLED: "true"
     networks:
       - web-modeler
