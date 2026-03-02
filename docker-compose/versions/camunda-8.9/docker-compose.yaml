@@ -9,6 +9,14 @@
 # This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist), Connectors, and Elasticsearch
 # See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, Web Modeler, and Console.
 services:
+  camunda-data-init:
+    image: camunda/camunda:${CAMUNDA_VERSION}
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c", "chown -R 1001:1001 /usr/local/camunda/camunda-data && chmod 775 /usr/local/camunda/camunda-data"]
+    volumes:
+      - camunda-data:/usr/local/camunda/camunda-data
+    restart: "no"
+
   orchestration: # Consolidated Zeebe + Operate + Tasklist - https://docs.camunda.io/docs/self-managed/setup/deploy/other/docker/#zeebe
     image: camunda/camunda:${CAMUNDA_VERSION}
     container_name: orchestration
@@ -35,6 +43,8 @@ services:
     networks:
       - camunda
     depends_on:
+      camunda-data-init:
+        condition: service_completed_successfully
       elasticsearch:
         condition: service_healthy
 
