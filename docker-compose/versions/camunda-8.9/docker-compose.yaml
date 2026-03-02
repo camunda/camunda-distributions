@@ -27,7 +27,7 @@ services:
       start_period: 30s
     volumes:
       - zeebe:/usr/local/zeebe/data
-      - ./camunda-data:/usr/local/camunda/camunda-data
+      - camunda-data:/usr/local/camunda/camunda-data
       - ./driver-lib:/driver-lib:ro
     configs:
       - source: orchestration-config
@@ -90,6 +90,7 @@ services:
 volumes:
   zeebe:
   elastic:
+  camunda-data:
 
 networks:
   camunda:
