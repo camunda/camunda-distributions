@@ -10,6 +10,13 @@
 # See docker-compose.yaml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
+  camunda-data-init:
+    image: camunda/camunda:${CAMUNDA_VERSION}
+    user: "0:0"
+    entrypoint: ["/bin/sh", "-c", "chown -R 1001:1001 /usr/local/camunda/camunda-data && chmod 775 /usr/local/camunda/camunda-data"]
+    volumes:
+      - camunda-data:/usr/local/camunda/camunda-data
+    restart: "no"
 
   orchestration: # Consolidated Zeebe + Operate + Tasklist - https://docs.camunda.io/docs/self-managed/setup/deploy/other/docker/#zeebe
     image: camunda/camunda:${CAMUNDA_VERSION}
@@ -50,13 +57,15 @@ services:
       start_period: 30s
     volumes:
       - orchestration:/usr/local/zeebe/data
-      - ./camunda-data:/usr/local/camunda/camunda-data
+      - camunda-data:/usr/local/camunda/camunda-data
       - "./.orchestration/application.yaml:/usr/local/camunda/config/application.yaml"
     networks:
       - camunda-platform
     extra_hosts:
       - "host.docker.internal:host-gateway"
     depends_on:
+      camunda-data-init:
+        condition: service_completed_successfully
       elasticsearch:
         condition: service_healthy
 
@@ -448,6 +457,7 @@ services:
 volumes:
   orchestration:
   elastic:
+  camunda-data:
   postgres:
   keycloak-theme:
   postgres-web:
