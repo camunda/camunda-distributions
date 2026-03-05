@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: "identity,operate,tasklist,broker,consolidated-auth"
+    active: "admin,operate,tasklist,broker,consolidated-auth"
 
 management:
   server:
