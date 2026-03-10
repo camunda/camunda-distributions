@@ -115,7 +115,7 @@ services:
       MANAGEMENT_ENDPOINT_CONFIGPROPS_SHOW_VALUES: ALWAYS
       management.endpoint.health.probes.enabled: "true"
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8090/api/readyz"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8090/api/readyz"]
       interval: 30s
       timeout: 5s
       retries: 5
@@ -245,7 +245,7 @@ services:
         hard: -1
     restart: on-failure
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green"]
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cat/health?h=status | grep -Eq 'green|yellow'"]
       interval: 30s
       timeout: 5s
       retries: 5

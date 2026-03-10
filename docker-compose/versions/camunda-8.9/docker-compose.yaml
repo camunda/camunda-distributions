@@ -87,7 +87,7 @@ services:
     mem_limit: 1g
     restart: unless-stopped
     healthcheck:
-      test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green" ]
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:9200/_cat/health?h=status | grep -Eq 'green|yellow'" ]
       interval: 1s
       retries: 30
       start_period: 30s
