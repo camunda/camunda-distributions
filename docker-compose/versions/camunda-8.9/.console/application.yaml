@@ -21,8 +21,8 @@ camunda:
               url: "http://localhost:8089"
               readiness: "http://console:8080/health/readiness"
               metrics: "http://console:9100/prometheus"
-            - name: "Orchestration Gateway"
-              id: "orchestrationGateway"
+            - name: "Orchestration"
+              id: "orchestration"
               # renovate: datasource=docker depName=camunda/camunda
               version: "8.8.0"
               urls:
