@@ -6,7 +6,7 @@ inputs:
     description: Versions path to match.
     required: true
   reset-versions:
-    description: Retrun empty list of unchanged versions to force run the matrix.
+    description: Return empty list of unchanged versions to force run the matrix.
     default: "false"
 
 outputs:
