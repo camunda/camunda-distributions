@@ -26,8 +26,8 @@ camunda:
               # renovate: datasource=docker depName=camunda/camunda
               version: "8.9.0"
               urls:
-                grpc: "grpc://localhost:26500"
-                http: "http://localhost:8080"
+                grpc: "grpc://orchestration:26500"
+                http: "http://orchestration:8080"
               readiness: "http://orchestration:9600/health"
               metrics: "http://orchestration:9600/prometheus"
             - name: "Operate"
@@ -72,6 +72,6 @@ camunda:
               id: "connectors"
               # renovate: datasource=docker depName=camunda/connectors-bundle
               version: "8.9.0"
-              url: "http://localhost:8086"
+              url: "http://connectors:8080"
               readiness: "http://connectors:8080/actuator/health/readiness"
               metrics: "http://connectors:8080/actuator/prometheus"
