@@ -27,3 +27,5 @@ camunda:
         url: jdbc:mysql://localhost:3307/camunda_secondary?serverTimezone=UTC
         username: camunda
         password: camunda
+  mcp:
+    enabled: true
