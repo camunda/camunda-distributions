@@ -79,6 +79,9 @@ camunda:
     query:
       enabled: true
 
+  mcp:
+    enabled: true
+
   security:
     authentication:
       method: "oidc"

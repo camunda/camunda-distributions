@@ -27,3 +27,5 @@ camunda:
         url: jdbc:postgresql://localhost:5432/camunda_secondary
         username: camunda
         password: camunda
+  mcp:
+    enabled: true

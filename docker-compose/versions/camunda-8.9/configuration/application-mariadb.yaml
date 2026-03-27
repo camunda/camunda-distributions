@@ -27,3 +27,5 @@ camunda:
         url: jdbc:mariadb://localhost:3306/camunda_secondary?serverTimezone=UTC
         username: camunda
         password: camunda
+  mcp:
+    enabled: true
