@@ -57,14 +57,27 @@ jobs:
           sudo killall xsp4 || true
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Import Vault secrets
+        id: test-credentials-secret
+        uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/data/products/distribution/ci HARBOR_REGISTRY_USER;
+            secret/data/products/distribution/ci HARBOR_REGISTRY_PASSWORD;
+
       - name: Login to Docker registries
         run: |
           # DockerHub registry.
           echo '${{ secrets.DISTRO_CI_DOCKER_PASSWORD_DOCKERHUB }}' |
             docker login -u '${{ secrets.DISTRO_CI_DOCKER_USERNAME_DOCKERHUB }}' --password-stdin
           # Camunda registry.
-          echo '${{ secrets.DISTRO_CI_DOCKER_PASSWORD_CAMUNDA }}' |
-            docker login -u '${{ secrets.DISTRO_CI_DOCKER_USERNAME_CAMUNDA }}' --password-stdin registry.camunda.cloud
+          echo '${{ env.HARBOR_REGISTRY_PASSWORD }}' |
+            docker login -u '${{ env.HARBOR_REGISTRY_USER }}' --password-stdin registry.camunda.cloud
 
       #
       # Docker Compose.
