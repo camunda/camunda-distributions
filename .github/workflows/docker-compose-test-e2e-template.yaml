@@ -69,12 +69,15 @@ jobs:
           secrets: |
             secret/data/products/distribution/ci HARBOR_REGISTRY_USER;
             secret/data/products/distribution/ci HARBOR_REGISTRY_PASSWORD;
+            secret/data/products/distribution/ci DOCKERHUB_USERNAME;
+            secret/data/products/distribution/ci DOCKERHUB_PASSWORD;
+          exportEnv: true
 
       - name: Login to Docker registries
         run: |
           # DockerHub registry.
-          echo '${{ secrets.DISTRO_CI_DOCKER_PASSWORD_DOCKERHUB }}' |
-            docker login -u '${{ secrets.DISTRO_CI_DOCKER_USERNAME_DOCKERHUB }}' --password-stdin
+          echo '${{ secrets.DISTRO_CI_DOCKER_PASSWORD_DOCKERHUB || env.DOCKERHUB_PASSWORD }}' |
+            docker login -u '${{ secrets.DISTRO_CI_DOCKER_USERNAME_DOCKERHUB || env.DOCKERHUB_USERNAME }}' --password-stdin
           # Camunda registry.
           echo '${{ env.HARBOR_REGISTRY_PASSWORD }}' |
             docker login -u '${{ env.HARBOR_REGISTRY_USER }}' --password-stdin registry.camunda.cloud
