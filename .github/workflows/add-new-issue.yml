@@ -17,12 +17,25 @@ jobs:
           echo "project_id=33" >> "$GITHUB_OUTPUT"
           echo "now=$(date +'%Y-%m-%d')" >> "$GITHUB_OUTPUT"
 
+      - name: Import Secrets
+        id: secrets
+        uses: hashicorp/vault-action@4c06c5ccf5c0761b6029f56cfb1dcf5565918a3b # v3.4.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/data/products/distribution/ci GH_APP_ID_DISTRO_CI;
+            secret/data/products/distribution/ci GH_APP_PRIVATE_KEY_DISTRO_CI;
+          exportEnv: true
+
       - name: Generate GitHub token
         uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
         id: generate-github-token
         with:
-          app-id: ${{ secrets.GH_APP_ID_DISTRO_CI }}
-          private-key: ${{ secrets.GH_APP_PRIVATE_KEY_DISTRO_CI }}
+          app-id: ${{ env.GH_APP_ID_DISTRO_CI }}
+          private-key: ${{ env.GH_APP_PRIVATE_KEY_DISTRO_CI }}
       
       - name: Add to Distribution Team project
         uses: actions/add-to-project@v1.0.2
