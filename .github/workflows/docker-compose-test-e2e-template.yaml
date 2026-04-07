@@ -76,8 +76,8 @@ jobs:
       - name: Login to Docker registries
         run: |
           # DockerHub registry.
-          echo '${{ secrets.DISTRO_CI_DOCKER_PASSWORD_DOCKERHUB || env.DOCKERHUB_PASSWORD }}' |
-            docker login -u '${{ secrets.DISTRO_CI_DOCKER_USERNAME_DOCKERHUB || env.DOCKERHUB_USERNAME }}' --password-stdin
+          echo '${{ env.DOCKERHUB_PASSWORD }}' |
+            docker login -u '${{ env.DOCKERHUB_USERNAME }}' --password-stdin
           # Camunda registry.
           echo '${{ env.HARBOR_REGISTRY_PASSWORD }}' |
             docker login -u '${{ env.HARBOR_REGISTRY_USER }}' --password-stdin registry.camunda.cloud
