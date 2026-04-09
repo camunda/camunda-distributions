@@ -107,6 +107,11 @@ jobs:
             camunda-version: "8.9"
             main-compose-args: "-f docker-compose-web-modeler.yaml"
             e2e-test-enabled: false
+          # Camunda 8.10
+          - name: Camunda 8.10
+            camunda-version: "8.10"
+            main-compose-args: "-f docker-compose.yaml"
+            e2e-test-enabled: false
         exclude: ${{ fromJson(needs.init.outputs.unchanged-versions) }}
     uses: ./.github/workflows/docker-compose-test-e2e-template.yaml
     secrets: inherit

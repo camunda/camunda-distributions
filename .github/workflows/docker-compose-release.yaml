@@ -63,6 +63,8 @@ jobs:
             camunda-version: 8.8
           - name: Camunda 8.9
             camunda-version: 8.9
+          - name: Camunda 8.10
+            camunda-version: "8.10"
         exclude: ${{ fromJson(needs.init.outputs.unchanged-versions) }}
     uses: ./.github/workflows/docker-compose-release-template.yaml
     secrets: inherit
