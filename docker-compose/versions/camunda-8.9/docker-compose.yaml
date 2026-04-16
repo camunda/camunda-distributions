@@ -34,7 +34,7 @@ services:
       retries: 30
       start_period: 30s
     volumes:
-      - zeebe:/usr/local/zeebe/data
+      - camunda:/usr/local/camunda/data
       - camunda-data:/usr/local/camunda/camunda-data
       - ./driver-lib:/driver-lib:ro
     configs:
@@ -104,7 +104,7 @@ services:
       - camunda
 
 volumes:
-  zeebe:
+  camunda:
   elastic:
   camunda-data:
 
