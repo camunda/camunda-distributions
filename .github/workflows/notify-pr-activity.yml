@@ -41,3 +41,4 @@ jobs:
       VAULT_ADDR:       ${{ secrets.VAULT_ADDR }}
       VAULT_ROLE_ID:    ${{ secrets.VAULT_ROLE_ID }}
       VAULT_SECRET_ID:  ${{ secrets.VAULT_SECRET_ID }}
+
