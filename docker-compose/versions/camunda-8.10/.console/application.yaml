@@ -64,10 +64,10 @@ camunda:
               readiness: "http://keycloak:18080/auth"
             - name: "WebModeler"
               id: "webModelerWebApp"
-              # renovate: datasource=docker depName=camunda/web-modeler-restapi
+              # renovate: datasource=docker depName=camunda/hub
               version: "8.9.0"
               url: "http://localhost:8070"
-              readiness: "http://web-modeler-restapi:8091/health/readiness"
+              readiness: "http://hub:8091/health/readiness"
             - name: "Connectors"
               id: "connectors"
               # renovate: datasource=docker depName=camunda/connectors-bundle
