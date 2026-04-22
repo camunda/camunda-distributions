@@ -1,0 +1,43 @@
+# type: Notifications
+# owner: @camunda/distribution-team
+---
+# PR Activity Slack Notifications
+#
+# Delegates to the canonical workflow in camunda/team-distribution.
+# See that repo for implementation details and the full input reference.
+#
+name: Notify - PR Activity
+
+on:
+  pull_request_target:
+    types: [opened, ready_for_review, closed]
+
+jobs:
+  notify:
+    if: |
+      !github.event.pull_request.draft && (
+        github.event.action == 'opened' ||
+        github.event.action == 'ready_for_review' ||
+        github.event.action == 'closed'
+      )
+    uses: camunda/team-distribution/.github/workflows/notify-pr-activity.yml@main
+    with:
+      action:            ${{ github.event.action }}
+      pr_repo:           ${{ github.event.repository.name }}
+      pr_number:         ${{ github.event.pull_request.number }}
+      pr_title:          ${{ github.event.pull_request.title }}
+      pr_url:            ${{ github.event.pull_request.html_url }}
+      pr_author:         ${{ github.event.pull_request.user.login }}
+      pr_additions:      ${{ github.event.pull_request.additions }}
+      pr_deletions:      ${{ github.event.pull_request.deletions }}
+      pr_merged:         ${{ github.event.pull_request.merged }}
+      pr_merged_by:      ${{ (github.event.pull_request.merged_by && github.event.pull_request.merged_by.login) || '' }}
+      pr_created_at:     ${{ github.event.pull_request.created_at }}
+      pr_merged_at:      ${{ github.event.pull_request.merged_at || '' }}
+      pr_reviewers_json: ${{ toJSON(github.event.pull_request.requested_reviewers) }}
+      pr_draft:          ${{ github.event.pull_request.draft }}
+      pr_labels_json:    ${{ toJSON(github.event.pull_request.labels) }}
+    secrets:
+      VAULT_ADDR:       ${{ secrets.VAULT_ADDR }}
+      VAULT_ROLE_ID:    ${{ secrets.VAULT_ROLE_ID }}
+      VAULT_SECRET_ID:  ${{ secrets.VAULT_SECRET_ID }}

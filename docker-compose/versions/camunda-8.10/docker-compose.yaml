@@ -6,8 +6,9 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
-# This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist), Connectors, and Elasticsearch
+# This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist) and Connectors.
 # See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, Web Modeler, and Console.
+# Camunda 8.10 no longer bundles Elasticsearch in the Docker Compose distribution.
 services:
   camunda-data-init:
     image: camunda/camunda:${CAMUNDA_VERSION}
@@ -34,7 +35,7 @@ services:
       retries: 30
       start_period: 30s
     volumes:
-      - camunda:/usr/local/camunda/data
+      - zeebe:/usr/local/zeebe/data
       - camunda-data:/usr/local/camunda/camunda-data
       - ./driver-lib:/driver-lib:ro
     configs:
@@ -76,7 +77,7 @@ services:
         condition: service_healthy
 
 volumes:
-  camunda:
+  zeebe:
   camunda-data:
 
 networks:
@@ -90,6 +91,10 @@ configs:
           mode: self-managed
           grpc-address: http://orchestration:26500
           rest-address: http://orchestration:8080
+        connectors:
+          secretprovider:
+            environment:
+              prefix: "CONNECTORS_SECRET"
 
   orchestration-config:
     file: ./configuration/${ORCHESTRATION_CONFIG_FILE:-application-h2.yaml}

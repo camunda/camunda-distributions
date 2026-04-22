@@ -15,6 +15,11 @@ Released Camunda versions:
 - [Camunda 8.5](./versions/camunda-8.5)
 - [Camunda 8.6](./versions/camunda-8.6)
 - [Camunda 8.7](./versions/camunda-8.7)
+- [Camunda 8.8](./versions/camunda-8.8)
+- [Camunda 8.9](./versions/camunda-8.9)
+- [Camunda 8.10](./versions/camunda-8.10)
+
+Camunda `8.10` includes the same compose layouts as `8.9`, but Elasticsearch is no longer bundled and must be provided externally where needed.
 
 ## Continuous Integration
 
