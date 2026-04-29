@@ -26,9 +26,9 @@ services:
     volumes:
       - postgres-web:/var/lib/postgresql/data
 
-  web-modeler-websockets:
-    container_name: web-modeler-websockets
-    image: camunda/web-modeler-websockets:${CAMUNDA_WEB_MODELER_VERSION}
+  hub-websockets:
+    container_name: hub-websockets
+    image: camunda/hub-websockets:${CAMUNDA_WEB_MODELER_VERSION}
     ports:
       - "8060:8060"
     restart: on-failure
@@ -52,7 +52,7 @@ services:
   mailpit:
     # If you want to use your own SMTP server, you can remove this container
     # and configure RESTAPI_MAIL_HOST, RESTAPI_MAIL_PORT, REST_API_MAIL_USER,
-    # REST_API_MAIL_PASSWORD and RESTAPI_MAIL_ENABLE_TLS in web-modeler-restapi
+    # REST_API_MAIL_PASSWORD and RESTAPI_MAIL_ENABLE_TLS in hub
     container_name: mailpit
     image: axllent/mailpit:${MAILPIT_VERSION}
     ports:
@@ -70,9 +70,9 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-  web-modeler-restapi:
-    container_name: web-modeler-restapi
-    image: camunda/web-modeler-restapi:${CAMUNDA_WEB_MODELER_VERSION}
+  hub:
+    container_name: hub
+    image: camunda/hub:${CAMUNDA_WEB_MODELER_VERSION}
     ports:
       - "8070:8081"
     restart: on-failure
@@ -97,7 +97,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${WEBMODELER_DB_USER}
       SPRING_DATASOURCE_PASSWORD: ${WEBMODELER_DB_PASSWORD}
       SPRING_PROFILES_INCLUDE: default-logging
-      RESTAPI_PUSHER_HOST: web-modeler-websockets
+      RESTAPI_PUSHER_HOST: hub-websockets
       RESTAPI_PUSHER_PORT: "8060"
       RESTAPI_PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
       RESTAPI_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
