@@ -92,6 +92,7 @@ volumes:
 
 networks:
   camunda:
+    name: camunda
 
 configs:
   connectors-config:

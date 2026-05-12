@@ -404,5 +404,8 @@ networks:
   # It is also part of the camunda-platform network to communicate with the platform components like Orchestration to run
   # processes or Identity to log in.
   camunda-platform:
+    name: camunda-platform
   identity-network:
+    name: identity-network
   web-modeler:
+    name: web-modeler
