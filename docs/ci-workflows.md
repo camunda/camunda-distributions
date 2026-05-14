@@ -1,14 +1,15 @@
-# Agent Instructions — CI/CD Architecture
+---
+title: CI/CD Workflows
+---
 
-This file covers the CI/CD workflows and release model for `camunda/camunda-distributions`.
-For practical commands and rules, read `AGENTS.md` at the repo root.
+# CI/CD Workflows
 
 ## Repository Structure
 
 ```
 docker-compose/
   versions/
-    camunda-8.4/ … camunda-8.10/   # Per-version compose configs (see docs/version-architecture.md)
+    camunda-8.4/ … camunda-8.10/   # Per-version compose configs
   test/
     e2e/                            # Shared Playwright tests (used by 8.4–8.7)
 
@@ -71,7 +72,7 @@ Located in `.github/actions/generate-versions-matrix/`.
 
 Configured via `.github/renovate.json5` and per-component overrides in `.github/config/renovatebot/`.
 
-- **Patch-only automation**: Minor and major version bumps are disabled by default — only patches are auto-merged.
+- **Patch-only automation**: Minor and major version bumps are disabled — only patches are auto-merged.
 - **Excluded versions**: 8.0, 8.1, 8.2 are excluded from all updates.
 - **Semantic commits enforced**: `deps(docker-compose)` or `deps(github-actions)` scope.
 - Docker image updates and GitHub Actions updates are managed separately.

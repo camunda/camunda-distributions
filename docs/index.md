@@ -10,8 +10,10 @@ This repository contains the official Camunda 8 Self-Managed distributions for D
 
 | Page | Description |
 |------|-------------|
+| [Commands](./commands.md) | Docker Compose and E2E test commands |
 | [Version Architecture](./version-architecture.md) | Per-version compose flavors, storage backends, and key changes |
 | [E2E Testing](./e2e-testing.md) | Playwright test layout, running locally, CI matrix |
+| [CI/CD Workflows](./ci-workflows.md) | Workflow architecture, release model, Renovate config |
 
 ## Repository Purpose
 
