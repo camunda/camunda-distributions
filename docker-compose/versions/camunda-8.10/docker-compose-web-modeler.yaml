@@ -221,8 +221,11 @@ services:
 
 networks:
   camunda-platform:
+    name: camunda-platform
   identity-network:
+    name: identity-network
   web-modeler:
+    name: web-modeler
 
 volumes:
   postgres:
