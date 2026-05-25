@@ -73,12 +73,15 @@ jobs:
             secret/data/products/distribution/ci DOCKERHUB_PASSWORD;
           exportEnv: true
 
-      - name: Login to Docker registries
+      - name: Login to DockerHub
         run: |
-          # DockerHub registry.
           echo '${{ env.DOCKERHUB_PASSWORD }}' |
             docker login -u '${{ env.DOCKERHUB_USERNAME }}' --password-stdin
-          # Camunda registry.
+
+      - name: Login to Camunda registry
+        # Only 8.3–8.5 pull images from registry.camunda.cloud; later versions use DockerHub.
+        if: ${{ contains(fromJSON('["8.3","8.4","8.5"]'), inputs.camunda-version) }}
+        run: |
           echo '${{ env.HARBOR_REGISTRY_PASSWORD }}' |
             docker login -u '${{ env.HARBOR_REGISTRY_USER }}' --password-stdin registry.camunda.cloud
 
