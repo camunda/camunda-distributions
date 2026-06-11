@@ -19,10 +19,17 @@ runs:
         restore-keys: |
           ${{ runner.os }}-node-
 
+    - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
+      id: playwright-cache
+      with:
+        path: ~/.cache/ms-playwright
+        key: ${{ runner.os }}-playwright-${{ inputs.browsers }}-${{ hashFiles('**/package-lock.json') }}
+
     - name: Check cache hit
       shell: bash
       run: |
-        echo "Cache hit: ${{ steps.npm-cache.outputs.cache-hit }}"
+        echo "npm cache hit: ${{ steps.npm-cache.outputs.cache-hit }}"
+        echo "playwright cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}"
 
     - name: Setup Node.js
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -37,4 +44,9 @@ runs:
     - name: Install Playwright browsers
       working-directory: ${{ inputs.working-directory }}
       shell: bash
-      run: npx playwright install --with-deps ${{ inputs.browsers }}
+      run: |
+        if [[ "${{ steps.playwright-cache.outputs.cache-hit }}" == "true" ]]; then
+          npx playwright install-deps ${{ inputs.browsers }}
+        else
+          npx playwright install --with-deps ${{ inputs.browsers }}
+        fi
