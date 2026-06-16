@@ -148,7 +148,6 @@ services:
       IDENTITY_DATABASE_USERNAME: ${POSTGRES_USER}
       IDENTITY_DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
       VALUES_KEYCLOAK_INIT_ORCHESTRATION_SECRET: ${ORCHESTRATION_CLIENT_SECRET}
-      VALUES_KEYCLOAK_INIT_CONSOLE_SECRET: ${CONSOLE_CLIENT_SECRET}
       VALUES_KEYCLOAK_INIT_OPTIMIZE_SECRET: ${OPTIMIZE_CLIENT_SECRET}
       VALUES_KEYCLOAK_INIT_CONNECTORS_SECRET: ${CONNECTORS_CLIENT_SECRET}
       KEYCLOAK_ADMIN_USER: ${KEYCLOAK_ADMIN_USER}
@@ -402,39 +401,6 @@ services:
       - web-modeler
     extra_hosts:
       - "host.docker.internal:host-gateway"
-
-  console:
-    container_name: console
-    image: camunda/console:${CAMUNDA_CONSOLE_VERSION}
-    ports:
-      - "8087:8080"
-      - "9100:9100"
-    environment:
-      NODE_ENV: production
-      KEYCLOAK_BASE_URL: http://${HOST}:18080/auth
-      KEYCLOAK_INTERNAL_BASE_URL: http://${KEYCLOAK_HOST}:18080/auth
-      KEYCLOAK_REALM: camunda-platform
-      CAMUNDA_IDENTITY_CLIENT_ID: console
-      CAMUNDA_IDENTITY_AUDIENCE: console
-      JAVA_TOOL_OPTIONS: -Xms512m -Xmx1g
-    healthcheck:
-      test: ["CMD", "wget", "-q", "--tries=1", "--spider", "http://localhost:9100/health/readiness"]
-      interval: 30s
-      timeout: 5s
-      retries: 5
-      start_period: 30s
-    restart: on-failure
-    volumes:
-      - "./.console:/var/run/config"
-    networks:
-      - camunda-platform
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    depends_on:
-      identity:
-        condition: service_healthy
-      keycloak:
-        condition: service_healthy
 
 volumes:
   orchestration:
