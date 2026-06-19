@@ -1,0 +1,33 @@
+# type: Automation
+# owner: @camunda/distribution-team
+---
+# Re-runs failed E2E jobs for Renovate PRs to absorb flaky failures, so a green
+# run lets the PR auto-merge. Capped at 3 attempts per run.
+name: Renovate - CI Retry
+
+on:
+  workflow_run:
+    workflows: ["Docker Compose | Test - E2E - Full Setup"]
+    types: [completed]
+
+permissions:
+  actions: write
+
+jobs:
+  retry:
+    name: Re-run failed jobs
+    if: >-
+      github.event.workflow_run.conclusion == 'failure' &&
+      startsWith(github.event.workflow_run.head_branch, 'renovate/') &&
+      github.event.workflow_run.run_attempt < 3
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Re-run failed jobs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ github.event.workflow_run.id }}
+          ATTEMPT: ${{ github.event.workflow_run.run_attempt }}
+        run: |
+          echo "Re-running failed jobs for run ${RUN_ID} (attempt ${ATTEMPT})."
+          gh run rerun "$RUN_ID" --failed --repo "${{ github.repository }}"

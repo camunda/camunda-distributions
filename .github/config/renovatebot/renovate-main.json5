@@ -8,6 +8,21 @@
   patch: {
     enabled: true,
   },
+  packageRules: [
+    {
+      description: "Auto-merge non-major updates once CI passes.",
+      matchUpdateTypes: ["minor", "patch", "pin", "digest"],
+      automerge: true,
+      platformAutomerge: false,
+      automergeStrategy: "squash",
+      addLabels: ["automerge"],
+    },
+    {
+      description: "Never auto-merge alpha release candidates.",
+      matchNewValue: "/.*alpha[0-9]*-rc[0-9]*/",
+      automerge: false,
+    },
+  ],
   hostRules: [
     {
       hostType: "docker",
