@@ -15,7 +15,7 @@ runs:
       id: npm-cache
       with:
         path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
         restore-keys: |
           ${{ runner.os }}-node-
 
@@ -23,7 +23,7 @@ runs:
       id: playwright-cache
       with:
         path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ inputs.browsers }}-${{ hashFiles('**/package-lock.json') }}
+        key: ${{ runner.os }}-playwright-${{ inputs.browsers }}-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
 
     - name: Check cache hit
       shell: bash
