@@ -40,7 +40,8 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { 
+      use: {
+        channel: 'chrome',
         ...devices['Desktop Chrome'],
         /* Disable web security for local development */
         launchOptions: {
