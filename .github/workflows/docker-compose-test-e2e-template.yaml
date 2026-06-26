@@ -87,6 +87,15 @@ jobs:
             docker login -u '${{ env.HARBOR_REGISTRY_USER }}' --password-stdin registry.camunda.cloud
 
       #
+      # End-to-End tests setup (before Docker startup to avoid timeout).
+
+      - name: Install Playwright
+        uses: ./.github/actions/install-playwright
+        if: inputs.e2e-test-enabled
+        with:
+          working-directory: ${{ inputs.e2e-test-directory }}
+
+      #
       # Docker Compose.
 
       - name: ⭐ Bring up containers dependencies
@@ -112,11 +121,6 @@ jobs:
       #
       # End-to-End tests.
 
-      - name: Install Playwright
-        uses: ./.github/actions/install-playwright
-        if: inputs.e2e-test-enabled
-        with:
-          working-directory: ${{ inputs.e2e-test-directory }}
       - name: Run Playwright tests
         if: inputs.e2e-test-enabled
         id: test
