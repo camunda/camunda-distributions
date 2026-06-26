@@ -11,26 +11,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-      id: npm-cache
-      with:
-        path: ~/.npm
-        key: ${{ runner.os }}-node-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
-        restore-keys: |
-          ${{ runner.os }}-node-
-
-    - uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae # v5
-      id: playwright-cache
-      with:
-        path: ~/.cache/ms-playwright
-        key: ${{ runner.os }}-playwright-${{ inputs.browsers }}-${{ hashFiles(format('{0}/package-lock.json', inputs.working-directory)) }}
-
-    - name: Check cache hit
-      shell: bash
-      run: |
-        echo "npm cache hit: ${{ steps.npm-cache.outputs.cache-hit }}"
-        echo "playwright cache hit: ${{ steps.playwright-cache.outputs.cache-hit }}"
-
     - name: Setup Node.js
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
       with:
@@ -47,7 +27,6 @@ runs:
       run: npx playwright install-deps ${{ inputs.browsers }}
 
     - name: Install Playwright browsers
-      if: steps.playwright-cache.outputs.cache-hit != 'true'
       working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: npx playwright install ${{ inputs.browsers }}
