@@ -1,0 +1,191 @@
+# Force-refreshes a single minor's Docker Compose .env to caller-supplied component versions and
+# lands it on main so the rolling docker-compose-<minor> release is rebuilt at those versions.
+#
+# Why this exists: the release train dispatches C8Run RC seconds after the component releases, before
+# Renovate can open/automerge the docker-compose .env bump. C8Run RC's preflight calls this workflow
+# to bring the rolling compose to the train's versions on demand instead of stalling the train.
+#
+# The .env edit is schema-driven by the `# renovate: ... depName=<image>` annotations, so only keys
+# present in the target minor's .env are touched and infra keys (elasticsearch/keycloak/...) are left
+# alone. Renovate remains the steady-state mechanism; this only preempts it under release-train timing.
+name: "Docker Compose | Force Bump"
+run-name: "Docker Compose | Force Bump camunda-${{ inputs.minor }} (${{ inputs.reason }})"
+
+on:
+  workflow_dispatch:
+    inputs:
+      minor:
+        description: "Camunda minor to bump, format x.y (e.g. 8.8). Targets docker-compose/versions/camunda-<minor>/.env."
+        type: string
+        required: true
+      componentVersions:
+        description: 'JSON map of renovate depName -> version, e.g. {"camunda/camunda":"8.8.29","camunda/connectors-bundle":"8.8.15"}. Only keys present in the target .env are written.'
+        type: string
+        required: true
+      reason:
+        description: "Free-text reason shown in the run name and the Slack alert (e.g. 'C8Run RC 8.8.29 preflight')."
+        type: string
+        required: false
+        default: "manual force bump"
+
+concurrency:
+  # One in-flight force bump per minor; never cancel a bump mid-merge.
+  group: force-compose-bump-${{ inputs.minor }}
+  cancel-in-progress: false
+
+jobs:
+  force-bump:
+    name: Force-bump camunda-${{ inputs.minor }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: ℹ️ Print workflow inputs ℹ️
+        env:
+          WORKFLOW_INPUTS: ${{ toJson(inputs) }}
+        run: |
+          echo "Action Inputs:"
+          echo "${WORKFLOW_INPUTS}"
+
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          ref: main
+
+      - name: Import Secrets
+        id: secrets
+        uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          exportEnv: false
+          secrets: |
+            secret/data/products/distribution/ci GH_APP_ID_DISTRO_CI;
+            secret/data/products/distribution/ci GH_APP_PRIVATE_KEY_DISTRO_CI;
+            secret/data/products/distribution/ci SLACK_DISTRO_BOT_WEBHOOK;
+
+      # Distinct identity from github-actions[bot] (the PR opener) so its approval satisfies the
+      # main ruleset's 1-approval rule; merging with this token (not GITHUB_TOKEN) makes the push to
+      # main app-attributed, which is what triggers docker-compose-release.yaml.
+      - name: Generate distro CI app token
+        id: app-token
+        uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
+        with:
+          app-id: ${{ steps.secrets.outputs.GH_APP_ID_DISTRO_CI }}
+          private-key: ${{ steps.secrets.outputs.GH_APP_PRIVATE_KEY_DISTRO_CI }}
+
+      - name: Author the .env from componentVersions
+        id: author
+        env:
+          MINOR: ${{ inputs.minor }}
+          COMPONENT_VERSIONS: ${{ inputs.componentVersions }}
+        run: |
+          env_file="docker-compose/versions/camunda-${MINOR}/.env"
+          if [ ! -f "${env_file}" ]; then
+            echo "::error::No .env for minor ${MINOR} at ${env_file}."
+            exit 1
+          fi
+          if ! jq -e . >/dev/null 2>&1 <<<"${COMPONENT_VERSIONS}"; then
+            echo "::error::componentVersions is not valid JSON."
+            exit 1
+          fi
+          jq -r 'to_entries[] | "\(.key)\t\(.value)"' <<<"${COMPONENT_VERSIONS}" > versions.tsv
+          echo "Requested component versions (depName -> version):"
+          cat versions.tsv
+
+          # For each `KEY=value` line whose preceding `# renovate: ... depName=<X>` matches the map,
+          # replace the value. Only present keys change; comments, infra keys and ordering are kept.
+          awk -F'\t' '
+            NR==FNR { map[$1]=$2; next }
+            {
+              line=$0
+              if (line ~ /^[[:space:]]*#[[:space:]]*renovate:/) {
+                dep=""
+                if (match(line, /depName=[^[:space:]]+/)) dep=substr(line, RSTART+8, RLENGTH-8)
+                print line; next
+              }
+              if (line ~ /^[A-Za-z_][A-Za-z0-9_]*=/ && dep != "" && (dep in map)) {
+                key=line; sub(/=.*/, "", key)
+                print key "=" map[dep]
+                dep=""; next
+              }
+              if (line !~ /^[[:space:]]*$/) dep=""
+              print line
+            }
+          ' versions.tsv "${env_file}" > "${env_file}.tmp"
+          mv "${env_file}.tmp" "${env_file}"
+
+          echo "Resulting ${env_file}:"
+          cat "${env_file}"
+
+          if git diff --quiet -- "${env_file}"; then
+            echo "No change — camunda-${MINOR} compose already at the requested versions."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "env_file=${env_file}" >> "$GITHUB_OUTPUT"
+
+      - name: Open, approve and merge the bump PR
+        if: steps.author.outputs.changed == 'true'
+        env:
+          MINOR: ${{ inputs.minor }}
+          ENV_FILE: ${{ steps.author.outputs.env_file }}
+          REASON: ${{ inputs.reason }}
+          APP_TOKEN: ${{ steps.app-token.outputs.token }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          pr_branch="force-compose-bump/${MINOR}-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -b "${pr_branch}"
+          git add "${ENV_FILE}"
+          git commit -m "deps(docker-compose): force-bump camunda-${MINOR} component versions"
+          git push origin "${pr_branch}"
+
+          # Opened as github-actions[bot] (GITHUB_TOKEN) so the distro app is a distinct approver.
+          pr_url="$(gh pr create \
+            --base main --head "${pr_branch}" \
+            --title "deps(docker-compose): force-bump camunda-${MINOR} component versions" \
+            --body "Automated force-bump of \`camunda-${MINOR}\` Docker Compose component versions. Reason: ${REASON}. Authored from caller-supplied versions and merged via the distro CI app to rebuild the rolling \`docker-compose-${MINOR}\` release ahead of Renovate.")"
+          echo "Opened ${pr_url}"
+
+          # Distro app approves (distinct identity) then merges with the app token so the push to
+          # main is app-attributed and triggers the rolling release.
+          GH_TOKEN="${APP_TOKEN}" gh pr review "${pr_url}" --approve
+
+          attempt=1
+          until GH_TOKEN="${APP_TOKEN}" gh pr merge "${pr_url}" --squash --delete-branch; do
+            if [ "${attempt}" -ge 5 ]; then
+              echo "::error::Could not merge ${pr_url} after ${attempt} attempts."
+              exit 1
+            fi
+            echo "::warning::Merge not ready (attempt ${attempt}); retrying..."
+            attempt=$((attempt + 1))
+            sleep 15
+          done
+          echo "Merged ${pr_url} — docker-compose-${MINOR} rolling release will rebuild."
+
+      - name: Alert the distribution channel
+        if: steps.author.outputs.changed == 'true'
+        uses: slackapi/slack-github-action@45a88b9581bfab2566dc881e2cd66d334e621e2c # v3.0.3
+        with:
+          webhook: ${{ steps.secrets.outputs.SLACK_DISTRO_BOT_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            blocks:
+              - type: section
+                text:
+                  type: mrkdwn
+                  text: |
+                    <!subteam^S05K9BK6RTK> :rotating_light:
+                    *Docker Compose `camunda-${{ inputs.minor }}` was force-bumped* (bypassing the normal Renovate flow).
+                    *Reason:* ${{ inputs.reason }}
+                    The rolling `docker-compose-${{ inputs.minor }}` release is being rebuilt at these versions:
+                    ```
+                    ${{ inputs.componentVersions }}
+                    ```
+                    Triggered by <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|this run>.
