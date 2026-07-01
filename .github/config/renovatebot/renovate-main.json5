@@ -13,7 +13,7 @@
       description: "Auto-merge non-major updates once CI passes.",
       matchUpdateTypes: ["minor", "patch", "pin", "digest"],
       automerge: true,
-      platformAutomerge: false,
+      platformAutomerge: true,
       automergeStrategy: "squash",
       addLabels: ["automerge"],
     },
