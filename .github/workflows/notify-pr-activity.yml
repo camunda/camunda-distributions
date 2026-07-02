@@ -3,41 +3,81 @@
 ---
 # PR Activity Slack Notifications
 #
-# Delegates to the canonical workflow in camunda/team-distribution.
-# See that repo for implementation details and the full input reference.
+# Sends a message to #team-distribution-github (via distro-bot) when:
+#   - A PR is opened or converted from draft to ready for review
+#   - A PR is merged
+#   - A PR is closed without merge
+#
+# Draft PRs and automerge Renovate PRs are skipped.
+#
+# Notification logic is implemented in scripts/notify-pr-activity (Go). This is a self-contained
+# copy of the canonical notifier in camunda/team-distribution — this repo is public and cannot call
+# an internal repo's reusable workflow, so the workflow and script are vendored here instead.
 #
 name: Notify - PR Activity
 
 on:
+  # pull_request_target ensures secrets are available even for fork PRs.
+  # Safe here because we never checkout PR code.
   pull_request_target:
     types: [opened, ready_for_review, closed]
 
 jobs:
-  notify:
+  notify-slack:
+    # Skip draft PRs; only run for opened, ready_for_review, closed+merged, or closed+unmerged events.
     if: |
       !github.event.pull_request.draft && (
         github.event.action == 'opened' ||
         github.event.action == 'ready_for_review' ||
         github.event.action == 'closed'
       )
-    uses: camunda/team-distribution/.github/workflows/notify-pr-activity.yml@main
-    with:
-      action:            ${{ github.event.action }}
-      pr_repo:           ${{ github.event.repository.name }}
-      pr_number:         ${{ github.event.pull_request.number }}
-      pr_title:          ${{ github.event.pull_request.title }}
-      pr_url:            ${{ github.event.pull_request.html_url }}
-      pr_author:         ${{ github.event.pull_request.user.login }}
-      pr_additions:      ${{ github.event.pull_request.additions }}
-      pr_deletions:      ${{ github.event.pull_request.deletions }}
-      pr_merged:         ${{ github.event.pull_request.merged }}
-      pr_merged_by:      ${{ (github.event.pull_request.merged_by && github.event.pull_request.merged_by.login) || '' }}
-      pr_created_at:     ${{ github.event.pull_request.created_at }}
-      pr_merged_at:      ${{ github.event.pull_request.merged_at || '' }}
-      pr_reviewers_json: ${{ toJSON(github.event.pull_request.requested_reviewers) }}
-      pr_draft:          ${{ github.event.pull_request.draft }}
-      pr_labels_json:    ${{ toJSON(github.event.pull_request.labels) }}
-    secrets:
-      VAULT_ADDR:       ${{ secrets.VAULT_ADDR }}
-      VAULT_ROLE_ID:    ${{ secrets.VAULT_ROLE_ID }}
-      VAULT_SECRET_ID:  ${{ secrets.VAULT_SECRET_ID }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
+        with:
+          sparse-checkout: scripts/notify-pr-activity
+          sparse-checkout-cone-mode: true
+
+      - name: Set up Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6
+        with:
+          go-version-file: scripts/notify-pr-activity/go.mod
+
+      - name: Import Vault secrets
+        uses: hashicorp/vault-action@892a26828f195e65540a40b4768ae4571f51ebfc # v4.0.0
+        id: vault-secrets
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          method: approle
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+          secrets: |
+            secret/data/products/distribution/ci SLACK_DISTRO_BOT_WEBHOOK_GH;
+          exportEnv: true
+
+      - name: Send Slack notification
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK:     ${{ env.SLACK_DISTRO_BOT_WEBHOOK_GH }}
+          GH_ACTION:         ${{ github.event.action }}
+          PR_REPO:           ${{ github.event.repository.name }}
+          PR_NUMBER:         ${{ github.event.pull_request.number }}
+          PR_TITLE:          ${{ github.event.pull_request.title }}
+          PR_URL:            ${{ github.event.pull_request.html_url }}
+          PR_AUTHOR:         ${{ github.event.pull_request.user.login }}
+          PR_ADDITIONS:      ${{ github.event.pull_request.additions }}
+          PR_DELETIONS:      ${{ github.event.pull_request.deletions }}
+          PR_MERGED:         ${{ github.event.pull_request.merged }}
+          PR_MERGED_BY:      ${{ (github.event.pull_request.merged_by && github.event.pull_request.merged_by.login) || '' }}
+          PR_CREATED_AT:     ${{ github.event.pull_request.created_at }}
+          PR_MERGED_AT:      ${{ github.event.pull_request.merged_at || '' }}
+          PR_REVIEWERS_JSON: ${{ toJSON(github.event.pull_request.requested_reviewers) }}
+          PR_LABELS_JSON:    ${{ toJSON(github.event.pull_request.labels) }}
+        run: |
+          cd scripts/notify-pr-activity
+          go run .
