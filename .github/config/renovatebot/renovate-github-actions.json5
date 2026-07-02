@@ -8,5 +8,9 @@
       matchManagers: ["github-actions"],
       schedule: ["every weekend"],
     },
+    {
+      matchDepNames: ["camunda/team-distribution"],
+      enabled: false,
+    },
   ],
 }
