@@ -49,7 +49,7 @@ services:
       retries: 5
       start_period: 30s
     volumes:
-      - orchestration:/usr/local/zeebe/data
+      - orchestration:/usr/local/camunda/data
       - "./.orchestration/application.yaml:/usr/local/camunda/config/application.yaml"
     networks:
       - camunda-platform
