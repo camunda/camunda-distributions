@@ -23,7 +23,7 @@ services:
       retries: 30
       start_period: 30s
     volumes:
-      - zeebe:/usr/local/zeebe/data
+      - camunda:/usr/local/camunda/data
     configs:
       - source: orchestration-config
         target: /usr/local/camunda/config/application.yaml
@@ -87,7 +87,7 @@ services:
       - camunda
 
 volumes:
-  zeebe:
+  camunda:
   elastic:
 
 networks:
