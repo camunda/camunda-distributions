@@ -1,0 +1,59 @@
+# type: Automation
+# owner: @camunda/distribution-team
+---
+# Single stable required status check for GitHub native auto-merge. The E2E
+# matrix job names are version-dynamic and its workflow is path-filtered, so
+# neither can be required directly. This gate posts one fixed context
+# ("Merge Gate / gate") on every PR:
+#   - workflow_run: mirrors the E2E workflow conclusion (re-fires on CI-retry).
+#   - pull_request: for PRs that skip E2E, passes when no E2E-relevant path
+#     changed; for mixed PRs it fails so the workflow_run result stays
+#     authoritative and nothing merges before E2E.
+name: Merge Gate
+
+on:
+  workflow_run:
+    workflows: ["Docker Compose | Test - E2E - Full Setup"]
+    types: [completed]
+  pull_request:
+    paths-ignore:
+      - docker-compose/versions/**
+      - .github/workflows/docker-compose-test-e2e-template.yaml
+      - .github/workflows/docker-compose-test-e2e-full-setup.yaml
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  gate:
+    name: gate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Mirror E2E result
+        if: github.event_name == 'workflow_run'
+        run: |
+          conclusion="${{ github.event.workflow_run.conclusion }}"
+          echo "E2E workflow concluded: ${conclusion}"
+          [ "${conclusion}" = "success" ] || { echo "::error::E2E did not succeed (${conclusion})"; exit 1; }
+
+      - name: Detect E2E-relevant changes
+        if: github.event_name == 'pull_request'
+        id: changes
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          filters: |
+            e2e:
+              - docker-compose/versions/**
+              - .github/workflows/docker-compose-test-e2e-template.yaml
+              - .github/workflows/docker-compose-test-e2e-full-setup.yaml
+
+      - name: Gate on E2E relevance
+        if: github.event_name == 'pull_request'
+        run: |
+          if [ "${{ steps.changes.outputs.e2e }}" = "true" ]; then
+            echo "::error::E2E-relevant paths changed; deferring to the E2E workflow result."
+            exit 1
+          fi
+          echo "No E2E-relevant paths changed; gate passes."
