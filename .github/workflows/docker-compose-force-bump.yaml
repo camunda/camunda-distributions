@@ -157,17 +157,34 @@ jobs:
           # main is app-attributed and triggers the rolling release.
           GH_TOKEN="${APP_TOKEN}" gh pr review "${pr_url}" --approve
 
+          # Auto-merge instead of immediate merge: the main ruleset's required checks take minutes,
+          # so an immediate merge is rejected with "base branch policy prohibits the merge" for the
+          # whole window. Auto-merge fires the moment the checks pass, still app-attributed.
+          GH_TOKEN="${APP_TOKEN}" gh pr merge "${pr_url}" --auto --squash --delete-branch
+
+          # Bounded wait for the actual merge so this run's conclusion reflects reality.
           attempt=1
-          until GH_TOKEN="${APP_TOKEN}" gh pr merge "${pr_url}" --squash --delete-branch; do
-            if [ "${attempt}" -ge 5 ]; then
-              echo "::error::Could not merge ${pr_url} after ${attempt} attempts."
+          max_attempts=20   # 20 x 30s = 10 min, within the job's 15 min timeout
+          while :; do
+            state="$(GH_TOKEN="${APP_TOKEN}" gh pr view "${pr_url}" --json state --jq .state || true)"
+            case "${state}" in
+              MERGED)
+                echo "Merged ${pr_url} — docker-compose-${MINOR} rolling release will rebuild."
+                break
+                ;;
+              CLOSED)
+                echo "::error::${pr_url} was closed without merging."
+                exit 1
+                ;;
+            esac
+            if [ "${attempt}" -ge "${max_attempts}" ]; then
+              echo "::error::${pr_url} did not merge within ${max_attempts} polls — required checks did not pass in time. The PR stays open with auto-merge armed and still merges once they do."
               exit 1
             fi
-            echo "::warning::Merge not ready (attempt ${attempt}); retrying..."
+            echo "  attempt ${attempt}/${max_attempts}: not merged yet (state: ${state:-unknown}); waiting 30s..."
             attempt=$((attempt + 1))
-            sleep 15
+            sleep 30
           done
-          echo "Merged ${pr_url} — docker-compose-${MINOR} rolling release will rebuild."
 
       - name: Alert the distribution channel
         if: steps.author.outputs.changed == 'true'
