@@ -49,7 +49,7 @@ docker compose -f docker-compose-web-modeler.yaml up -d --wait --wait-timeout 30
 
 cd tests
 npm ci
-npx playwright install chromium
+npx playwright install chrome
 npx playwright test web_modeler_login.spec.ts
 ```
 
