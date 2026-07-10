@@ -247,8 +247,8 @@ services:
       IDENTITY_AUTH_PROVIDER_BACKEND_URL: http://keycloak:18080/auth/realms/camunda-platform
       IDENTITY_DATABASE_HOST: postgres
       IDENTITY_DATABASE_PORT: 5432
-      IDENTITY_DATABASE_NAME: bitnami_keycloak
-      IDENTITY_DATABASE_USERNAME: bn_keycloak
+      IDENTITY_DATABASE_NAME: keycloak
+      IDENTITY_DATABASE_USERNAME: keycloak
       IDENTITY_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
       KEYCLOAK_INIT_OPERATE_SECRET: XALaRPl5qwTEItdwCMiPS62nVpKs7dL7
       KEYCLOAK_INIT_OPERATE_ROOT_URL: http://${HOST}:8081
@@ -296,8 +296,6 @@ services:
       retries: 30
       start_period: 60s
     restart: on-failure
-    volumes:
-      - keycloak-theme:/app/keycloak-theme
     networks:
       - camunda-platform
       - identity-network
@@ -309,8 +307,8 @@ services:
     container_name: postgres
     image: postgres:${POSTGRES_VERSION}
     environment:
-      POSTGRES_DB: bitnami_keycloak
-      POSTGRES_USER: bn_keycloak
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
       POSTGRES_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
     restart: on-failure
     healthcheck:
@@ -323,26 +321,38 @@ services:
     networks:
       - identity-network
 
-  keycloak: # https://hub.docker.com/r/bitnamilegacy/keycloak
+  keycloak: # https://hub.docker.com/r/camunda/keycloak
     container_name: keycloak
-    image: bitnamilegacy/keycloak:${KEYCLOAK_SERVER_VERSION}
-    volumes:
-      - keycloak-theme:/opt/bitnami/keycloak/themes/identity
+    image: camunda/keycloak:${KEYCLOAK_SERVER_VERSION}
+    command: [start]
     ports:
       - "18080:18080"
     environment:
-      KEYCLOAK_HTTP_PORT: 18080
-      KEYCLOAK_HTTP_RELATIVE_PATH: /auth
-      KEYCLOAK_DATABASE_HOST: postgres
-      KEYCLOAK_DATABASE_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
-      KEYCLOAK_ADMIN_USER: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://postgres:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: "#3]O?4RGj)DE7Z!9SA5"
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_PORT: 18080
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HEALTH_ENABLED: "true"
+      KC_HOSTNAME_STRICT: "false"
+      KC_TRANSACTION_XA_ENABLED: "false"
     restart: on-failure
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:18080/auth"]
-      interval: 30s
+      test:
+        - CMD
+        - bash
+        - -c
+        - >-
+          exec 3<>/dev/tcp/127.0.0.1/9000 &&
+          echo -e 'GET /auth/health/ready HTTP/1.1\r\nHost: localhost\r\nConnection: close\r\n\r\n' >&3 &&
+          timeout 5 cat <&3 | grep -q '200 OK'
+      interval: 15s
       timeout: 15s
-      retries: 5
+      retries: 15
       start_period: 30s
     networks:
       - camunda-platform
@@ -517,7 +527,6 @@ volumes:
   zeebe:
   elastic:
   postgres:
-  keycloak-theme:
   operate_tmp:
   tasklist_tmp:
   postgres-web:
