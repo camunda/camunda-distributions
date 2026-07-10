@@ -123,7 +123,6 @@ jobs:
     secrets: inherit
     with:
       camunda-version: ${{ matrix.versions.camunda-version }}
-      deps-compose-args: ${{ matrix.versions.deps-compose-args }}
       main-compose-args: ${{ matrix.versions.main-compose-args }}
       e2e-test-enabled: ${{ matrix.versions.e2e-test-enabled }}
       e2e-test-directory: ${{ matrix.versions.e2e-test-directory || 'docker-compose/test/e2e' }}
