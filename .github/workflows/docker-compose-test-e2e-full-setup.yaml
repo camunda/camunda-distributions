@@ -112,6 +112,12 @@ jobs:
             camunda-version: "8.10"
             main-compose-args: "-f docker-compose.yaml"
             e2e-test-enabled: false
+          - name: Camunda 8.10 - Web Modeler Standalone
+            camunda-version: "8.10"
+            main-compose-args: "-f docker-compose-web-modeler.yaml"
+            e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.10/tests"
+            e2e-test-args: "web_modeler_login.spec.ts"
         exclude: ${{ fromJson(needs.init.outputs.unchanged-versions) }}
     uses: ./.github/workflows/docker-compose-test-e2e-template.yaml
     secrets: inherit
@@ -121,3 +127,4 @@ jobs:
       main-compose-args: ${{ matrix.versions.main-compose-args }}
       e2e-test-enabled: ${{ matrix.versions.e2e-test-enabled }}
       e2e-test-directory: ${{ matrix.versions.e2e-test-directory || 'docker-compose/test/e2e' }}
+      e2e-test-args: ${{ matrix.versions.e2e-test-args || '' }}

@@ -13,6 +13,7 @@ Playwright tests validate that each Docker Compose setup starts correctly and th
 | `docker-compose/test/e2e/` | 8.4–8.7 (and 8.8–8.9 lightweight) | Shared tests: login flows for Operate, Tasklist |
 | `docker-compose/versions/camunda-8.8/tests/` | 8.8 full-stack | Full-stack tests including Optimize, Web Modeler, Console |
 | `docker-compose/versions/camunda-8.9/tests/` | 8.9 full-stack | Same as 8.8 |
+| `docker-compose/versions/camunda-8.10/tests/` | 8.10 | Version-specific login tests; CI runs the Web Modeler test against the standalone setup |
 
 Version-specific test directories are used when `e2e-test-directory` is specified in the CI matrix (see `.github/workflows/docker-compose-test-e2e-full-setup.yaml`).
 
@@ -39,6 +40,19 @@ npx playwright install --with-deps chromium
 npx playwright test
 ```
 
+To run the focused Camunda 8.10 Keycloak and Web Modeler flow used in CI:
+
+```bash
+cd docker-compose/versions/camunda-8.10
+docker compose -f docker-compose-web-modeler.yaml down -v --remove-orphans
+docker compose -f docker-compose-web-modeler.yaml up -d --wait --wait-timeout 300
+
+cd tests
+npm ci
+npx playwright install chrome
+npx playwright test web_modeler_login.spec.ts
+```
+
 ## CI Configuration
 
 - **Browser**: Chromium only (Firefox and Safari are commented out to reduce CI time).
@@ -46,6 +60,7 @@ npx playwright test
 - **Workers**: 1 (no parallel execution) in CI.
 - **Reports**: HTML artifacts uploaded with 30-day retention.
 - **Test gate**: Only versions with `e2e-test-enabled: true` in the matrix actually run Playwright. Others only validate that compose starts and becomes healthy.
+- **8.10 coverage**: The standalone Web Modeler job runs `web_modeler_login.spec.ts`, covering Keycloak startup, Identity realm initialization, and the browser OIDC callback without requiring external Elasticsearch.
 
 ## Adding Tests for a New Version
 

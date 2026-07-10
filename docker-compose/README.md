@@ -21,6 +21,16 @@ Released Camunda versions:
 
 Camunda `8.10` includes the same compose layouts as `8.9`, but Elasticsearch is no longer bundled and must be provided externally where needed.
 
+## Keycloak Image Migration
+
+Camunda 8.7–8.10 use the Camunda-maintained, Quay-based Keycloak image. If you previously started one of these versions with the Bitnami Legacy image, remove its existing volumes before starting the updated configuration:
+
+```bash
+docker compose -f <compose-file> down -v --remove-orphans
+```
+
+This command permanently deletes the local data stored by that Compose project. A fresh PostgreSQL volume is required because the database and user were renamed from the Bitnami-specific defaults to `keycloak`, and the PostgreSQL image only creates them during initial volume setup.
+
 ## Continuous Integration
 
 The basic functionality of Docker Compose is continually tested using GitHub Actions and Playwright.
