@@ -30,6 +30,7 @@ Set `ORCHESTRATION_CONFIG_FILE` in `.env` (or export it before running `docker c
 - `application-postgresql.yaml`
 - `application-mssql.yaml`
 - `application-oracle.yaml`
+- `application-opensearch.yaml`
 
 Feel free to copy these files and adjust the JDBC URL/credentials for your environment. Example:
 
@@ -38,6 +39,8 @@ cd docker-compose/versions/camunda-8.10
 export ORCHESTRATION_CONFIG_FILE=application-mysql.yaml
 docker compose up -d
 ```
+
+The `application-opensearch.yaml` sample expects an OpenSearch instance reachable at `http://opensearch:9200`. OpenSearch is not bundled, so either point the URL at an existing instance or add one via a `docker-compose.override.yaml` on the same network — see [configure secondary storage with Docker Compose](https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/secondary-storage/) for a ready-made example.
 
 ### JDBC drivers
 
