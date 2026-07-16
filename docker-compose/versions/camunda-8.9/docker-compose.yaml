@@ -26,6 +26,9 @@ services:
       - "8080:8080"
     environment:
       - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
+    env_file:
+      - path: .env
+        required: true
     mem_limit: 1g
     restart: always
     healthcheck:
@@ -56,7 +59,10 @@ services:
     environment:
       - management.endpoints.web.exposure.include=health,configprops
       - management.endpoint.health.probes.enabled=true
-    env_file: connector-secrets.txt
+    env_file:
+      - connector-secrets.txt
+      - path: .env
+        required: true
     mem_limit: 512m
     restart: unless-stopped
     healthcheck:

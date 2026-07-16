@@ -80,7 +80,10 @@ services:
       CAMUNDA_CLIENT_AUTH_ISSUERURL: http://${KEYCLOAK_HOST}:18080/auth/realms/camunda-platform
       CAMUNDA_CLIENT_AUTH_CLIENTID: ${CONNECTORS_CLIENT_ID}
       CAMUNDA_CLIENT_AUTH_CLIENTSECRET: ${CONNECTORS_CLIENT_SECRET}
-    env_file: connector-secrets.txt
+    env_file:
+      - connector-secrets.txt
+      - path: .env
+        required: true
     restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "wget -q --spider http://localhost:8080/actuator/health/readiness"]
