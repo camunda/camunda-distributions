@@ -9,3 +9,11 @@ es:
 api:
   jwtSetUri: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
   audience: optimize-api
+
+# Send alert notifications via the bundled Mailpit SMTP server.
+# Replace hostname/port to use your own SMTP server.
+email:
+  enabled: true
+  address: optimize@camunda.example.com
+  hostname: mailpit
+  port: 1025
