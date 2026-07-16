@@ -24,7 +24,7 @@ services:
       - CAMUNDA_CLIENT_AUTH_PASSWORD=demo
 ```
 
-Then start the stack with `docker compose up -d` and manage tenants through the Orchestration Cluster API (or the Identity UI at `http://localhost:8080/identity`):
+Then start the stack with `docker compose up -d` and manage tenants through the Orchestration Cluster API (or the Orchestration Cluster Admin UI at `http://localhost:8080/admin`):
 
 ```bash
 # create a tenant
@@ -45,7 +45,7 @@ CAMUNDA_SECURITY_MULTITENANCY_CHECKSENABLED=true
 CAMUNDA_SECURITY_MULTITENANCY_APIENABLED=true
 ```
 
-Then start the stack with `docker compose -f docker-compose-full.yaml up -d` and manage tenants through the Orchestration Cluster API with an OAuth token (or the Identity UI at `http://localhost:8080/identity`):
+Then start the stack with `docker compose -f docker-compose-full.yaml up -d` and manage tenants through the Orchestration Cluster API with an OAuth token (or the Orchestration Cluster Admin UI at `http://localhost:8080/admin`):
 
 ```bash
 TOKEN=$(curl -s -X POST 'http://localhost:18080/auth/realms/camunda-platform/protocol/openid-connect/token' \
