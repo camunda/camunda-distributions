@@ -42,7 +42,7 @@ services:
     env_file:
       - path: .env
         required: true
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "timeout 10s bash -c ':> /dev/tcp/127.0.0.1/9600' || exit 1"]
       interval: 30s
@@ -377,7 +377,7 @@ services:
       memlock:
         soft: -1
         hard: -1
-    restart: always
+    restart: on-failure
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9200/_cat/health | grep -q green"]
       interval: 30s
