@@ -90,6 +90,9 @@ identity:
           root-url: "http://localhost:8083"
           redirect-uris:
             - "/api/authentication/callback"
+          permissions:
+            - audience: "optimize-api"
+              definition: write:*
       apis:
         - name: Optimize API
           audience: "optimize-api"

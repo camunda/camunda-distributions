@@ -3,3 +3,9 @@ es:
     index:
       number_of_replicas: 0
 
+
+# Secure the Optimize public REST API against the local Keycloak.
+# Tokens must carry the optimize-api audience (e.g. the zeebe M2M client).
+api:
+  jwtSetUri: http://keycloak:18080/auth/realms/camunda-platform/protocol/openid-connect/certs
+  audience: optimize-api
