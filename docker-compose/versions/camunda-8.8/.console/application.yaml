@@ -78,6 +78,6 @@ camunda:
               id: "connectors"
               # renovate: datasource=docker depName=camunda/connectors-bundle
               version: "8.8.0"
-              url: "http://localhost:8086"
+              url: "http://connectors:8080"
               readiness: "http://connectors:8080/actuator/health/readiness"
               metrics: "http://connectors:8080/actuator/prometheus"
