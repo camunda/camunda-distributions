@@ -6,7 +6,7 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
-# This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist), Connectors, and Elasticsearch
+# This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist) and Connectors
 # See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, Web Modeler, and Console.
 services:
   camunda-data-init:
