@@ -10,7 +10,7 @@ Playwright tests validate that each Docker Compose setup starts correctly and th
 
 | Path | Used by versions | Purpose |
 |------|-----------------|---------|
-| `docker-compose/test/e2e/` | 8.4–8.7 | Shared tests: login flows for Operate, Tasklist |
+| `docker-compose/test/e2e/` | 8.7 | Shared tests: login flows for Operate, Tasklist |
 | `docker-compose/versions/camunda-8.8/tests/` | 8.8 full-stack | Login flows for all full-stack apps plus `cross-component-happy-path.spec.ts` (deploy a process, complete a user task in Tasklist, verify completion in Operate), `connectors-flow.spec.ts` (outbound REST connector against Keycloak's discovery endpoint), `webhook-flow.spec.ts` (inbound webhook creates an instance), and `api-smoke.spec.ts` (REST v2 searches, connectors runtime health, negative auth checks) |
 | `docker-compose/versions/camunda-8.9/tests/` | 8.9 full-stack | Same as 8.8 |
 | `docker-compose/versions/camunda-8.10/tests/` | 8.10 full-stack, Web Modeler standalone | Same as 8.8 minus Console (no console service in 8.10); also holds `docker-compose.elasticsearch-ci.yaml` (throwaway ES for CI) |

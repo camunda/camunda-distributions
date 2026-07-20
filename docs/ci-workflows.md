@@ -11,7 +11,7 @@ docker-compose/
   versions/
     camunda-8.4/ … camunda-8.10/   # Per-version compose configs
   test/
-    e2e/                            # Shared Playwright tests (used by 8.4–8.7)
+    e2e/                            # Shared Playwright tests (used by 8.7)
 
 .github/
   actions/
