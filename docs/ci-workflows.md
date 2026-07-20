@@ -35,19 +35,22 @@ Triggers on push to `main` or PR touching `docker-compose/versions/**`.
 
 - **init job**: Runs `generate-versions-matrix` to build an exclude list of unchanged versions (skip-if-unchanged optimization).
 - **exec job**: Fans out across all version matrix entries; passes compose args, e2e flag, and test directory to the reusable template.
-- Each matrix entry specifies: `camunda-version`, `main-compose-args`, `e2e-test-enabled`, optional `e2e-test-directory`.
-- E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/`.
+- Each matrix entry specifies: `camunda-version`, `main-compose-args`, `e2e-test-enabled`, optional `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
+- E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/` (full-stack) and `tests-lightweight/` (lightweight, `@camunda/e2e-test-suite` c8Run suite).
 - Matrix entries marked ⭐ are the primary configs per version (full-stack with e2e enabled).
+- The 8.10 full-stack entry uses `deps-compose-args` to start `tests/docker-compose.elasticsearch-ci.yaml` before the main compose, since 8.10 no longer bundles Elasticsearch.
 
 ### E2E Test Template (`docker-compose-test-e2e-template.yaml`)
 
 Reusable workflow called by the full-setup. Steps:
 1. Checkout repo.
-2. `install-playwright` composite action (Node 24, npm cache, Playwright Chromium).
-3. Start Docker Compose services.
+2. `install-playwright` composite action (Node 24, `npm ci`, `npx playwright install --with-deps chromium`).
+3. Start Docker Compose dependencies (`deps-compose-args`, if set), then the main services.
 4. Wait for health checks.
 5. Run `npx playwright test` with configured args.
 6. Upload HTML report as artifact (30-day retention).
+
+Job timeout defaults to 30 minutes; matrix entries can raise it via `timeout-minutes` (the c8Run suite's connectors webhook spec waits 5 minutes synchronously, so lightweight entries use 45).
 
 Playwright config: Chromium only in CI (`retries: 2`, `workers: 1`).
 
