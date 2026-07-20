@@ -98,7 +98,16 @@ jobs:
           - name: Camunda 8.10
             camunda-version: "8.10"
             main-compose-args: "-f docker-compose.yaml"
-            e2e-test-enabled: false
+            e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.10/tests-lightweight"
+            timeout-minutes: 45
+          - name: Camunda 8.10 - Full Stack
+            camunda-version: "8.10"
+            deps-compose-args: "-f tests/docker-compose.elasticsearch-ci.yaml"
+            main-compose-args: "-f docker-compose-full.yaml"
+            e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.10/tests"
+            timeout-minutes: 45
           - name: Camunda 8.10 - Web Modeler Standalone
             camunda-version: "8.10"
             main-compose-args: "-f docker-compose-web-modeler.yaml"
