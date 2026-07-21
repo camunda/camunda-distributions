@@ -419,6 +419,7 @@ services:
       interval: 30s
     networks:
       - web-modeler
+      - camunda-platform
 
   web-modeler-restapi:
     container_name: web-modeler-restapi

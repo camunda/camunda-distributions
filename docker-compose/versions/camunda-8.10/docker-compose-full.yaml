@@ -281,6 +281,7 @@ services:
       start_period: 10s
     networks:
       - web-modeler
+      - camunda-platform
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
