@@ -8,6 +8,7 @@ yarn-error.log*
 test-results/
 playwright-report/
 playwright/.cache/
+docker-compose/versions/*/tests-lightweight/resources
 *.png
 *.jpg
 *.jpeg

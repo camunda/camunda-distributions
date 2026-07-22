@@ -27,6 +27,11 @@ on:
         description: Arguments supplied to Playwright
         required: false
         type: string
+      timeout-minutes:
+        description: Job timeout in minutes
+        required: false
+        type: number
+        default: 30
 
 env:
   COMPOSE_WORKING_DIRECTORY: docker-compose/versions/camunda-${{ inputs.camunda-version }}
@@ -36,7 +41,7 @@ jobs:
     # if: contains(inputs.changed-versions, inputs.camunda-version)
     name: Run
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: ${{ inputs.timeout-minutes }}
     steps:
       #
       # Init.

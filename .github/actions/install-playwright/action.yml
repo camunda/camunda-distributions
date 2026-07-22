@@ -17,3 +17,8 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       shell: bash
       run: npm ci
+
+    - name: Install Playwright browsers
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+      run: npx playwright install --with-deps chromium

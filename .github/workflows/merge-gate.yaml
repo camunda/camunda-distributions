@@ -47,6 +47,7 @@ jobs:
               - docker-compose/versions/**
               - .github/workflows/docker-compose-test-e2e-template.yaml
               - .github/workflows/docker-compose-test-e2e-full-setup.yaml
+              - .github/actions/**
 
       - name: Post gate status
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
