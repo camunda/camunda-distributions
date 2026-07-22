@@ -17,6 +17,15 @@ You are working on the **Camunda 8 Self-Managed Distributions** repository. It h
 - Keep changes version-scoped; the release workflow handles each version independently.
 - Read `STATE.md` at repo root if it exists (session continuity file, gitignored).
 
+## Docker Compose Contracts
+
+- Treat the Compose distributions as local development and evaluation environments, not production deployment definitions.
+- Preserve each documented entry point. Standalone Web Modeler/Hub must start with one selected Compose file, without prerequisite Compose commands or layering Camunda Compose files.
+- Docker `configs.content` already creates mounted application configuration; keep lightweight configs inline when that preserves the compact workflow.
+- Full-stack component sidecars are intentional. Do not merge them into `configuration/`, which holds selectable Orchestration configuration where present.
+- Keep Spring environment variables usable as overrides and keep secret delivery environment-based (`.env`, `env_file`, or exported variables). Do not embed resolved secrets in application YAML.
+- When translating application settings, use the matching version's component or Helm schema; do not copy configuration mechanically across versions.
+
 ## Commit and Branch Conventions
 
 - Branches: `issueId-description` (e.g., `423-fix-8-10-postgres-config`)
