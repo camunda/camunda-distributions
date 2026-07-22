@@ -11,7 +11,7 @@ docker-compose/
   versions/
     camunda-8.4/ … camunda-8.10/   # Per-version compose configs
   test/
-    e2e/                            # Shared Playwright tests (used by 8.4–8.7)
+    e2e/                            # Shared Playwright tests (used by 8.7)
 
 .github/
   actions/
@@ -31,25 +31,28 @@ docker-compose/
 
 ### E2E Tests (`docker-compose-test-e2e-full-setup.yaml`)
 
-Triggers on push to `main` or PR touching `docker-compose/versions/**`.
+Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull requests that touch version files, either E2E workflow, or anything under `.github/actions/**`.
 
 - **init job**: Runs `generate-versions-matrix` to build an exclude list of unchanged versions (skip-if-unchanged optimization).
 - **exec job**: Fans out across all version matrix entries; passes compose args, e2e flag, and test directory to the reusable template.
-- Each matrix entry specifies: `camunda-version`, `main-compose-args`, `e2e-test-enabled`, optional `e2e-test-directory`.
-- E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/`.
+- Each matrix entry sets `name`, `camunda-version`, `main-compose-args`, and `e2e-test-enabled`; optional fields are `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
+- E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/` (full-stack) and `tests-lightweight/` (lightweight, `@camunda/e2e-test-suite` c8Run suite).
 - Matrix entries marked ⭐ are the primary configs per version (full-stack with e2e enabled).
+- The 8.10 full-stack entry uses `deps-compose-args` to start `tests/docker-compose.elasticsearch-ci.yaml` before the main compose, since 8.10 no longer bundles Elasticsearch.
 
 ### E2E Test Template (`docker-compose-test-e2e-template.yaml`)
 
 Reusable workflow called by the full-setup. Steps:
 1. Checkout repo.
-2. `install-playwright` composite action (Node 24, npm cache, Playwright Chromium).
-3. Start Docker Compose services.
+2. `install-playwright` composite action (Node 24, `npm ci`, `npx playwright install --with-deps chromium`).
+3. Start Docker Compose dependencies (`deps-compose-args`, if set), then the main services.
 4. Wait for health checks.
 5. Run `npx playwright test` with configured args.
 6. Upload HTML report as artifact (30-day retention).
 
-Playwright config: Chromium only in CI (`retries: 2`, `workers: 1`).
+Job timeout defaults to 30 minutes. The 8.8–8.10 full-stack and lightweight entries use 45 minutes to leave room for container startup, long connector and webhook flows, and CI retries.
+
+Playwright uses two retries and one worker in CI. Shared and full-stack suites launch the Chrome channel; lightweight suites launch Playwright Chromium.
 
 ### Release (`docker-compose-release.yaml`)
 
