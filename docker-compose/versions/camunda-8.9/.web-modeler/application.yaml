@@ -1,0 +1,70 @@
+camunda:
+  identity:
+    base-url: http://identity:8084/
+    issuer: "http://${HOST:localhost}:18080/auth/realms/camunda-platform"
+    issuerBackendUrl: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
+    type: KEYCLOAK
+  modeler:
+    feature:
+      play-enabled: true
+    pusher:
+      host: web-modeler-websockets
+      port: 8060
+      app-id: "${WEBMODELER_PUSHER_APP_ID:web-modeler-app}"
+      key: "${WEBMODELER_PUSHER_KEY:web-modeler-app-key}"
+      secret: "${WEBMODELER_PUSHER_SECRET:web-modeler-app-secret}"
+      client:
+        host: localhost
+        port: 8060
+        force-tls: false
+    security:
+      jwt:
+        issuer:
+          backend-url: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
+        audience:
+          internal-api: web-modeler-api
+          public-api: web-modeler-public-api
+    mail:
+      from-address: "${WEBMODELER_MAIL_FROM_ADDRESS:noreply@camunda.example.com}"
+    oauth2:
+      client-id: web-modeler
+    server:
+      url: http://localhost:8070
+      https-only: false
+
+spring:
+  profiles:
+    include: default-logging
+  datasource:
+    url: "jdbc:postgresql://web-modeler-db:5432/${WEBMODELER_DB_NAME:web-modeler-db}"
+    username: "${WEBMODELER_DB_USER:web-modeler-db-user}"
+    password: "${WEBMODELER_DB_PASSWORD:demo-webmodeler-password}"
+  mail:
+    host: mailpit
+    port: 1025
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+      mail.smtp.starttls.required: false
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: "http://${HOST:localhost}:18080/auth/realms/camunda-platform"
+          jwk-set-uri: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,configprops
+  endpoint:
+    configprops:
+      show-values: ALWAYS
+    health:
+      probes:
+        enabled: true
+
+logging:
+  level:
+    io.camunda.modeler: DEBUG

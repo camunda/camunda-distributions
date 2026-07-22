@@ -1,0 +1,17 @@
+spring:
+  config:
+    import: file:/home/runner/config/application-common.yaml
+
+camunda:
+  modeler:
+    clusters:
+      - id: local-orchestration
+        name: Local Orchestration instance
+        version: "${CAMUNDA_VERSION:8.9}"
+        url:
+          grpc: grpc://orchestration:26500
+          rest: http://orchestration:8080
+          web-app: http://localhost:8080
+        authentication: BEARER_TOKEN
+        authorizations:
+          enabled: "${RESOURCE_AUTHORIZATIONS_ENABLED:true}"
