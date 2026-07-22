@@ -66,10 +66,13 @@ jobs:
             main-compose-args: "-f docker-compose-full.yaml"
             e2e-test-enabled: true
             e2e-test-directory: "docker-compose/versions/camunda-8.8/tests"
+            timeout-minutes: 45
           - name: Camunda 8.8 - Identity Disabled
             camunda-version: "8.8"
             main-compose-args: "-f docker-compose.yaml"
-            e2e-test-enabled: false
+            e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.8/tests-lightweight"
+            timeout-minutes: 45
           - name: Camunda 8.8 - Web Modeler Standalone
             camunda-version: "8.8"
             main-compose-args: "-f docker-compose-web-modeler.yaml"
