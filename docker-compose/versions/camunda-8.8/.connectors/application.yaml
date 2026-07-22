@@ -4,8 +4,13 @@
 camunda:
   client:
     mode: self-managed
+    rest-address: http://orchestration:8080
+    grpc-address: http://orchestration:26500
     auth:
       method: oidc
+      token-url: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform/protocol/openid-connect/token"
+      client-id: "${CONNECTORS_CLIENT_ID:connectors}"
+      client-secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
       credentialsCachePath: /tmp/orchestration_auth_cache
       audience: orchestration-api
   connector:

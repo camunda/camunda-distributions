@@ -43,9 +43,6 @@ services:
     container_name: connectors
     ports:
       - "8086:8080"
-    environment:
-      - management.endpoints.web.exposure.include=health,configprops
-      - management.endpoint.health.probes.enabled=true
     env_file:
       - connector-secrets.txt
       - path: .env
@@ -112,6 +109,15 @@ configs:
           secretprovider:
             environment:
               prefix: "CONNECTORS_SECRET"
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: health,configprops
+        endpoint:
+          health:
+            probes:
+              enabled: true
 
   orchestration-config:
     content: |
