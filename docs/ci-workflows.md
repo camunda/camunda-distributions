@@ -31,11 +31,11 @@ docker-compose/
 
 ### E2E Tests (`docker-compose-test-e2e-full-setup.yaml`)
 
-Triggers on push to `main` or PR touching `docker-compose/versions/**`.
+Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull requests that touch version files, either E2E workflow, or anything under `.github/actions/**`.
 
 - **init job**: Runs `generate-versions-matrix` to build an exclude list of unchanged versions (skip-if-unchanged optimization).
 - **exec job**: Fans out across all version matrix entries; passes compose args, e2e flag, and test directory to the reusable template.
-- Each matrix entry specifies: `camunda-version`, `main-compose-args`, `e2e-test-enabled`, optional `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
+- Each matrix entry sets `name`, `camunda-version`, `main-compose-args`, and `e2e-test-enabled`; optional fields are `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
 - E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/` (full-stack) and `tests-lightweight/` (lightweight, `@camunda/e2e-test-suite` c8Run suite).
 - Matrix entries marked ⭐ are the primary configs per version (full-stack with e2e enabled).
 - The 8.10 full-stack entry uses `deps-compose-args` to start `tests/docker-compose.elasticsearch-ci.yaml` before the main compose, since 8.10 no longer bundles Elasticsearch.
@@ -50,9 +50,9 @@ Reusable workflow called by the full-setup. Steps:
 5. Run `npx playwright test` with configured args.
 6. Upload HTML report as artifact (30-day retention).
 
-Job timeout defaults to 30 minutes; matrix entries can raise it via `timeout-minutes` (the c8Run suite's connectors webhook spec waits 5 minutes synchronously, so lightweight entries use 45).
+Job timeout defaults to 30 minutes. The 8.8–8.10 full-stack and lightweight entries use 45 minutes to leave room for container startup, long connector and webhook flows, and CI retries.
 
-Playwright config: Chromium only in CI (`retries: 2`, `workers: 1`).
+Playwright uses two retries and one worker in CI. Shared and full-stack suites launch the Chrome channel; lightweight suites launch Playwright Chromium.
 
 ### Release (`docker-compose-release.yaml`)
 
