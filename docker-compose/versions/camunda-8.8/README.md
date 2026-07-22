@@ -2,7 +2,17 @@
 
 ## Usage
 
-For end user usage, please check the offical documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/next/self-managed/quickstart/developer-quickstart/docker-compose/).
+For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/next/self-managed/quickstart/developer-quickstart/docker-compose/).
+
+## Application configuration
+
+Camunda services read their application settings from YAML mounted by Docker Compose:
+
+- The lightweight `docker-compose.yaml` keeps its Orchestration and Connectors YAML inline under `configs`, preserving the single-file setup.
+- The full and standalone setups share component files under `.identity/` and `.web-modeler/`. The standalone-only Identity overlay remains inline in `docker-compose-web-modeler.yaml`.
+- The full setup additionally uses `.orchestration/application.yaml`, `.connectors/application.yaml`, and the files under `.optimize/`. Web Modeler cluster registrations are isolated in `.web-modeler/application-full.yaml`.
+
+The mounted files reference values from `.env` with `${VARIABLE:default}` placeholders. Keep environment-specific endpoints and secrets in `.env`; direct Spring environment variables can still override file values. PostgreSQL, Keycloak, Elasticsearch, Web Modeler WebSockets, the separate Web Modeler webapp, and Console continue to use their native environment-based configuration.
 
 ## Enabling multi-tenancy
 

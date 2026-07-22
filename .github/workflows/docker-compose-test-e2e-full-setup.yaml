@@ -76,7 +76,9 @@ jobs:
           - name: Camunda 8.8 - Web Modeler Standalone
             camunda-version: "8.8"
             main-compose-args: "-f docker-compose-web-modeler.yaml"
-            e2e-test-enabled: false
+            e2e-test-enabled: true
+            e2e-test-directory: "docker-compose/versions/camunda-8.8/tests"
+            e2e-test-args: "web_modeler_login.spec.ts"
           # Camunda 8.9
           - name: Camunda 8.9 ⭐
             camunda-version: "8.9"

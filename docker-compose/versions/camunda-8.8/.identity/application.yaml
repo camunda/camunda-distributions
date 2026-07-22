@@ -2,6 +2,7 @@ identity:
   url: "http://localhost:8084"
   flags:
     multi-tenancy: "false"
+    resource-permissions: "${RESOURCE_AUTHORIZATIONS_ENABLED:true}"
 
   authProvider:
     issuer-url: "http://${HOST}:18080/auth/realms/camunda-platform"
@@ -13,7 +14,7 @@ identity:
         - name: Connectors
           id: connectors
           type: m2m
-          secret: ${VALUES_KEYCLOAK_INIT_CONNECTORS_SECRET:demo-connectors-secret}
+          secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
           permissions:
             - audience: "orchestration-api"
               definition: read:*
@@ -61,7 +62,7 @@ identity:
         - name: Orchestration
           id: orchestration
           type: confidential
-          secret: ${VALUES_KEYCLOAK_INIT_ORCHESTRATION_SECRET:secret}
+          secret: "${ORCHESTRATION_CLIENT_SECRET:secret}"
           root-url: "http://localhost:8088"
           redirect-uris:
             - "/sso-callback"
@@ -86,7 +87,7 @@ identity:
         - name: Optimize
           id: optimize
           type: confidential
-          secret: ${VALUES_KEYCLOAK_INIT_OPTIMIZE_SECRET:demo-optimize-secret}
+          secret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
           root-url: "http://localhost:8083"
           redirect-uris:
             - "/api/authentication/callback"
@@ -159,13 +160,13 @@ keycloak:
     password: "${KEYCLOAK_ADMIN_PASSWORD:admin}"
   init:
     console:
-      secret: ${VALUES_KEYCLOAK_INIT_CONSOLE_SECRET:demo-console-secret}
+      secret: "${CONSOLE_CLIENT_SECRET:demo-console-secret}"
     orchestration:
-      secret: ${VALUES_KEYCLOAK_INIT_ORCHESTRATION_SECRET:secret}
+      secret: "${ORCHESTRATION_CLIENT_SECRET:secret}"
     optimize:
-      secret: ${VALUES_KEYCLOAK_INIT_OPTIMIZE_SECRET:demo-optimize-secret}
+      secret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
     connectors:
-      secret: ${VALUES_KEYCLOAK_INIT_CONNECTORS_SECRET:demo-connectors-secret}
+      secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
     webmodeler:
       root-url: "http://localhost:8070"
   clients:
@@ -196,8 +197,26 @@ server:
   port: 8084
 
 spring:
+  config:
+    import: optional:file:/app/config/application-web-modeler.yaml
   profiles:
     active: keycloak
+  datasource:
+    url: "jdbc:postgresql://postgres:5432/${POSTGRES_DB:keycloak}"
+    username: "${POSTGRES_USER:keycloak}"
+    password: "${POSTGRES_PASSWORD:demo-postgres-password}"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,configprops
+  endpoint:
+    configprops:
+      show-values: ALWAYS
+    health:
+      probes:
+        enabled: true
 
 camunda:
   identity:
