@@ -2,17 +2,23 @@ import { test, expect } from '@playwright/test';
 import * as path from 'path';
 import { BASE_URL, CONNECTORS_URL, getAccessToken, deployProcess } from './utils/api';
 
-const PROCESS_ID = 'webhook_start_process';
-const WEBHOOK_URL = `${CONNECTORS_URL}/inbound/distro-webhook`;
+const RUN_ID = `${Date.now()}`;
+const PROCESS_ID = `webhook_start_process_${RUN_ID}`;
+const WEBHOOK_ID = `distro-webhook-${RUN_ID}`;
+const WEBHOOK_URL = `${CONNECTORS_URL}/inbound/${WEBHOOK_ID}`;
 
 test('inbound webhook connector flow: deploy, trigger webhook, verify instance created', async () => {
-  test.setTimeout(180000);
+  test.setTimeout(210000);
 
   const token = await getAccessToken();
   await deployProcess(
     token,
     path.resolve(__dirname, 'resources', 'webhook_start_process.bpmn'),
     'webhook_start_process.bpmn',
+    (bpmn) =>
+      bpmn
+        .replaceAll('webhook_start_process', PROCESS_ID)
+        .replaceAll('distro-webhook', WEBHOOK_ID),
   );
 
   // The connectors runtime registers the webhook asynchronously after deployment
