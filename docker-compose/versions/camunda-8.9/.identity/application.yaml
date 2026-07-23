@@ -157,7 +157,7 @@ keycloak:
   url: "http://${KEYCLOAK_HOST}:18080/auth"
   setup:
     user: "${KEYCLOAK_ADMIN_USER:admin}"
-    password: "${KEYCLOAK_ADMIN_PASSWORD:admin}"
+    password: "${KEYCLOAK_ADMIN_PASSWORD}"
   init:
     console:
       secret: "${CONSOLE_CLIENT_SECRET}"
