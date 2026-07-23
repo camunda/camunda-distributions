@@ -9,8 +9,8 @@ camunda:
       host: web-modeler-websockets
       port: 8060
       app-id: "${WEBMODELER_PUSHER_APP_ID:web-modeler-app}"
-      key: "${WEBMODELER_PUSHER_KEY:web-modeler-app-key}"
-      secret: "${WEBMODELER_PUSHER_SECRET:web-modeler-app-secret}"
+      key: "${WEBMODELER_PUSHER_KEY}"
+      secret: "${WEBMODELER_PUSHER_SECRET}"
     security:
       jwt:
         issuer:
@@ -29,7 +29,7 @@ spring:
   datasource:
     url: "jdbc:postgresql://web-modeler-db:5432/${WEBMODELER_DB_NAME:web-modeler-db}"
     username: "${WEBMODELER_DB_USER:web-modeler-db-user}"
-    password: "${WEBMODELER_DB_PASSWORD:demo-webmodeler-password}"
+    password: "${WEBMODELER_DB_PASSWORD}"
   mail:
     host: mailpit
     port: 1025
