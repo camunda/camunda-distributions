@@ -10,7 +10,7 @@ camunda:
       method: oidc
       issuer-url: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
       client-id: "${CONNECTORS_CLIENT_ID:connectors}"
-      client-secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
+      client-secret: "${CONNECTORS_CLIENT_SECRET}"
       credentialsCachePath: /tmp/orchestration_auth_cache
       audience: orchestration-api
   connector:

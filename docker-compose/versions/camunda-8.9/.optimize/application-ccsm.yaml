@@ -3,7 +3,7 @@ camunda:
     issuer: "http://${HOST:localhost}:18080/auth/realms/camunda-platform"
     issuerBackendUrl: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
     clientId: optimize
-    clientSecret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
+    clientSecret: "${OPTIMIZE_CLIENT_SECRET}"
     audience: optimize-api
     baseUrl: http://identity:8084
 
