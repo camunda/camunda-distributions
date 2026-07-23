@@ -17,7 +17,7 @@
   "author": "",
   "license": "Apache-2.0",
   "devDependencies": {
-    "@camunda/e2e-test-suite": "0.0.857",
+    "@camunda/e2e-test-suite": "0.0.858",
     "@playwright/test": "^1.61.1",
     "@types/node": "^18.0.0",
     "dotenv": "^16.5.0",
