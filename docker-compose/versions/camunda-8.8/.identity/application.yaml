@@ -14,7 +14,7 @@ identity:
         - name: Connectors
           id: connectors
           type: m2m
-          secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
+          secret: "${CONNECTORS_CLIENT_SECRET}"
           permissions:
             - audience: "orchestration-api"
               definition: read:*
@@ -87,7 +87,7 @@ identity:
         - name: Optimize
           id: optimize
           type: confidential
-          secret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
+          secret: "${OPTIMIZE_CLIENT_SECRET}"
           root-url: "http://localhost:8083"
           redirect-uris:
             - "/api/authentication/callback"
@@ -160,13 +160,13 @@ keycloak:
     password: "${KEYCLOAK_ADMIN_PASSWORD:admin}"
   init:
     console:
-      secret: "${CONSOLE_CLIENT_SECRET:demo-console-secret}"
+      secret: "${CONSOLE_CLIENT_SECRET}"
     orchestration:
       secret: "${ORCHESTRATION_CLIENT_SECRET}"
     optimize:
-      secret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
+      secret: "${OPTIMIZE_CLIENT_SECRET}"
     connectors:
-      secret: "${CONNECTORS_CLIENT_SECRET:demo-connectors-secret}"
+      secret: "${CONNECTORS_CLIENT_SECRET}"
     webmodeler:
       root-url: "http://localhost:8070"
   clients:
@@ -204,7 +204,7 @@ spring:
   datasource:
     url: "jdbc:postgresql://postgres:5432/${POSTGRES_DB:keycloak}"
     username: "${POSTGRES_USER:keycloak}"
-    password: "${POSTGRES_PASSWORD:demo-postgres-password}"
+    password: "${POSTGRES_PASSWORD}"
 
 management:
   endpoints:
