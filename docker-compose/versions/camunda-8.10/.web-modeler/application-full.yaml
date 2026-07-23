@@ -1,0 +1,78 @@
+spring:
+  config:
+    import: file:/home/runner/config/application-common.yaml
+
+camunda:
+  modeler:
+    clusters:
+      - id: management
+        name: management
+        version: "${CAMUNDA_WEB_MODELER_VERSION:8.10}"
+        tags:
+          - dev
+          - local
+        authentication: BEARER_TOKEN
+        authorizations:
+          enabled: "${RESOURCE_AUTHORIZATIONS_ENABLED:true}"
+        namespace: management
+        components:
+          - name: Identity
+            type: identity
+            version: "${CAMUNDA_IDENTITY_VERSION:8.9}"
+            urls:
+              webapp: http://localhost:8084
+              readiness: http://identity:8082/actuator/health
+          - name: WebModeler
+            type: webModelerWebApp
+            version: "${CAMUNDA_WEB_MODELER_VERSION:8.10}"
+            urls:
+              webapp: http://localhost:8070
+              readiness: http://hub:8091/health/readiness
+      - id: camunda-platform
+        name: camunda-platform
+        version: "${CAMUNDA_VERSION:8.10}"
+        tags:
+          - dev
+          - local
+        authentication: BEARER_TOKEN
+        authorizations:
+          enabled: "${RESOURCE_AUTHORIZATIONS_ENABLED:true}"
+        namespace: camunda-platform
+        components:
+          - name: Orchestration
+            type: orchestration
+            version: "${CAMUNDA_VERSION:8.10}"
+            urls:
+              grpc: grpc://orchestration:26500
+              rest: http://orchestration:8080
+              readiness: http://orchestration:9600/actuator/health/status
+          - name: Operate
+            type: operate
+            version: "${CAMUNDA_VERSION:8.10}"
+            urls:
+              webapp: http://localhost:8080/operate
+              readiness: http://orchestration:9600/actuator/health/readiness
+          - name: Tasklist
+            type: tasklist
+            version: "${CAMUNDA_VERSION:8.10}"
+            urls:
+              webapp: http://localhost:8080/tasklist
+              readiness: http://orchestration:9600/actuator/health/readiness
+          - name: Optimize
+            type: optimize
+            version: "${CAMUNDA_OPTIMIZE_VERSION:8.10}"
+            urls:
+              webapp: http://localhost:8083
+              readiness: http://optimize:8090/api/readyz
+          - name: Connectors
+            type: connectors
+            version: "${CAMUNDA_CONNECTORS_VERSION:8.10}"
+            urls:
+              rest: http://connectors:8080
+              readiness: http://connectors:8080/actuator/health/readiness
+          - name: Admin
+            type: orchestrationIdentity
+            version: "${CAMUNDA_VERSION:8.10}"
+            urls:
+              webapp: http://localhost:8080/admin
+              readiness: http://orchestration:9600/actuator/health/readiness

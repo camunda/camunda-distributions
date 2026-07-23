@@ -57,9 +57,6 @@ services:
     container_name: connectors
     ports:
       - "8086:8080"
-    environment:
-      - management.endpoints.web.exposure.include=health,configprops
-      - management.endpoint.health.probes.enabled=true
     env_file:
       - connector-secrets.txt
       - path: .env
@@ -74,7 +71,7 @@ services:
       start_period: 30s
     configs:
       - source: connectors-config
-        target: application.yaml
+        target: /application.yaml
     networks:
       - camunda
     depends_on:
@@ -102,6 +99,15 @@ configs:
           secretprovider:
             environment:
               prefix: "CONNECTORS_SECRET"
+      management:
+        endpoints:
+          web:
+            exposure:
+              include: health,configprops
+        endpoint:
+          health:
+            probes:
+              enabled: true
 
   orchestration-config:
     file: ./configuration/${ORCHESTRATION_CONFIG_FILE:-application-h2.yaml}
