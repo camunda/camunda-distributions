@@ -213,5 +213,5 @@ configs:
         clients:
           - name: orchestration
             id: "$${ORCHESTRATION_CLIENT_ID:orchestration}"
-            secret: "$${ORCHESTRATION_CLIENT_SECRET:secret}"
+            secret: "$${ORCHESTRATION_CLIENT_SECRET}"
             type: M2M
