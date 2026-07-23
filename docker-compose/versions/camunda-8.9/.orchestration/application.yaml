@@ -97,7 +97,7 @@ camunda:
       unprotectedApi: false
       oidc:
         client-id: "${ORCHESTRATION_CLIENT_ID:orchestration}"
-        client-secret: "${ORCHESTRATION_CLIENT_SECRET:secret}"
+        client-secret: "${ORCHESTRATION_CLIENT_SECRET}"
         audiences:
           - orchestration
           - orchestration-api

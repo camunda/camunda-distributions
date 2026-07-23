@@ -62,7 +62,7 @@ identity:
         - name: Orchestration
           id: orchestration
           type: confidential
-          secret: "${ORCHESTRATION_CLIENT_SECRET:secret}"
+          secret: "${ORCHESTRATION_CLIENT_SECRET}"
           root-url: "http://localhost:8080"
           redirect-uris:
             - "/sso-callback"
@@ -162,7 +162,7 @@ keycloak:
     console:
       secret: "${CONSOLE_CLIENT_SECRET:demo-console-secret}"
     orchestration:
-      secret: "${ORCHESTRATION_CLIENT_SECRET:secret}"
+      secret: "${ORCHESTRATION_CLIENT_SECRET}"
     optimize:
       secret: "${OPTIMIZE_CLIENT_SECRET:demo-optimize-secret}"
     connectors:
