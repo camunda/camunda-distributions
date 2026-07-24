@@ -29,6 +29,10 @@ zeebe:
       network:
         host: 0.0.0.0
         port: 26500
+      security:
+        authentication:
+          identity:
+            issuerBackendUrl: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
 
     # zeebe.broker.network
     network:
@@ -81,10 +85,28 @@ camunda:
     query:
       enabled: true
 
+  identity:
+    issuer-backend-url: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
+    base-url: http://identity:8084
+    audience: orchestration-api
+
   security:
     authentication:
       method: "oidc"
       unprotectedApi: false
+      oidc:
+        client-id: "${ORCHESTRATION_CLIENT_ID:orchestration}"
+        client-secret: "${ORCHESTRATION_CLIENT_SECRET}"
+        audiences:
+          - orchestration
+          - orchestration-api
+          - web-modeler-api
+        authorization-uri: "http://${HOST:localhost}:18080/auth/realms/camunda-platform/protocol/openid-connect/auth"
+        token-uri: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform/protocol/openid-connect/token"
+        jwk-set-uri: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform/protocol/openid-connect/certs"
+        redirect-uri: "http://${HOST:localhost}:8088/sso-callback"
+        username-claim: preferred_username
+        client-id-claim: client_id
     authorizations:
       enabled: true
     initialization:
