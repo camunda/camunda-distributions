@@ -68,6 +68,7 @@ zeebe:
             size: 1
           index:
             prefix: "zeebe-record"
+            numberOfReplicas: 0
 
 camunda:
   database:
