@@ -68,7 +68,8 @@ zeebe:
             size: 1
           index:
             prefix: "zeebe-record"
-      CamundaExporter:
+            numberOfReplicas: 0
+      camundaexporter:
         className: "io.camunda.exporter.CamundaExporter"
         args:
           connect:
