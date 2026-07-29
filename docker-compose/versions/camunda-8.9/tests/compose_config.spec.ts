@@ -11,9 +11,15 @@ type ComposeConfig = {
 const composeDirectory = resolve(__dirname, '..');
 const overrides = {
   HOST: 'example.test',
-  IDENTITY_CLIENT_SECRET: 'identity-changed',
   KEYCLOAK_HOST: 'keycloak.example.test',
   ORCHESTRATION_CLIENT_SECRET: 'changed',
+  VALUES_CAMUNDA_IDENTITY_CLIENT_SECRET: 'identity-changed',
+};
+const identityOverrides = {
+  HOST: overrides.HOST,
+  KEYCLOAK_HOST: overrides.KEYCLOAK_HOST,
+  ORCHESTRATION_CLIENT_SECRET: overrides.ORCHESTRATION_CLIENT_SECRET,
+  CAMUNDA_IDENTITY_CLIENT_SECRET: overrides.VALUES_CAMUNDA_IDENTITY_CLIENT_SECRET,
 };
 const expectations = {
   'docker-compose-full.yaml': {
@@ -28,14 +34,14 @@ const expectations = {
       KEYCLOAK_HOST: overrides.KEYCLOAK_HOST,
       SPRING_PROFILES_ACTIVE: 'ccsm',
     },
-    identity: overrides,
+    identity: identityOverrides,
     'web-modeler-restapi': {
       HOST: overrides.HOST,
       KEYCLOAK_HOST: overrides.KEYCLOAK_HOST,
     },
   },
   'docker-compose-web-modeler.yaml': {
-    identity: overrides,
+    identity: identityOverrides,
     'web-modeler-restapi': {
       HOST: overrides.HOST,
       KEYCLOAK_HOST: overrides.KEYCLOAK_HOST,
