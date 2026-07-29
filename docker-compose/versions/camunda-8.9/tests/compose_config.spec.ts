@@ -11,12 +11,17 @@ type ComposeConfig = {
 const composeDirectory = resolve(__dirname, '..');
 const overrides = {
   HOST: 'example.test',
+  IDENTITY_CLIENT_SECRET: 'identity-changed',
   KEYCLOAK_HOST: 'keycloak.example.test',
   ORCHESTRATION_CLIENT_SECRET: 'changed',
 };
 const expectations = {
   'docker-compose-full.yaml': {
-    orchestration: overrides,
+    orchestration: {
+      HOST: overrides.HOST,
+      KEYCLOAK_HOST: overrides.KEYCLOAK_HOST,
+      ORCHESTRATION_CLIENT_SECRET: overrides.ORCHESTRATION_CLIENT_SECRET,
+    },
     connectors: { KEYCLOAK_HOST: overrides.KEYCLOAK_HOST },
     optimize: {
       HOST: overrides.HOST,
