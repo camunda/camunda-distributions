@@ -14,6 +14,10 @@ Camunda services read their application settings from YAML mounted by Docker Com
 
 The mounted files reference values from `.env` with `${VARIABLE:default}` placeholders. Keep environment-specific endpoints and secrets in `.env`; direct Spring environment variables can still override file values. PostgreSQL, Keycloak, Elasticsearch, Web Modeler WebSockets, Console, and other non-Spring services continue to use their native environment-based configuration.
 
+## JDBC drivers
+
+The Camunda Docker image automatically loads any `.jar` dropped into `/driver-lib`. A writable `driver-lib/` folder is included next to the compose file so you can copy the vendor JDBC driver there before starting (e.g., `driver-lib/mysql-connector-j-9.0.0.jar`). This is required for MySQL and Oracle. PostgreSQL, MariaDB, SQL Server, and H2 drivers are already bundled in the image — see [supported JDBC driver versions](https://docs.camunda.io/docs/self-managed/concepts/databases/relational-db/rdbms-support-policy/#bundled-drivers) for the authoritative list.
+
 ## Enabling multi-tenancy
 
 ### Lightweight configuration
