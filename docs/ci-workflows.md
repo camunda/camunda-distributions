@@ -38,7 +38,6 @@ Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull re
 - Each matrix entry sets `name`, `camunda-version`, `main-compose-args`, and `e2e-test-enabled`; optional fields are `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
 - E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/` (full-stack) and `tests-lightweight/` (lightweight, `@camunda/e2e-test-suite` c8Run suite).
 - Matrix entries marked ⭐ are the primary configs per version (full-stack with e2e enabled).
-- The 8.10 full-stack entry uses `deps-compose-args` to start `tests/docker-compose.elasticsearch-ci.yaml` before the main compose, since 8.10 no longer bundles Elasticsearch.
 
 ### E2E Test Template (`docker-compose-test-e2e-template.yaml`)
 

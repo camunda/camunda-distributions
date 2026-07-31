@@ -13,7 +13,7 @@ Playwright tests validate that each Docker Compose setup starts correctly and th
 | `docker-compose/test/e2e/` | 8.7 | Shared tests: login flows for Operate, Tasklist |
 | `docker-compose/versions/camunda-8.8/tests/` | 8.8 full-stack | Login flows for all full-stack apps plus `cross-component-happy-path.spec.ts` (deploy a process, complete a user task in Tasklist, verify completion in Operate), `connectors-flow.spec.ts` (outbound REST connector against Keycloak's discovery endpoint), `webhook-flow.spec.ts` (inbound webhook creates an instance), and `api-smoke.spec.ts` (REST v2 searches, connectors runtime health, negative auth checks) |
 | `docker-compose/versions/camunda-8.9/tests/` | 8.9 full-stack | Same as 8.8 |
-| `docker-compose/versions/camunda-8.10/tests/` | 8.10 full-stack, Web Modeler standalone | Same as 8.8 minus Console (no console service in 8.10); also holds `docker-compose.elasticsearch-ci.yaml` (throwaway ES for CI) |
+| `docker-compose/versions/camunda-8.10/tests/` | 8.10 full-stack, Web Modeler standalone | Same as 8.8 minus Console (no console service in 8.10) |
 | `docker-compose/versions/camunda-8.X/tests-lightweight/` | 8.8–8.10 lightweight | The `c8Run-8.X` project from the [`@camunda/e2e-test-suite`](https://www.npmjs.com/package/@camunda/e2e-test-suite) npm package: login, human-task flow, connectors, and API tests against the basic-auth lightweight stack |
 
 Version-specific test directories are used when `e2e-test-directory` is specified in the CI matrix (see `.github/workflows/docker-compose-test-e2e-full-setup.yaml`).
@@ -60,11 +60,10 @@ npx playwright install --with-deps chromium
 npx playwright test
 ```
 
-To test the 8.10 full stack locally, bring up the throwaway Elasticsearch first:
+To test the 8.10 full stack locally:
 
 ```bash
 cd docker-compose/versions/camunda-8.10
-docker compose -f tests/docker-compose.elasticsearch-ci.yaml up -d
 docker compose -f docker-compose-full.yaml up -d --wait --wait-timeout 300
 
 cd tests
@@ -94,7 +93,7 @@ npx playwright test web_modeler_login.spec.ts
 - **Reports**: HTML artifacts uploaded with 30-day retention.
 - **Test gate**: Only versions with `e2e-test-enabled: true` in the matrix actually run Playwright. Others only validate that compose starts and becomes healthy.
 - **Lightweight jobs (8.8–8.10)**: run the `c8Run-8.X` suite from `@camunda/e2e-test-suite` against `docker-compose.yaml` with a 45-minute timeout (the connectors webhook spec waits 5 minutes synchronously).
-- **Full-stack jobs (8.8–8.10)**: run the per-version suites with a 45-minute timeout for long flows and retries. The 8.10 job first brings up `tests/docker-compose.elasticsearch-ci.yaml` via `deps-compose-args`, then runs every spec in `tests/` against `docker-compose-full.yaml` (`web_modeler_login.spec.ts` works there too — the hub service publishes host port `8070` in the full stack, same as the standalone setup).
+- **Full-stack jobs (8.8–8.10)**: run the per-version suites with a 45-minute timeout for long flows and retries. The 8.10 job runs every spec in `tests/` against `docker-compose-full.yaml` (`web_modeler_login.spec.ts` works there too — the hub service publishes host port `8070` in the full stack, same as the standalone setup).
 - **Shared CI file changes** (the two e2e workflows or anything under `.github/actions/`) reset the changed-versions filter so the whole matrix runs, and the merge gate treats them as e2e-relevant — a CI-only PR cannot go green without executing tests.
 - **8.10 Web Modeler standalone job**: runs `web_modeler_login.spec.ts`, covering Keycloak startup, Identity realm initialization, and the browser OIDC callback without requiring external Elasticsearch.
 

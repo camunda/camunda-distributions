@@ -12,19 +12,19 @@ Each supported Camunda version lives in its own directory under `docker-compose/
 |---------|----------------------|----------------------------|---------------------|--------------|
 | 8.4–8.7 | Full stack (includes Identity, Optimize, Web Modeler) | — | Standalone Web Modeler | Identity-disabled variant |
 | 8.8–8.9 | Lightweight (Zeebe + Operate + Tasklist + Connectors, no Identity/Optimize) | Full stack | Standalone Web Modeler | — |
-| 8.10+   | Lightweight (H2 default, no ES) | Full stack (requires external ES) | Standalone Web Modeler | — |
+| 8.10+   | Lightweight (H2 default, no ES) | Full stack (bundles ES) | Standalone Web Modeler | — |
 
 **Key shift at 8.8:** `docker-compose.yaml` became the lightweight setup. Use `docker-compose-full.yaml` for Identity, Optimize, and Web Modeler. The 8.8–8.9 full stack also includes Console.
 
 ## Elasticsearch Changes at 8.10
 
-Elasticsearch is no longer bundled in any Docker Compose file for 8.10+.
+Elasticsearch is no longer bundled in the lightweight Docker Compose file for 8.10+.
 
 - `docker-compose.yaml` defaults to H2 secondary storage (no ES dependency).
-- `docker-compose-full.yaml` still supports ES but requires an external endpoint configured via `.env`:
+- `docker-compose-full.yaml` starts ES as the `elasticsearch` service. Point these at another endpoint in `.env` to use an externally managed instance instead:
   ```
-  ELASTICSEARCH_URL=http://localhost:9200
-  ELASTICSEARCH_HOST=localhost
+  ELASTICSEARCH_URL=http://elasticsearch:9200
+  ELASTICSEARCH_HOST=elasticsearch
   ELASTICSEARCH_PORT=9200
   ELASTICSEARCH_CLUSTER_NAME=elasticsearch
   ```

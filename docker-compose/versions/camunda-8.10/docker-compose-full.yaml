@@ -6,8 +6,7 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
-# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, and Web Modeler.
-# Camunda 8.10 no longer bundles Elasticsearch; provide it externally via .env.
+# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
 # See docker-compose.yaml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
@@ -49,6 +48,8 @@ services:
     depends_on:
       camunda-data-init:
         condition: service_completed_successfully
+      elasticsearch:
+        condition: service_healthy
 
   connectors: # https://docs.camunda.io/docs/self-managed/connectors-deployment/connectors-configuration/
     image: camunda/connectors-bundle:${CAMUNDA_CONNECTORS_VERSION}
@@ -103,6 +104,39 @@ services:
     depends_on:
       identity:
         condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+
+  elasticsearch: # https://hub.docker.com/_/elasticsearch
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTIC_VERSION}
+    container_name: elasticsearch
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    environment:
+      - bootstrap.memory_lock=true
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      # allow running with low disk space
+      - cluster.routing.allocation.disk.threshold_enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    restart: on-failure
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:9200/_cat/health?h=status | grep -Eq 'green|yellow'"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - elastic:/usr/share/elasticsearch/data
+    networks:
+      - camunda-platform
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   identity: # https://docs.camunda.io/docs/self-managed/setup/deploy/other/docker/#identity
     container_name: identity
@@ -298,6 +332,7 @@ services:
 
 volumes:
   orchestration:
+  elastic:
   camunda-data:
   postgres:
   postgres-web:
