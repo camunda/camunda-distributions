@@ -16,11 +16,9 @@ The mounted files reference runtime values from `.env` with `${VARIABLE:default}
 
 ## Elasticsearch
 
-Camunda `8.10` no longer bundles Elasticsearch in Docker Compose.
-
 - `docker-compose.yaml` uses the default H2 secondary storage and does not start Elasticsearch.
-- `docker-compose-full.yaml` is still available, but it expects an external Elasticsearch endpoint.
-- Configure that endpoint with `ELASTICSEARCH_URL`, `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, and `ELASTICSEARCH_CLUSTER_NAME` in `.env`.
+- `docker-compose-full.yaml` starts Elasticsearch as the `elasticsearch` service, which Optimize and the Orchestration Cluster exporter use.
+- To use an externally managed instance instead, point `ELASTICSEARCH_URL`, `ELASTICSEARCH_HOST`, `ELASTICSEARCH_PORT`, and `ELASTICSEARCH_CLUSTER_NAME` in `.env` at that endpoint and remove the `elasticsearch` service.
 
 Example:
 
