@@ -2,7 +2,7 @@
 
 ## Usage
 
-For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/next/self-managed/quickstart/developer-quickstart/docker-compose/).
+For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/).
 
 ## Application configuration
 
@@ -13,6 +13,29 @@ Camunda services read their application settings from YAML mounted by Docker Com
 - The full setup additionally uses `.orchestration/application.yaml`, `.connectors/application.yaml`, and the files under `.optimize/`. Web Modeler cluster registrations are isolated in `.web-modeler/application-full.yaml`.
 
 The mounted files reference values from `.env` with `${VARIABLE:default}` placeholders. Keep environment-specific endpoints and secrets in `.env`; direct Spring environment variables can still override file values. PostgreSQL, Keycloak, Elasticsearch, Web Modeler WebSockets, Console, and other non-Spring services continue to use their native environment-based configuration.
+
+## Switching secondary storage databases
+
+The Orchestration container mounts `configuration/<file>.yaml` into `/usr/local/camunda/config/application.yaml`.
+Set `ORCHESTRATION_CONFIG_FILE` in `.env` (or export it before running `docker compose`) to one of the provided samples:
+
+- `application-h2.yaml` (default, file-based H2)
+- `application-mysql.yaml`
+- `application-mariadb.yaml`
+- `application-postgresql.yaml`
+- `application-mssql.yaml`
+- `application-oracle.yaml`
+- `application-opensearch.yaml`
+
+Feel free to copy these files and adjust the JDBC URL/credentials for your environment. Example:
+
+```bash
+cd docker-compose/versions/camunda-8.9
+export ORCHESTRATION_CONFIG_FILE=application-mysql.yaml
+docker compose up -d
+```
+
+The `application-opensearch.yaml` sample expects an OpenSearch instance reachable at `http://opensearch:9200`. OpenSearch is not bundled, so either point the URL at an existing instance or add one via a `docker-compose.override.yaml` on the same network — see [configure secondary storage with Docker Compose](https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/secondary-storage/) for a ready-made example.
 
 ## JDBC drivers
 
