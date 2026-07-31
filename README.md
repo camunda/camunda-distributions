@@ -10,7 +10,9 @@ Camunda 8 Self-Managed Distributions (setup, deploy, etc.) mono repo for [Camund
 
 ### Docker Compose
 
-For more details, check the directory of [Camunda Docker Compose](./docker-compose/).
+Download the versioned distribution archive from [Releases](https://github.com/camunda/camunda-distributions/releases). The [Docker Compose quickstart](https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/) covers installing and starting it.
+
+For the sources behind those archives, check the directory of [Camunda Docker Compose](./docker-compose/).
 
 ## Documentation
 

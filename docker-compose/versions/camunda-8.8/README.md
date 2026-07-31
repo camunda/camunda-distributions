@@ -2,7 +2,7 @@
 
 ## Usage
 
-For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/next/self-managed/quickstart/developer-quickstart/docker-compose/).
+For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/8.8/self-managed/quickstart/developer-quickstart/docker-compose/).
 
 ## Application configuration
 
