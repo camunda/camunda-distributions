@@ -37,7 +37,7 @@ docker compose up -d
 
 The `application-opensearch.yaml` sample expects an OpenSearch instance reachable at `http://opensearch:9200`. OpenSearch is not bundled, so either point the URL at an existing instance or add one via a `docker-compose.override.yaml` on the same network — see [configure secondary storage with Docker Compose](https://docs.camunda.io/docs/self-managed/quickstart/developer-quickstart/docker-compose/secondary-storage/) for a ready-made example.
 
-## JDBC drivers
+### JDBC drivers
 
 The Camunda Docker image automatically loads any `.jar` dropped into `/driver-lib`. A writable `driver-lib/` folder is included next to the compose file so you can copy the vendor JDBC driver there before starting (e.g., `driver-lib/mysql-connector-j-9.0.0.jar`). This is required for MySQL and Oracle. PostgreSQL, MariaDB, SQL Server, and H2 drivers are already bundled in the image — see [supported JDBC driver versions](https://docs.camunda.io/docs/self-managed/concepts/databases/relational-db/rdbms-support-policy/#bundled-drivers) for the authoritative list.
 
