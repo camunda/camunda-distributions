@@ -6,8 +6,7 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
-# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, and Web Modeler.
-# Camunda 8.10 no longer bundles Elasticsearch; provide it externally via .env.
+# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
 # See docker-compose.yaml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
