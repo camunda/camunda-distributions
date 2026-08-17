@@ -81,6 +81,10 @@ services:
     ports:
       - "8083:8090"
     environment:
+      # env_file below pulls in CAMUNDA_IDENTITY_CLIENT_SECRET, which Spring binds to
+      # camunda.identity.clientSecret and which outranks application-ccsm.yaml. Without
+      # this override Optimize authenticates as client "optimize" using Identity's secret.
+      CAMUNDA_IDENTITY_CLIENT_SECRET: ${OPTIMIZE_CLIENT_SECRET}
       HOST: ${HOST}
       KEYCLOAK_HOST: ${KEYCLOAK_HOST}
       OPTIMIZE_CLIENT_SECRET: ${OPTIMIZE_CLIENT_SECRET}
