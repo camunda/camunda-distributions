@@ -1,9 +1,9 @@
 # type: Automation
 # owner: @camunda/distribution-team
 ---
-# Re-runs failed E2E jobs for Renovate PRs to absorb flaky failures, so a green
-# run lets the PR auto-merge. Capped at 3 attempts per run.
-name: Renovate - CI Retry
+# Re-runs failed E2E jobs for the auto-merging PR sources (Renovate, compose
+# force-bump). Capped at 3 attempts per run.
+name: CI Retry
 
 on:
   workflow_run:
@@ -18,7 +18,8 @@ jobs:
     name: Re-run failed jobs
     if: >-
       github.event.workflow_run.conclusion == 'failure' &&
-      startsWith(github.event.workflow_run.head_branch, 'renovate/') &&
+      (startsWith(github.event.workflow_run.head_branch, 'renovate/') ||
+      startsWith(github.event.workflow_run.head_branch, 'force-compose-bump/')) &&
       github.event.workflow_run.run_attempt < 3
     runs-on: ubuntu-latest
     timeout-minutes: 5
