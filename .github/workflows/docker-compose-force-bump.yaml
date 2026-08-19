@@ -154,8 +154,14 @@ jobs:
 
           # GITHUB_TOKEN is the distinct approver for the ruleset's 1-approval rule.
           gh pr review "${pr_url}" --approve
-          # Fail here rather than stall: nothing else approves this PR, so an ignored bot approval
-          # would leave it open until the caller's own wait expires.
+
+          # Auto-merge instead of immediate merge: the main ruleset's required checks take minutes,
+          # so an immediate merge is rejected with "base branch policy prohibits the merge" for the
+          # whole window. Auto-merge fires the moment the checks pass, still app-attributed.
+          GH_TOKEN="${APP_TOKEN}" gh pr merge "${pr_url}" --auto --squash --delete-branch
+
+          # Verified after arming, so a slow reviewDecision cannot leave the PR unarmed: nothing
+          # else approves this PR, and an approval GitHub declines to count stalls it silently.
           for _ in 1 2 3; do
             decision="$(GH_TOKEN="${APP_TOKEN}" gh pr view "${pr_url}" --json reviewDecision --jq .reviewDecision || true)"
             [ "${decision}" = "APPROVED" ] && break
@@ -166,12 +172,8 @@ jobs:
             exit 1
           fi
 
-          # Auto-merge instead of immediate merge: the main ruleset's required checks take minutes,
-          # so an immediate merge is rejected with "base branch policy prohibits the merge" for the
-          # whole window. Auto-merge fires the moment the checks pass, still app-attributed.
-          GH_TOKEN="${APP_TOKEN}" gh pr merge "${pr_url}" --auto --squash --delete-branch
-
-          # Bounded wait for the actual merge so this run's conclusion reflects reality.
+          # Bounded wait so the run reports the merge when it lands. Expiry only warns: auto-merge
+          # stays armed, and the caller polls the rolling release rather than this run.
           attempt=1
           max_attempts=60   # 60 x 30s = 30 min, within the job's 45 min timeout
           while :; do
@@ -187,8 +189,8 @@ jobs:
                 ;;
             esac
             if [ "${attempt}" -ge "${max_attempts}" ]; then
-              echo "::error::${pr_url} did not merge within ${max_attempts} polls — required checks did not pass in time. The PR stays open with auto-merge armed and still merges once they do."
-              exit 1
+              echo "::warning::${pr_url} has not merged within ${max_attempts} polls. Auto-merge stays armed, so it lands once the required checks pass and the rolling docker-compose-${MINOR} release rebuilds then."
+              break
             fi
             echo "  attempt ${attempt}/${max_attempts}: not merged yet (state: ${state:-unknown}); waiting 30s..."
             attempt=$((attempt + 1))
