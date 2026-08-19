@@ -37,7 +37,7 @@ jobs:
   force-bump:
     name: Force-bump camunda-${{ inputs.minor }}
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 45
     permissions:
       contents: write
       pull-requests: write
@@ -48,10 +48,6 @@ jobs:
         run: |
           echo "Action Inputs:"
           echo "${WORKFLOW_INPUTS}"
-
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-        with:
-          ref: main
 
       - name: Import Secrets
         id: secrets
@@ -67,15 +63,19 @@ jobs:
             secret/data/products/distribution/ci GH_APP_PRIVATE_KEY_DISTRO_CI;
             secret/data/products/distribution/ci SLACK_DISTRO_BOT_WEBHOOK;
 
-      # Distinct identity from github-actions[bot] (the PR opener) so its approval satisfies the
-      # main ruleset's 1-approval rule; merging with this token (not GITHUB_TOKEN) makes the push to
-      # main app-attributed, which is what triggers docker-compose-release.yaml.
+      # Owns the branch push, the PR and the merge: a GITHUB_TOKEN-opened PR parks its checks at
+      # action_required, and the app-attributed merge push is what triggers the rolling release.
       - name: Generate distro CI app token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         with:
           app-id: ${{ steps.secrets.outputs.GH_APP_ID_DISTRO_CI }}
           private-key: ${{ steps.secrets.outputs.GH_APP_PRIVATE_KEY_DISTRO_CI }}
+
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: main
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Author the .env from componentVersions
         id: author
@@ -146,16 +146,25 @@ jobs:
           git commit -m "deps(docker-compose): force-bump camunda-${MINOR} component versions"
           git push origin "${pr_branch}"
 
-          # Opened as github-actions[bot] (GITHUB_TOKEN) so the distro app is a distinct approver.
-          pr_url="$(gh pr create \
+          pr_url="$(GH_TOKEN="${APP_TOKEN}" gh pr create \
             --base main --head "${pr_branch}" \
             --title "deps(docker-compose): force-bump camunda-${MINOR} component versions" \
             --body "Automated force-bump of \`camunda-${MINOR}\` Docker Compose component versions. Reason: ${REASON}. Authored from caller-supplied versions and merged via the distro CI app to rebuild the rolling \`docker-compose-${MINOR}\` release ahead of Renovate.")"
           echo "Opened ${pr_url}"
 
-          # Distro app approves (distinct identity) then merges with the app token so the push to
-          # main is app-attributed and triggers the rolling release.
-          GH_TOKEN="${APP_TOKEN}" gh pr review "${pr_url}" --approve
+          # GITHUB_TOKEN is the distinct approver for the ruleset's 1-approval rule.
+          gh pr review "${pr_url}" --approve
+          # Fail here rather than stall: nothing else approves this PR, so an ignored bot approval
+          # would leave it open until the caller's own wait expires.
+          for _ in 1 2 3; do
+            decision="$(GH_TOKEN="${APP_TOKEN}" gh pr view "${pr_url}" --json reviewDecision --jq .reviewDecision || true)"
+            [ "${decision}" = "APPROVED" ] && break
+            sleep 5
+          done
+          if [ "${decision}" != "APPROVED" ]; then
+            echo "::error::${pr_url} is ${decision:-unknown}, not APPROVED — check that the repository allows GitHub Actions to approve pull requests."
+            exit 1
+          fi
 
           # Auto-merge instead of immediate merge: the main ruleset's required checks take minutes,
           # so an immediate merge is rejected with "base branch policy prohibits the merge" for the
@@ -164,7 +173,7 @@ jobs:
 
           # Bounded wait for the actual merge so this run's conclusion reflects reality.
           attempt=1
-          max_attempts=20   # 20 x 30s = 10 min, within the job's 15 min timeout
+          max_attempts=60   # 60 x 30s = 30 min, within the job's 45 min timeout
           while :; do
             state="$(GH_TOKEN="${APP_TOKEN}" gh pr view "${pr_url}" --json state --jq .state || true)"
             case "${state}" in
