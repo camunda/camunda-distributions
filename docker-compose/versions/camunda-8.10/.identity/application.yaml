@@ -106,6 +106,10 @@ identity:
               description: "Admin permission"
             - definition: admin:clusters
               description: "Cluster management permission"
+            - definition: admin:catalog
+              description: "Catalog management permission"
+            - definition: admin:bi
+              description: "Business intelligence management permission"
         - name: Hub API
           audience: "web-modeler-public-api"
           permissions:
@@ -150,6 +154,19 @@ identity:
               definition: write:*
             - audience: "web-modeler-api"
               definition: admin:*
+        - name: "Analyst"
+          description: "Grants full access to Optimize and to Hub. Additionally, grants management access to Hub's catalog and business intelligence features"
+          permissions:
+            - audience: "optimize-api"
+              definition: write:*
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+            - audience: "web-modeler-api"
+              definition: admin:catalog
+            - audience: "web-modeler-api"
+              definition: admin:bi
         - name: "Console"
           description: "Grants access to Hub's cluster management"
           permissions:
@@ -205,6 +222,7 @@ keycloak:
         - Hub
         - Hub Admin
         - DevOps
+        - Analyst
         - Orchestration
 
 server:
