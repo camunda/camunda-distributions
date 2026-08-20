@@ -18,26 +18,6 @@ identity:
           permissions:
             - audience: "orchestration-api"
               definition: read:*
-    console:
-      applications:
-        - name: "Console"
-          id: console
-          type: public
-          root-url: "http://localhost:8087"
-          redirect-uris:
-            - "/"
-      apis:
-        - name: Console API
-          audience: "console-api"
-          permissions:
-            - definition: write:*
-              description: "Write permission"
-      roles:
-        - name: "Console"
-          description: "Grants full access to Console"
-          permissions:
-            - audience: "console-api"
-              definition: write:*
     identity:
       apis:
         - name: "Camunda Identity Resource Server"
@@ -110,21 +90,23 @@ identity:
               definition: read:users
     webmodeler:
       applications:
-        - name: "Web Modeler"
+        - name: "Hub"
           id: web-modeler
           type: public
           root-url: "http://localhost:8070"
           redirect-uris:
             - "/login-callback"
       apis:
-        - name: Web Modeler Internal API
+        - name: Hub Internal API
           audience: "web-modeler-api"
           permissions:
             - definition: write:*
               description: "Write permission"
             - definition: admin:*
               description: "Admin permission"
-        - name: Web Modeler API
+            - definition: admin:clusters
+              description: "Cluster management permission"
+        - name: Hub API
           audience: "web-modeler-public-api"
           permissions:
             - definition: create:*
@@ -137,14 +119,14 @@ identity:
               description: "Allows delete access for all resources"
       roles:
         - name: "Web Modeler"
-          description: "Grants full access to Web Modeler"
+          description: "Grants full access to Hub"
           permissions:
             - audience: "web-modeler-api"
               definition: write:*
             - audience: "camunda-identity-resource-server"
               definition: read:users
         - name: "Web Modeler Admin"
-          description: "Grants elevated access to Web Modeler"
+          description: "Grants elevated access to Hub"
           permissions:
             - audience: "camunda-identity-resource-server"
               definition: read:users
@@ -152,6 +134,40 @@ identity:
               definition: write:*
             - audience: "web-modeler-api"
               definition: admin:*
+        - name: "Hub"
+          description: "Grants full access to Hub"
+          permissions:
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+        - name: "Hub Admin"
+          description: "Grants elevated access to Hub"
+          permissions:
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "web-modeler-api"
+              definition: admin:*
+        - name: "Console"
+          description: "Grants access to Hub's cluster management"
+          permissions:
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+            - audience: "web-modeler-api"
+              definition: admin:clusters
+        - name: "DevOps"
+          description: "Grants access to Hub's cluster management"
+          permissions:
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+            - audience: "web-modeler-api"
+              definition: admin:clusters
 
 keycloak:
   url: "http://${KEYCLOAK_HOST}:18080/auth"
@@ -159,8 +175,6 @@ keycloak:
     user: "${KEYCLOAK_ADMIN_USER:admin}"
     password: "${KEYCLOAK_ADMIN_PASSWORD}"
   init:
-    console:
-      secret: "${CONSOLE_CLIENT_SECRET}"
     orchestration:
       secret: "${ORCHESTRATION_CLIENT_SECRET}"
     optimize:
@@ -188,9 +202,9 @@ keycloak:
       roles:
         - ManagementIdentity
         - Optimize
-        - Web Modeler
-        - Web Modeler Admin
-        - Console
+        - Hub
+        - Hub Admin
+        - DevOps
         - Orchestration
 
 server:
