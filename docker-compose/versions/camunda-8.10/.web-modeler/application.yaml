@@ -6,7 +6,7 @@ camunda:
     type: KEYCLOAK
   modeler:
     feature:
-      play-enabled: true
+      test-mode-enabled: true
     pusher:
       host: hub-websockets
       port: 8060
