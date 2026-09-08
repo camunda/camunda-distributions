@@ -11,7 +11,7 @@ title: Commands
 cd docker-compose/versions/camunda-8.10
 docker compose -f docker-compose.yaml up -d
 
-# Start full stack (Optimize, Identity/Keycloak, Hub, Console)
+# Start full stack (Optimize, Identity/Keycloak, Hub)
 docker compose -f docker-compose-full.yaml up -d
 
 # Start Hub standalone

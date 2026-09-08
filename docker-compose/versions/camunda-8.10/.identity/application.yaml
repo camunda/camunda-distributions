@@ -18,26 +18,6 @@ identity:
           permissions:
             - audience: "orchestration-api"
               definition: read:*
-    console:
-      applications:
-        - name: "Console"
-          id: console
-          type: public
-          root-url: "http://localhost:8087"
-          redirect-uris:
-            - "/"
-      apis:
-        - name: Console API
-          audience: "console-api"
-          permissions:
-            - definition: write:*
-              description: "Write permission"
-      roles:
-        - name: "Console"
-          description: "Grants full access to Console"
-          permissions:
-            - audience: "console-api"
-              definition: write:*
     identity:
       apis:
         - name: "Camunda Identity Resource Server"
@@ -152,6 +132,15 @@ identity:
               definition: write:*
             - audience: "web-modeler-api"
               definition: admin:*
+        - name: "DevOps"
+          description: "Grants access to Hub's cluster management"
+          permissions:
+            - audience: "web-modeler-api"
+              definition: write:*
+            - audience: "camunda-identity-resource-server"
+              definition: read:users
+            - audience: "web-modeler-api"
+              definition: admin:clusters
 
 keycloak:
   url: "http://${KEYCLOAK_HOST}:18080/auth"
@@ -159,8 +148,6 @@ keycloak:
     user: "${KEYCLOAK_ADMIN_USER:admin}"
     password: "${KEYCLOAK_ADMIN_PASSWORD}"
   init:
-    console:
-      secret: "${CONSOLE_CLIENT_SECRET}"
     orchestration:
       secret: "${ORCHESTRATION_CLIENT_SECRET}"
     optimize:
@@ -190,9 +177,8 @@ keycloak:
         - Optimize
         - Hub
         - Hub Admin
-        - Console
+        - DevOps
         - Orchestration
-
 server:
   port: 8084
 
