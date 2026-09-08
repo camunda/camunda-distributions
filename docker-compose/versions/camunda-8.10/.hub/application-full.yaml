@@ -22,12 +22,6 @@ camunda:
             urls:
               webapp: http://localhost:8084
               readiness: http://identity:8082/actuator/health
-          - name: WebModeler
-            type: webModelerWebApp
-            version: "${CAMUNDA_HUB_VERSION:8.10}"
-            urls:
-              webapp: http://localhost:8070
-              readiness: http://hub:8091/health/readiness
       - id: camunda-platform
         name: camunda-platform
         version: "${CAMUNDA_VERSION:8.10}"
