@@ -7,7 +7,7 @@ camunda:
     clusters:
       - id: management
         name: management
-        version: "${CAMUNDA_WEB_MODELER_VERSION:8.10}"
+        version: "${CAMUNDA_HUB_VERSION:8.10}"
         tags:
           - dev
           - local
@@ -24,7 +24,7 @@ camunda:
               readiness: http://identity:8082/actuator/health
           - name: WebModeler
             type: webModelerWebApp
-            version: "${CAMUNDA_WEB_MODELER_VERSION:8.10}"
+            version: "${CAMUNDA_HUB_VERSION:8.10}"
             urls:
               webapp: http://localhost:8070
               readiness: http://hub:8091/health/readiness

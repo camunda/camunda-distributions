@@ -9,8 +9,8 @@ For end user usage, please check the official documentation of [Camunda 8 Self-M
 Camunda services read their application settings from YAML mounted by Docker Compose:
 
 - The lightweight `docker-compose.yaml` keeps its Connectors YAML inline under `configs`, preserving the compact setup. Orchestration mounts the selected file from `configuration/`.
-- The full and standalone setups share component files under `.identity/` and `.web-modeler/`. The standalone-only Identity overlay remains inline in `docker-compose-web-modeler.yaml`.
-- The full setup additionally uses `.orchestration/application.yaml`, `.connectors/application.yaml`, and the files under `.optimize/`. Hub cluster registrations are isolated in `.web-modeler/application-full.yaml`.
+- The full and standalone setups share component files under `.identity/` and `.hub/`. The standalone-only Identity overlay remains inline in `docker-compose-hub.yaml`.
+- The full setup additionally uses `.orchestration/application.yaml`, `.connectors/application.yaml`, and the files under `.optimize/`. Hub cluster registrations are isolated in `.hub/application-full.yaml`.
 
 The mounted files reference runtime values from `.env` with `${VARIABLE:default}` placeholders. Keep environment-specific endpoints and secrets in `.env`; direct Spring environment variables can still override file values. Hub database and Pusher credentials remain direct environment variables, matching the Helm deployment. PostgreSQL, Keycloak, Hub WebSockets, and other non-Spring services continue to use their native environment-based configuration.
 

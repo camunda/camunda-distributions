@@ -12,7 +12,7 @@ Each supported Camunda version lives in its own directory under `docker-compose/
 |---------|----------------------|----------------------------|---------------------|--------------|
 | 8.4–8.7 | Full stack (includes Identity, Optimize, Web Modeler) | — | Standalone Web Modeler | Identity-disabled variant |
 | 8.8–8.9 | Lightweight (Zeebe + Operate + Tasklist + Connectors, no Identity/Optimize) | Full stack | Standalone Web Modeler | — |
-| 8.10+   | Lightweight (H2 default, no ES) | Full stack (bundles ES) | Standalone Web Modeler | — |
+| 8.10+   | Lightweight (H2 default, no ES) | Full stack (bundles ES) | Standalone Hub (`docker-compose-hub.yaml`) | — |
 
 **Key shift at 8.8:** `docker-compose.yaml` became the lightweight setup. Use `docker-compose-full.yaml` for Identity, Optimize, and Web Modeler. The 8.8–8.9 full stack also includes Console.
 
@@ -50,7 +50,8 @@ H2 data files are stored in `camunda-data/` (gitignored).
 docker-compose/versions/camunda-X.Y/
   docker-compose.yaml              # Primary compose file
   docker-compose-full.yaml         # Full stack (8.8+)
-  docker-compose-web-modeler.yaml  # Web Modeler standalone
+  docker-compose-web-modeler.yaml  # Web Modeler standalone (8.4–8.9)
+  docker-compose-hub.yaml          # Hub standalone (8.10+)
   .env                             # Image versions + runtime config (template, not for real secrets)
   connector-secrets.txt            # Connector environment variables
   configuration/                   # Selectable Orchestration application files (8.9+)
@@ -63,16 +64,16 @@ docker-compose/versions/camunda-X.Y/
   .console/application.yaml        # Console config (8.8–8.9)
   .optimize/environment-config.yaml # Optimize native config
   .optimize/application-ccsm.yaml  # Optimize Identity config (8.10+)
-  .web-modeler/application.yaml    # Shared Hub config (8.10+)
-  .web-modeler/application-full.yaml # Full-stack Hub clusters (8.10+)
+  .hub/application.yaml            # Shared Hub config (8.10+)
+  .hub/application-full.yaml       # Full-stack Hub clusters (8.10+)
 ```
 
 ## Application Configuration at 8.10
 
 - The lightweight setup remains compact: Connectors application YAML is inline under the top-level Compose `configs`, while Orchestration mounts the selected file from `configuration/`.
-- The full stack mounts the component files under `.orchestration/`, `.connectors/`, `.identity/`, `.optimize/`, and `.web-modeler/`.
-- Full and standalone Hub share `.web-modeler/application.yaml`. The full-stack `application-full.yaml` imports it and adds cluster registrations.
-- Standalone Web Modeler remains one Compose entry point. Its small standalone-only Identity client overlay is inline in `docker-compose-web-modeler.yaml` and imported by `.identity/application.yaml`.
+- The full stack mounts the component files under `.orchestration/`, `.connectors/`, `.identity/`, `.optimize/`, and `.hub/`.
+- Full and standalone Hub share `.hub/application.yaml`. The full-stack `application-full.yaml` imports it and adds cluster registrations.
+- Standalone Hub remains one Compose entry point. Its small standalone-only Identity client overlay is inline in `docker-compose-hub.yaml` and imported by `.identity/application.yaml`.
 - `.env` provides runtime values and development secrets. Spring environment variables remain available as overrides, while PostgreSQL, Keycloak, Hub WebSockets, and other native services keep their environment-based configuration.
 
 ## Authentication

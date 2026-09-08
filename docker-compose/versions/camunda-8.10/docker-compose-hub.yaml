@@ -1,34 +1,34 @@
-# Docker Compose file for Web Modeler Self-Managed. This file can be used stand-alone. It will install Web Modeler Dependencies:
+# Docker Compose file for Hub Self-Managed. This file can be used stand-alone. It will install Hub Dependencies:
 # 1. identity
 # 2. keycloak
 # Note: this file is using Mailpit to simulate a mail server
 
 services:
 
-  web-modeler-db:
-    container_name: web-modeler-db
+  hub-db:
+    container_name: hub-db
     image: postgres:${POSTGRES_VERSION}
     restart: on-failure
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${WEBMODELER_DB_NAME}", "-U", "${WEBMODELER_DB_USER}"]
+      test: ["CMD", "pg_isready", "-d", "${HUB_DB_NAME}", "-U", "${HUB_DB_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     environment:
-      POSTGRES_DB: ${WEBMODELER_DB_NAME}
-      POSTGRES_USER: ${WEBMODELER_DB_USER}
-      POSTGRES_PASSWORD: ${WEBMODELER_DB_PASSWORD}
+      POSTGRES_DB: ${HUB_DB_NAME}
+      POSTGRES_USER: ${HUB_DB_USER}
+      POSTGRES_PASSWORD: ${HUB_DB_PASSWORD}
     networks:
-      - web-modeler
+      - hub
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - postgres-web:/var/lib/postgresql/data
+      - postgres-hub:/var/lib/postgresql/data
 
   hub-websockets:
     container_name: hub-websockets
-    image: camunda/hub-websockets:${CAMUNDA_WEB_MODELER_VERSION}
+    image: camunda/hub-websockets:${CAMUNDA_HUB_VERSION}
     ports:
       - "8060:8060"
     restart: on-failure
@@ -39,13 +39,13 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      APP_NAME: "Web Modeler Self-Managed WebSockets"
+      APP_NAME: "Hub Self-Managed WebSockets"
       APP_DEBUG: "true"
-      PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
-      PUSHER_APP_KEY: ${WEBMODELER_PUSHER_KEY}
-      PUSHER_APP_SECRET: ${WEBMODELER_PUSHER_SECRET}
+      PUSHER_APP_ID: ${HUB_PUSHER_APP_ID}
+      PUSHER_APP_KEY: ${HUB_PUSHER_KEY}
+      PUSHER_APP_SECRET: ${HUB_PUSHER_SECRET}
     networks:
-      - web-modeler
+      - hub
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -66,18 +66,18 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - web-modeler
+      - hub
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   hub:
     container_name: hub
-    image: camunda/hub:${CAMUNDA_WEB_MODELER_VERSION}
+    image: camunda/hub:${CAMUNDA_HUB_VERSION}
     ports:
       - "8070:8081"
     restart: on-failure
     depends_on:
-      web-modeler-db:
+      hub-db:
         condition: service_healthy
       mailpit:
         condition: service_healthy
@@ -91,17 +91,17 @@ services:
       start_period: 60s
     environment:
       JAVA_OPTIONS: -Xmx512m
-      SPRING_DATASOURCE_PASSWORD: ${WEBMODELER_DB_PASSWORD}
-      RESTAPI_PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
-      RESTAPI_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
-      RESTAPI_PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
+      SPRING_DATASOURCE_PASSWORD: ${HUB_DB_PASSWORD}
+      RESTAPI_PUSHER_APP_ID: ${HUB_PUSHER_APP_ID}
+      RESTAPI_PUSHER_KEY: ${HUB_PUSHER_KEY}
+      RESTAPI_PUSHER_SECRET: ${HUB_PUSHER_SECRET}
     env_file:
       - path: .env
         required: true
     volumes:
-      - "./.web-modeler/application.yaml:/home/runner/config/application.yaml:ro"
+      - "./.hub/application.yaml:/home/runner/config/application.yaml:ro"
     networks:
-      - web-modeler
+      - hub
       - camunda-platform
     extra_hosts:
       - "host.docker.internal:host-gateway"
@@ -124,8 +124,8 @@ services:
     volumes:
       - "./.identity/application.yaml:/app/application.yaml"
     configs:
-      - source: identity-web-modeler-config
-        target: /app/config/application-web-modeler.yaml
+      - source: identity-hub-config
+        target: /app/config/application-hub.yaml
     networks:
       - camunda-platform
       - identity-network
@@ -203,15 +203,15 @@ networks:
     name: camunda-platform
   identity-network:
     name: identity-network
-  web-modeler:
-    name: web-modeler
+  hub:
+    name: hub
 
 volumes:
   postgres:
-  postgres-web:
+  postgres-hub:
 
 configs:
-  identity-web-modeler-config:
+  identity-hub-config:
     content: |
       keycloak:
         clients:

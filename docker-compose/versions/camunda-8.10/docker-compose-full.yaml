@@ -6,7 +6,7 @@
 # For local development, we recommend using KIND instead of `docker-compose`:
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
-# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Web Modeler.
+# This is a full configuration with Orchestration, Operate, Tasklist, Optimize, Identity, Keycloak, Elasticsearch and Hub.
 # See docker-compose.yaml for a lightweight configuration that does not include Optimize, Identity, and Keycloak.
 
 services:
@@ -227,26 +227,26 @@ services:
       postgres:
         condition: service_healthy
 
-  web-modeler-db:
-    container_name: web-modeler-db
+  hub-db:
+    container_name: hub-db
     image: postgres:${POSTGRES_VERSION}
     restart: on-failure
     healthcheck:
-      test: ["CMD", "pg_isready", "-d", "${WEBMODELER_DB_NAME}", "-U", "${WEBMODELER_DB_USER}"]
+      test: ["CMD", "pg_isready", "-d", "${HUB_DB_NAME}", "-U", "${HUB_DB_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 10s
     environment:
-      POSTGRES_DB: ${WEBMODELER_DB_NAME}
-      POSTGRES_USER: ${WEBMODELER_DB_USER}
-      POSTGRES_PASSWORD: ${WEBMODELER_DB_PASSWORD}
+      POSTGRES_DB: ${HUB_DB_NAME}
+      POSTGRES_USER: ${HUB_DB_USER}
+      POSTGRES_PASSWORD: ${HUB_DB_PASSWORD}
     networks:
-      - web-modeler
+      - hub
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - postgres-web:/var/lib/postgresql/data
+      - postgres-hub:/var/lib/postgresql/data
 
   mailpit:
     # If you want to use your own SMTP server, you can remove this container
@@ -265,19 +265,19 @@ services:
       retries: 5
       start_period: 10s
     networks:
-      - web-modeler
+      - hub
       - camunda-platform
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   hub:
     container_name: hub
-    image: camunda/hub:${CAMUNDA_WEB_MODELER_VERSION}
+    image: camunda/hub:${CAMUNDA_HUB_VERSION}
     ports:
       - "8070:8081"
     restart: on-failure
     depends_on:
-      web-modeler-db:
+      hub-db:
         condition: service_healthy
       mailpit:
         condition: service_healthy
@@ -291,25 +291,25 @@ services:
       start_period: 60s
     environment:
       JAVA_OPTIONS: -Xmx512m
-      SPRING_DATASOURCE_PASSWORD: ${WEBMODELER_DB_PASSWORD}
-      RESTAPI_PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
-      RESTAPI_PUSHER_KEY: ${WEBMODELER_PUSHER_KEY}
-      RESTAPI_PUSHER_SECRET: ${WEBMODELER_PUSHER_SECRET}
+      SPRING_DATASOURCE_PASSWORD: ${HUB_DB_PASSWORD}
+      RESTAPI_PUSHER_APP_ID: ${HUB_PUSHER_APP_ID}
+      RESTAPI_PUSHER_KEY: ${HUB_PUSHER_KEY}
+      RESTAPI_PUSHER_SECRET: ${HUB_PUSHER_SECRET}
     env_file:
       - path: .env
         required: true
     volumes:
-      - "./.web-modeler/application.yaml:/home/runner/config/application-common.yaml:ro"
-      - "./.web-modeler/application-full.yaml:/home/runner/config/application.yaml:ro"
+      - "./.hub/application.yaml:/home/runner/config/application-common.yaml:ro"
+      - "./.hub/application-full.yaml:/home/runner/config/application.yaml:ro"
     networks:
-      - web-modeler
+      - hub
       - camunda-platform
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
   hub-websockets:
     container_name: hub-websockets
-    image: camunda/hub-websockets:${CAMUNDA_WEB_MODELER_VERSION}
+    image: camunda/hub-websockets:${CAMUNDA_HUB_VERSION}
     ports:
       - "8060:8060"
     restart: on-failure
@@ -320,13 +320,13 @@ services:
       retries: 5
       start_period: 30s
     environment:
-      APP_NAME: "Web Modeler Self-Managed WebSockets"
+      APP_NAME: "Hub Self-Managed WebSockets"
       APP_DEBUG: "true"
-      PUSHER_APP_ID: ${WEBMODELER_PUSHER_APP_ID}
-      PUSHER_APP_KEY: ${WEBMODELER_PUSHER_KEY}
-      PUSHER_APP_SECRET: ${WEBMODELER_PUSHER_SECRET}
+      PUSHER_APP_ID: ${HUB_PUSHER_APP_ID}
+      PUSHER_APP_KEY: ${HUB_PUSHER_KEY}
+      PUSHER_APP_SECRET: ${HUB_PUSHER_SECRET}
     networks:
-      - web-modeler
+      - hub
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -335,17 +335,17 @@ volumes:
   elastic:
   camunda-data:
   postgres:
-  postgres-web:
+  postgres-hub:
 
 networks:
-  # Note there are three bridge networks: One for Camunda Platform, one for Identity and one for Web Modeler.
+  # Note there are three bridge networks: One for Camunda Platform, one for Identity and one for Hub.
   # Identity and Keycloak are part of the first two as they need to be accessible by platform components.
-  # Web Modeler has its own network because it consists of three components that communicate with each other.
+  # Hub has its own network because it consists of three components that communicate with each other.
   # It is also part of the camunda-platform network to communicate with the platform components like Orchestration to run
   # processes or Identity to log in.
   camunda-platform:
     name: camunda-platform
   identity-network:
     name: identity-network
-  web-modeler:
-    name: web-modeler
+  hub:
+    name: hub
