@@ -11,11 +11,11 @@ title: Commands
 cd docker-compose/versions/camunda-8.10
 docker compose -f docker-compose.yaml up -d
 
-# Start full stack (Optimize, Identity/Keycloak, Web Modeler, Console)
+# Start full stack (Optimize, Identity/Keycloak, Hub)
 docker compose -f docker-compose-full.yaml up -d
 
-# Start Web Modeler standalone
-docker compose -f docker-compose-web-modeler.yaml up -d
+# Start Hub standalone
+docker compose -f docker-compose-hub.yaml up -d
 
 # View logs for a specific service
 docker compose logs orchestration -f

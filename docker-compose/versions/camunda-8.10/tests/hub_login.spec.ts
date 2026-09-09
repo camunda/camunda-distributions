@@ -1,9 +1,9 @@
 import { test, expect } from '@playwright/test';
 
-test('Web Modeler login and projects access', async ({ page }) => {
+test('Hub login and projects access', async ({ page }) => {
   test.setTimeout(120000);
-  
-  // Navigate to Web Modeler
+
+  // Navigate to Hub
   await page.goto('http://localhost:8070/');
   
   // Verify login page loads

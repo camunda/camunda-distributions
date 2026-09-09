@@ -22,7 +22,7 @@ camunda:
           internal-api: web-modeler-api
           public-api: web-modeler-public-api
     mail:
-      from-address: "${WEBMODELER_MAIL_FROM_ADDRESS:noreply@camunda.example.com}"
+      from-address: "${HUB_MAIL_FROM_ADDRESS:noreply@camunda.example.com}"
     oauth2:
       client-id: web-modeler
     server:
@@ -33,8 +33,8 @@ spring:
   profiles:
     include: default-logging
   datasource:
-    url: "jdbc:postgresql://web-modeler-db:5432/${WEBMODELER_DB_NAME:web-modeler-db}"
-    username: "${WEBMODELER_DB_USER:web-modeler-db-user}"
+    url: "jdbc:postgresql://hub-db:5432/${HUB_DB_NAME:hub-db}"
+    username: "${HUB_DB_USER:hub-db-user}"
   mail:
     host: mailpit
     port: 1025

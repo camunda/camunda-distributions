@@ -7,7 +7,7 @@
 # https://docs.camunda.io/docs/self-managed/setup/deploy/local/local-kubernetes-cluster/
 
 # This is a lightweight configuration with Orchestration (Zeebe + Operate + Tasklist) and Connectors.
-# See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, Web Modeler, and Console.
+# See docker-compose-full.yaml for a configuration that also includes Optimize, Identity, Keycloak, and Hub.
 # Camunda 8.10 no longer bundles Elasticsearch in the Docker Compose distribution.
 services:
   camunda-data-init:
