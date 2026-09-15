@@ -58,7 +58,11 @@ runs:
           jq -s -c -R 'split("\n") | .[:-1] | map({"versions": {"camunda-version": .}})')"
         echo "matrix-unchanged=${matrix_unchanged}" | tee -a $GITHUB_OUTPUT
         # Changed.
-        should_run="$([[ $(stat --printf="%s" ${CHANGED_VERSIONS_TMP_FILE}) -gt 0 ]] && echo "true" || echo "false")"
+        should_run="$([[ -n $(while read -r version_dir; do
+          camunda_version="$(echo "${version_dir}" | rev | cut -d '-' -f 1 | rev)"
+          yq -r '.routineVersions[] | tostring' docker-compose/versions/versions.yaml |
+            grep -Fxq "${camunda_version}" && echo "${version_dir}"
+        done < ${CHANGED_VERSIONS_TMP_FILE}) ]] && echo "true" || echo "false")"
         echo "should-run=${should_run}" | tee -a $GITHUB_OUTPUT
 
         # Force the downstream workflows run for all versions.
