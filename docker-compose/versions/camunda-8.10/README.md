@@ -4,6 +4,26 @@
 
 For end user usage, please check the official documentation of [Camunda 8 Self-Managed Docker Compose](https://docs.camunda.io/docs/next/self-managed/quickstart/developer-quickstart/docker-compose/).
 
+## Centralized secrets
+
+1. Open the included `secrets/` directory and create a file named `OPENAI_API_KEY` in your editor. Save only the secret value, not `KEY=value`, as UTF-8 without a byte-order mark.
+2. Start the lightweight stack with `docker compose up -d`, or the full stack with `docker compose -f docker-compose-full.yaml up -d`.
+3. Reference the secret in a service-task or connector input mapping:
+
+  ```feel
+  =camunda.secrets.OPENAI_API_KEY
+  ```
+
+No Compose or application YAML changes are needed. Both stacks mount `secrets/` read-only into Orchestration at `/etc/camunda/secrets` and configure `camunda.secrets.stores.file.default.path` through `CAMUNDA_SECRETS_STORES_FILE_DEFAULT_PATH`. The directory is not mounted into Connectors.
+
+Each filename is a secret name; its contents are the value. Use letters, numbers, underscores, or dashes in names. Names containing dashes need FEEL backticks, for example ``=camunda.secrets.`openai-api-key` ``. One trailing newline is ignored; other whitespace is part of the value.
+
+You can add files while the stack is running. Changed or deleted values can remain cached for up to 20 minutes by default. For immediate local retesting, restart Orchestration with `docker compose restart orchestration` (add `-f docker-compose-full.yaml` for the full stack). Creating a missing secret does not automatically resolve an existing incident; resolve that incident in Operate after creating the file.
+
+The existing `connector-secrets.txt` file still supplies only the Connectors environment for legacy `{{secrets.NAME}}` references. It is not imported into the centralized store, and the two workflows are independent.
+
+These files are plaintext local-development credentials, not production secret storage. The included Git ignore rules keep their contents out of ordinary commits; do not force-add them, include them in shared archives, or put values in BPMN. For production, configure a supported managed store such as AWS Secrets Manager or Google Secret Manager. On native Linux, the directory and files must be readable by the container user (UID 1001); host-user-only permissions may prevent access.
+
 ## Application configuration
 
 Camunda services read their application settings from YAML mounted by Docker Compose:
