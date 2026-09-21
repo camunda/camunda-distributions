@@ -8,7 +8,7 @@ on:
 jobs:
   update-closed-at-field:
     permissions:
-      id-token: write  # mint GitHub OIDC token for Vault JWT auth
+      id-token: write
     name: Update closed at field
     runs-on: ubuntu-latest
     steps:

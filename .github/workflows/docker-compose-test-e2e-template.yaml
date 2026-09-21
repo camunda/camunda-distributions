@@ -41,7 +41,7 @@ jobs:
     # if: contains(inputs.changed-versions, inputs.camunda-version)
     permissions:
       contents: read
-      id-token: write  # mint GitHub OIDC token for Vault JWT auth
+      id-token: write
     name: Run
     runs-on: ubuntu-latest
     concurrency:

@@ -41,7 +41,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-      id-token: write  # mint GitHub OIDC token for Vault JWT auth
+      id-token: write
     steps:
       - name: ℹ️ Print workflow inputs ℹ️
         env:

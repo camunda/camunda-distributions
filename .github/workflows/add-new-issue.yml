@@ -9,7 +9,7 @@ on:
 jobs:
   add-to-project:
     permissions:
-      id-token: write  # mint GitHub OIDC token for Vault JWT auth
+      id-token: write
     name: Add new issue
     runs-on: ubuntu-latest
     steps:
