@@ -27,6 +27,7 @@ services:
       - "8080:8080"
     environment:
       - JAVA_TOOL_OPTIONS="-XX:+PrintFlagsFinal"
+      - CAMUNDA_SECRETS_STORES_FILE_DEFAULT_PATH=${CAMUNDA_SECRETS_STORES_FILE_DEFAULT_PATH:-/etc/camunda/secrets}
     env_file:
       - path: .env
         required: true
@@ -41,6 +42,7 @@ services:
       - camunda:/usr/local/camunda/data
       - camunda-data:/usr/local/camunda/camunda-data
       - ./driver-lib:/driver-lib:ro
+      - ./secrets:/etc/camunda/secrets:ro
     configs:
       - source: orchestration-config
         target: /usr/local/camunda/config/application.yaml
