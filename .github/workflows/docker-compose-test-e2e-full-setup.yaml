@@ -38,10 +38,12 @@ jobs:
           versions-path: "docker-compose/versions/camunda-8.*"
           reset-versions: ${{ steps.ci-changes.outputs.ci }}
     outputs:
+      should-run: ${{ steps.generate-versions-matrix.outputs.should-run }}
       unchanged-versions: ${{ steps.generate-versions-matrix.outputs.unchanged }}
 
   exec:
     needs: [init]
+    if: ${{ needs.init.outputs.should-run == 'true' }}
     name: ${{ matrix.versions.name }}
     strategy:
       fail-fast: false
