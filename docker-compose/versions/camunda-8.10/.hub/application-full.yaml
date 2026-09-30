@@ -3,7 +3,7 @@ spring:
     import: file:/home/runner/config/application-common.yaml
 
 camunda:
-  modeler:
+  hub:
     clusters:
       - id: management
         name: management

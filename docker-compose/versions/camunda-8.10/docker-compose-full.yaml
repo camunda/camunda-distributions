@@ -251,9 +251,13 @@ services:
       - postgres-hub:/var/lib/postgresql/data
 
   mailpit:
-    # If you want to use your own SMTP server, you can remove this container
-    # and configure RESTAPI_MAIL_HOST, RESTAPI_MAIL_PORT, REST_API_MAIL_USER,
-    # REST_API_MAIL_PASSWORD and RESTAPI_MAIL_ENABLE_TLS in hub
+    # If you want to use your own SMTP server, you can remove this container and configure the following values in hub:
+    # - SPRING_MAIL_HOST
+    # - SPRING_MAIL_PORT
+    # - SPRING_MAIL_USERNAME
+    # - SPRING_MAIL_PASSWORD
+    # - SPRING_MAIL_PROPERTIES_MAIL_SMTP_STARTTLS_ENABLE
+    # Instead of using environment variables, you can also update the spring.mail.* properties in .hub/application.yaml.
     container_name: mailpit
     image: axllent/mailpit:${MAILPIT_VERSION}
     ports:
@@ -294,9 +298,9 @@ services:
     environment:
       JAVA_OPTIONS: -Xmx512m
       SPRING_DATASOURCE_PASSWORD: ${HUB_DB_PASSWORD}
-      RESTAPI_PUSHER_APP_ID: ${HUB_PUSHER_APP_ID}
-      RESTAPI_PUSHER_KEY: ${HUB_PUSHER_KEY}
-      RESTAPI_PUSHER_SECRET: ${HUB_PUSHER_SECRET}
+      CAMUNDA_HUB_PUSHER_APPID: ${HUB_PUSHER_APP_ID}
+      CAMUNDA_HUB_PUSHER_KEY: ${HUB_PUSHER_KEY}
+      CAMUNDA_HUB_PUSHER_SECRET: ${HUB_PUSHER_SECRET}
     env_file:
       - path: .env
         required: true
