@@ -4,7 +4,7 @@ camunda:
     issuer: "http://${HOST:localhost}:18080/auth/realms/camunda-platform"
     issuerBackendUrl: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
     type: KEYCLOAK
-  modeler:
+  hub:
     feature:
       test-mode-enabled: true
     pusher:
@@ -16,8 +16,6 @@ camunda:
         force-tls: false
     security:
       jwt:
-        issuer:
-          backend-url: "http://${KEYCLOAK_HOST:host.docker.internal}:18080/auth/realms/camunda-platform"
         audience:
           internal-api: web-modeler-api
           public-api: web-modeler-public-api
@@ -63,4 +61,4 @@ management:
 
 logging:
   level:
-    io.camunda.modeler: DEBUG
+    io.camunda.hub: DEBUG
