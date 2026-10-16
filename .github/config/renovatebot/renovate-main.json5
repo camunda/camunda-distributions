@@ -2,6 +2,9 @@
   dependencyDashboard: true,
   labels: ["dependencies"],
   separateMinorPatch: true,
+  vulnerabilityAlerts: {
+    addLabels: ["security"],
+  },
   minor: {
     enabled: true,
   },
@@ -10,17 +13,19 @@
   },
   packageRules: [
     {
-      description: "Auto-merge non-major updates once CI passes.",
+      description: "Non-major updates: merged by the InfraEx dependency scanner. The label also mutes PR Slack notifications.",
       matchUpdateTypes: ["minor", "patch", "pin", "digest"],
-      automerge: true,
-      platformAutomerge: true,
-      automergeStrategy: "squash",
       addLabels: ["automerge"],
     },
     {
-      description: "Never auto-merge alpha release candidates.",
+      description: "Major updates need a human review.",
+      matchUpdateTypes: ["major"],
+      addLabels: ["upgrade:major"],
+    },
+    {
+      description: "Alpha release candidates need a human review.",
       matchNewValue: "/.*alpha[0-9]*-rc[0-9]*/",
-      automerge: false,
+      addLabels: ["no merge"],
     },
   ],
   hostRules: [

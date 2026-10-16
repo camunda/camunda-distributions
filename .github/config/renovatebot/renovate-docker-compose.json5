@@ -72,11 +72,6 @@
     },
     // End of minor cycle chores.
 
-    // Disable auto-merge for alpha release candidates.
-    {
-      matchNewValue: "/.*alpha[0-9]*-rc[0-9]*/",
-      automerge: false,
-    },
   ],
 
   customManagers: [
