@@ -8,6 +8,8 @@ dotenv.config();
  */
 export default defineConfig({
   testDir: './node_modules/@camunda/e2e-test-suite/dist/tests/c8Run-8.10',
+  /* Physical tenants need a C8 Run tenant store (pt1), which this Compose stack does not provision */
+  testIgnore: /physical-tenants\.spec\.[jt]s$/,
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
