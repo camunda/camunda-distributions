@@ -4,7 +4,7 @@ title: E2E Testing
 
 # E2E Testing
 
-Playwright tests validate that each Docker Compose setup starts correctly and that its APIs and web UIs work. CI runs the affected supported-version entries for pushes to `main` and relevant pull requests; changes to shared E2E workflows or actions run the full matrix.
+Playwright tests validate that each Docker Compose setup starts correctly and that its APIs and web UIs work. CI runs the affected supported-version entries for pushes to `main` and relevant pull requests; changes to shared E2E workflows, actions or the shared tests in `docker-compose/test/e2e/` run the full matrix.
 
 ## Test Layout
 
@@ -94,7 +94,7 @@ npx playwright test hub_login.spec.ts
 - **Test gate**: Only versions with `e2e-test-enabled: true` in the matrix actually run Playwright. Others only validate that compose starts and becomes healthy.
 - **Lightweight jobs (8.8–8.10)**: run the `c8Run-8.X` suite from `@camunda/e2e-test-suite` against `docker-compose.yaml` with a 45-minute timeout (the connectors webhook spec waits 5 minutes synchronously).
 - **Full-stack jobs (8.8–8.10)**: run the per-version suites with a 45-minute timeout for long flows and retries. The 8.10 job runs every spec in `tests/` against `docker-compose-full.yaml` (`hub_login.spec.ts` works there too — the hub service publishes host port `8070` in the full stack, same as the standalone setup).
-- **Shared CI file changes** (the two e2e workflows or anything under `.github/actions/`) reset the changed-versions filter so the whole matrix runs, and the merge gate treats them as e2e-relevant — a CI-only PR cannot go green without executing tests.
+- **Shared CI file changes** (the two e2e workflows, anything under `.github/actions/` or the shared tests in `docker-compose/test/e2e/`) reset the changed-versions filter so the whole matrix runs, and the merge gate treats them as e2e-relevant — a CI-only PR cannot go green without executing tests.
 - **8.10 Hub standalone job**: runs `hub_login.spec.ts`, covering Keycloak startup, Identity realm initialization, and the browser OIDC callback without requiring external Elasticsearch.
 
 ## Adding Tests for a New Version
