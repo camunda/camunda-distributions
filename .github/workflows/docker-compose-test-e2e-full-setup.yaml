@@ -11,6 +11,7 @@ on:
       - .github/workflows/docker-compose-test-e2e-full-setup.yaml
       - .github/actions/**
       - docker-compose/versions/**
+      - docker-compose/test/e2e/**
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
@@ -31,6 +32,7 @@ jobs:
               - .github/workflows/docker-compose-test-e2e-template.yaml
               - .github/workflows/docker-compose-test-e2e-full-setup.yaml
               - .github/actions/**
+              - docker-compose/test/e2e/**
       - name: Generate versions
         id: generate-versions-matrix
         uses: ./.github/actions/generate-versions-matrix
