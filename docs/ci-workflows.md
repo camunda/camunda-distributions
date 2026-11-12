@@ -35,7 +35,7 @@ Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull re
 
 - **init job**: Runs `generate-versions-matrix` to build an exclude list of unchanged versions (skip-if-unchanged optimization).
 - **exec job**: Fans out across all version matrix entries; passes compose args, e2e flag, and test directory to the reusable template.
-- Each matrix entry sets `name`, `camunda-version`, `main-compose-args`, and `e2e-test-enabled`; optional fields are `e2e-test-directory`, `e2e-test-args`, `deps-compose-args`, and `timeout-minutes`.
+- Each matrix entry sets `name`, `camunda-version`, `main-compose-args`, and `e2e-test-enabled`; optional fields are `e2e-test-directory`, `e2e-test-args`, and `timeout-minutes`.
 - E2E tests default to `docker-compose/test/e2e`; versions 8.8+ use their own `docker-compose/versions/camunda-X.Y/tests/` (full-stack) and `tests-lightweight/` (lightweight, `@camunda/e2e-test-suite` c8Run suite).
 - Matrix entries marked ⭐ are the primary configs per version (full-stack with e2e enabled).
 
@@ -44,7 +44,7 @@ Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull re
 Reusable workflow called by the full-setup. Steps:
 1. Checkout repo.
 2. `install-playwright` composite action (Node 24, `npm ci`, `npx playwright install --with-deps chromium`).
-3. Start Docker Compose dependencies (`deps-compose-args`, if set), then the main services.
+3. Start the Docker Compose services.
 4. Wait for health checks.
 5. Run `npx playwright test` with configured args.
 6. Upload HTML report as artifact (30-day retention).

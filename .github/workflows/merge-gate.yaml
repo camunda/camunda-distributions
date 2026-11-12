@@ -20,7 +20,8 @@
 name: Merge Gate
 
 on:
-  workflow_run:
+  # Mirrors the E2E conclusion as a commit status; checks out no code.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Docker Compose | Test - E2E - Full Setup"]
     types: [completed]
   pull_request:
