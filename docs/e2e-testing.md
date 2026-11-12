@@ -101,5 +101,5 @@ npx playwright test hub_login.spec.ts
 
 1. Copy `tests/` from the nearest existing version and update any version-specific URLs, services, and test resources.
 2. If the version has a lightweight stack, copy `tests-lightweight/` and update the `@camunda/e2e-test-suite` version, the `c8Run-X.Y` `testDir`, and the URLs and database type in `.env`.
-3. Add one matrix entry per tested Compose variant in `.github/workflows/docker-compose-test-e2e-full-setup.yaml`. Set `e2e-test-enabled`, `e2e-test-directory`, and any required `deps-compose-args`, `e2e-test-args`, or `timeout-minutes`.
+3. Add one matrix entry per tested Compose variant in `.github/workflows/docker-compose-test-e2e-full-setup.yaml`. Set `e2e-test-enabled`, `e2e-test-directory`, and any required `e2e-test-args` or `timeout-minutes`.
 4. Run `npm ci` in each test directory, then run every suite locally against its matching Compose stack before pushing.

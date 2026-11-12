@@ -7,9 +7,6 @@ on:
         description: Camunda minor version in format x.y
         required: true
         type: string
-      deps-compose-args:
-        description: Arguments supplied to Docker Compose dependencies
-        type: string
       main-compose-args:
         description: Arguments supplied to Docker Compose
         required: true
@@ -110,15 +107,6 @@ jobs:
       #
       # Docker Compose.
 
-      - name: ⭐ Bring up containers dependencies
-        if: inputs.deps-compose-args
-        working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
-        env:
-          DEPS_COMPOSE_ARGS: ${{ inputs.deps-compose-args }}
-        run: |
-          read -ra deps_compose_args <<< "${DEPS_COMPOSE_ARGS}"
-          docker compose "${deps_compose_args[@]}" \
-            up --quiet-pull -d
       - name: ⭐ Bring up containers
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
         env:
