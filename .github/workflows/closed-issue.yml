@@ -39,9 +39,6 @@ jobs:
           app-id: ${{ env.GH_APP_ID_DISTRO_CI }}
           private-key: ${{ env.GH_APP_PRIVATE_KEY_DISTRO_CI }}
 
-      - name: Debug GitHub Event
-        run: echo '${{ toJson(github.event) }}'
-
       - name: Update Closed At field
         uses: github/update-project-action@d0031a4f8081c4bf4438d7ce2fa5cf1136610c7a # main
         id: update-closed-at
