@@ -113,18 +113,24 @@ jobs:
       - name: ⭐ Bring up containers dependencies
         if: inputs.deps-compose-args
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
+        env:
+          DEPS_COMPOSE_ARGS: ${{ inputs.deps-compose-args }}
         run: |
-          docker compose ${{ inputs.deps-compose-args }} \
+          read -ra deps_compose_args <<< "${DEPS_COMPOSE_ARGS}"
+          docker compose "${deps_compose_args[@]}" \
             up --quiet-pull -d
       - name: ⭐ Bring up containers
         working-directory: ${{ env.COMPOSE_WORKING_DIRECTORY }}
+        env:
+          MAIN_COMPOSE_ARGS: ${{ inputs.main-compose-args }}
         run: |
-          docker compose ${{ inputs.main-compose-args }} \
+          read -ra main_compose_args <<< "${MAIN_COMPOSE_ARGS}"
+          docker compose "${main_compose_args[@]}" \
             up --quiet-pull -d
       - name: Wait until all containers are healthy
         timeout-minutes: 5
         run: |
-          while $(docker container ls | grep -q -e 'unhealthy' -e 'health: starting'); do
+          while docker container ls | grep -q -e 'unhealthy' -e 'health: starting'; do
             echo "Some containers are not healthy yet"
             docker container ls --format "table {{.Image}}\t{{.Status}}";
             sleep 15;
@@ -137,8 +143,11 @@ jobs:
         if: inputs.e2e-test-enabled
         id: test
         working-directory: ${{ inputs.e2e-test-directory }}
+        env:
+          E2E_TEST_ARGS: ${{ inputs.e2e-test-args }}
         run: |
-          npx playwright test ${{ inputs.e2e-test-args }}
+          read -ra e2e_test_args <<< "${E2E_TEST_ARGS}"
+          npx playwright test "${e2e_test_args[@]}"
       - name: Upload Playwright reports
         if: always() && steps.test.conclusion != 'skipped'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7

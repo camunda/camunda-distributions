@@ -45,7 +45,7 @@ jobs:
           cd ${{ env.DOCKER_COMPOSE_WORKING_DIRECTORY }}
           zip -r ${{ env.DOCKER_COMPOSE_NAME }}.zip .
           # Copy the artifact to repo root dir.
-          mv ${{ env.DOCKER_COMPOSE_NAME }}.zip $(git rev-parse --show-toplevel)
+          mv ${{ env.DOCKER_COMPOSE_NAME }}.zip "$(git rev-parse --show-toplevel)"
 
       #
       # Security signature.
@@ -56,22 +56,27 @@ jobs:
           cosign sign-blob -y ${{ env.DOCKER_COMPOSE_NAME }}.zip \
             --bundle ${{ env.DOCKER_COMPOSE_NAME }}.cosign.bundle
       - name: Verify signed Helm chart with Cosign
+        env:
+          REF: ${{ github.ref }}
         run: |
           cosign verify-blob ${{ env.DOCKER_COMPOSE_NAME }}.zip \
             --bundle ${{ env.DOCKER_COMPOSE_NAME }}.cosign.bundle \
-            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/docker-compose-release-template.yaml@${{ github.ref }}" \
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/docker-compose-release-template.yaml@${REF}" \
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com"
 
       #
       # Release
       # TODO: Use gomplate to generate the Docker Compose release notes.
       - name: Create release notes
+        env:
+          REF: ${{ github.ref }}
         run: |
           grep _VERSION ${{ env.DOCKER_COMPOSE_WORKING_DIRECTORY }}/.env > VERSIONS.txt
+          mapfile -t versions < VERSIONS.txt
           cat << EOF > RELEASE-NOTES.md
           $(cat ${{ env.DOCKER_COMPOSE_WORKING_DIRECTORY }}/README.md) 
           ## Versions
-          $(printf -- "- %s\n" $(cat VERSIONS.txt))
+          $(printf -- "- %s\n" "${versions[@]}")
           ## Verification
           To verify the integrity of the artifact using [Cosign](https://docs.sigstore.dev/signing/quickstart/):
           \`\`\`shell
@@ -83,7 +88,7 @@ jobs:
           cosign verify-blob ${{ env.DOCKER_COMPOSE_NAME }}.zip \\
             --bundle ${{ env.DOCKER_COMPOSE_NAME }}.cosign.bundle \\
             --certificate-oidc-issuer "https://token.actions.githubusercontent.com" \\
-            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/docker-compose-release-template.yaml@${{ github.ref }}"
+            --certificate-identity "https://github.com/${{ github.repository }}/.github/workflows/docker-compose-release-template.yaml@${REF}"
           \`\`\`
           ## Notes
           - **Release strategy:** Camunda Docker Compose release is a rolling release. Hence, it's always 1 artifact per Camunda minor version.
@@ -113,4 +118,4 @@ jobs:
             ${{ env.DOCKER_COMPOSE_NAME }}.cosign.bundle
       - name: Add release URL to workflow summary
         run: |
-          echo "⭐ Release URL: ${{steps.gh-release.outputs.url}}" >> $GITHUB_STEP_SUMMARY
+          echo "⭐ Release URL: ${{steps.gh-release.outputs.url}}" >> "$GITHUB_STEP_SUMMARY"

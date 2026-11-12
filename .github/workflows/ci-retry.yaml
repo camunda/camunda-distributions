@@ -6,7 +6,8 @@
 name: CI Retry
 
 on:
-  workflow_run:
+  # Re-runs failed E2E runs of Renovate and force-bump branches; checks out no code.
+  workflow_run: # zizmor: ignore[dangerous-triggers]
     workflows: ["Docker Compose | Test - E2E - Full Setup"]
     types: [completed]
 

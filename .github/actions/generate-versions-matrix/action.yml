@@ -34,6 +34,8 @@ runs:
         ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
         UNCHANGED_VERSIONS_TMP_FILE: unchanged_versions.txt
         CHANGED_VERSIONS_TMP_FILE: changed_versions.txt
+        VERSIONS_PATH: ${{ inputs.versions-path }}
+        RESET_VERSIONS: ${{ inputs.reset-versions }}
       run: |
         echo "Setting matrix based on changed files"
         echo "Changed files:"
@@ -41,7 +43,7 @@ runs:
         touch ${CHANGED_VERSIONS_TMP_FILE}
         touch ${UNCHANGED_VERSIONS_TMP_FILE}
 
-        ls -d ${{ inputs.versions-path }} | while read version_dir; do
+        ls -d ${VERSIONS_PATH} | while read version_dir; do
           if [[ $(echo ${ALL_CHANGED_FILES} | grep "${version_dir}") ]]; then
             echo "Camunda version: ${version_dir}"
             echo "${version_dir}" >> ${CHANGED_VERSIONS_TMP_FILE};
@@ -66,7 +68,7 @@ runs:
         echo "should-run=${should_run}" | tee -a $GITHUB_OUTPUT
 
         # Force the downstream workflows run for all versions.
-        if [[ ${{ inputs.reset-versions }} == 'true' ]]; then
+        if [[ "${RESET_VERSIONS}" == 'true' ]]; then
           echo "Reset versions..."
           echo "matrix-unchanged=[]" | tee -a $GITHUB_OUTPUT
           echo "should-run=true" | tee -a $GITHUB_OUTPUT
