@@ -32,13 +32,23 @@ jobs:
               - .github/workflows/docker-compose-test-e2e-template.yaml
               - .github/workflows/docker-compose-test-e2e-full-setup.yaml
               - .github/actions/**
+            shared-tests:
               - docker-compose/test/e2e/**
+      - name: Find versions that run the shared tests
+        id: shared-tests
+        if: steps.ci-changes.outputs.shared-tests == 'true'
+        run: |
+          versions="$(yq -r '[.jobs.exec.strategy.matrix.versions[]
+            | select(.e2e-test-enabled and (.e2e-test-directory // "docker-compose/test/e2e") == "docker-compose/test/e2e")
+            | .camunda-version] | unique | join(" ")' .github/workflows/docker-compose-test-e2e-full-setup.yaml)"
+          echo "versions=${versions}" | tee -a "$GITHUB_OUTPUT"
       - name: Generate versions
         id: generate-versions-matrix
         uses: ./.github/actions/generate-versions-matrix
         with:
           versions-path: "docker-compose/versions/camunda-8.*"
           reset-versions: ${{ steps.ci-changes.outputs.ci }}
+          changed-versions: ${{ steps.shared-tests.outputs.versions }}
     outputs:
       should-run: ${{ steps.generate-versions-matrix.outputs.should-run }}
       unchanged-versions: ${{ steps.generate-versions-matrix.outputs.unchanged }}
