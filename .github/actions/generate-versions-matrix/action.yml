@@ -8,6 +8,8 @@ inputs:
   reset-versions:
     description: Return empty list of unchanged versions to force run the matrix.
     default: "false"
+  changed-versions:
+    description: Space-separated versions to mark as changed in addition to the versions of the changed files.
 
 outputs:
   # NOTE: To avoid GHA creating skipped matrix jobs, the logic is reversed here.
@@ -32,6 +34,7 @@ runs:
       id: get-versions
       env:
         ALL_CHANGED_FILES: ${{ steps.changed-files.outputs.all_changed_files }}
+        CHANGED_VERSIONS: ${{ inputs.changed-versions }}
         UNCHANGED_VERSIONS_TMP_FILE: unchanged_versions.txt
         CHANGED_VERSIONS_TMP_FILE: changed_versions.txt
         VERSIONS_PATH: ${{ inputs.versions-path }}
@@ -44,7 +47,7 @@ runs:
         touch ${UNCHANGED_VERSIONS_TMP_FILE}
 
         ls -d ${VERSIONS_PATH} | while read version_dir; do
-          if [[ $(echo ${ALL_CHANGED_FILES} | grep "${version_dir}") ]]; then
+          if [[ $(echo ${ALL_CHANGED_FILES} | grep "${version_dir}") || " ${CHANGED_VERSIONS} " == *" ${version_dir##*-} "* ]]; then
             echo "Camunda version: ${version_dir}"
             echo "${version_dir}" >> ${CHANGED_VERSIONS_TMP_FILE};
           else

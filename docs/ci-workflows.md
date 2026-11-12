@@ -31,7 +31,7 @@ docker-compose/
 
 ### E2E Tests (`docker-compose-test-e2e-full-setup.yaml`)
 
-Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull requests that touch version files, either E2E workflow, or anything under `.github/actions/**`.
+Runs on pushes to `main` that touch `docker-compose/versions/**`, and on pull requests that touch version files, the shared tests in `docker-compose/test/e2e/`, either E2E workflow, or anything under `.github/actions/**`.
 
 - **init job**: Runs `generate-versions-matrix` to build an exclude list of unchanged versions (skip-if-unchanged optimization).
 - **exec job**: Fans out across all version matrix entries; passes compose args, e2e flag, and test directory to the reusable template.

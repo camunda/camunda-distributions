@@ -15,6 +15,9 @@ You are working on the **Camunda 8 Self-Managed Distributions** repository. It h
 
 - Identify the target Camunda version before editing (`docker-compose/versions/camunda-X.Y/`).
 - Keep changes version-scoped; the release workflow handles each version independently.
+- Go tests (CI job `Go test`): run `go test -race ./...` in `scripts/notify-pr-activity/`.
+- E2E tests (CI): run `npx playwright test` with the `e2e-test-args` of a matrix entry in `.github/workflows/docker-compose-test-e2e-full-setup.yaml`, in its `e2e-test-directory` (default `docker-compose/test/e2e/`), against the running Compose stack of that entry.
+- `lint / baseline`: the central hook list of camunda/infraex-common-config ([Baseline](https://github.com/camunda/infraex-common-config/blob/main/README.md#baseline)). Local run: clone that repository into `.infraex-common-config`, then run `pre-commit run --config .infraex-common-config/baseline/.pre-commit-config.yaml --all-files`. Do not stage that folder.
 - Read `STATE.md` at repo root if it exists (session continuity file, gitignored).
 
 ## Docker Compose Contracts

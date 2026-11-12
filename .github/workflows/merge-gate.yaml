@@ -46,6 +46,7 @@ jobs:
           filters: |
             e2e:
               - docker-compose/versions/**
+              - docker-compose/test/e2e/**
               - .github/workflows/docker-compose-test-e2e-template.yaml
               - .github/workflows/docker-compose-test-e2e-full-setup.yaml
               - .github/actions/**
