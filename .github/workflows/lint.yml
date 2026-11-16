@@ -20,7 +20,7 @@ jobs:
     lint:
         permissions:
             contents: read
-            id-token: write
+            id-token: write # Vault OIDC login for the auto-fix job
         # Terraform writes this file, so the caller follows main
         uses: camunda/infraex-common-config/.github/workflows/lint-global.yml@main # zizmor: ignore[unpinned-uses]
         secrets:
