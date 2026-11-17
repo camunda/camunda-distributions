@@ -1,4 +1,5 @@
 ---
+# camunda/infraex-terraform creates this file from modules/github-repo-defaults/lint.yml.
 name: lint
 
 on:
@@ -21,8 +22,7 @@ jobs:
         permissions:
             contents: read
             id-token: write # Vault OIDC login for the auto-fix job
-        # Terraform writes this file, so the caller follows main
-        uses: camunda/infraex-common-config/.github/workflows/lint-global.yml@main # zizmor: ignore[unpinned-uses]
+        uses: camunda/infraex-common-config/.github/workflows/lint-global.yml@ecfc5f760287533aa47f5a79b9d6e36508c76cc2 # 3.0.8
         secrets:
             VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
             VAULT_JWT_PATH: ${{ secrets.VAULT_JWT_PATH }}
