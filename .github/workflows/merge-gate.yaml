@@ -1,5 +1,5 @@
 # type: Automation
-# owner: @camunda/distribution-team
+# owner: @camunda/smx
 ---
 # Single stable required status check for GitHub native auto-merge. The E2E
 # matrix job names are version-dynamic and its workflow is path-filtered, so
