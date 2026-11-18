@@ -1,5 +1,5 @@
 # type: Automation
-# owner: @camunda/distribution-team
+# owner: @camunda/smx
 ---
 # Re-runs failed E2E jobs for the auto-merging PR sources (Renovate, compose
 # force-bump). Capped at 3 attempts per run.
