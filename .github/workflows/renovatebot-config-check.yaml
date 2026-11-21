@@ -25,7 +25,7 @@ jobs:
     steps:
     - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
     - name: Validate renovate config
-      uses: docker://renovate/renovate:latest@sha256:62b884d6b537e3bf2e76be3d7b621d582c10ddcee5dda74b0c2ea17901db5129
+      uses: docker://renovate/renovate:latest@sha256:68f58fa3b0e92875fa2f44c4ae02936186818b0170c2d39fe7261a2af5260f36
       with:
         entrypoint: bash
         args: -c "renovate-config-validator .github/renovate.json5 .github/config/renovatebot/*"
