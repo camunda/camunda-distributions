@@ -22,7 +22,7 @@ jobs:
         permissions:
             contents: read
             id-token: write # Vault OIDC login for the auto-fix job
-        uses: camunda/infraex-common-config/.github/workflows/lint-global.yml@d1967bd5edabe99334bbfd594e7552c99813f11b # 3.0.12
+        uses: camunda/infraex-common-config/.github/workflows/lint-global.yml@7a2e0be760ad1d12263a7dea6fd84382c1446a64 # 3.0.16
         secrets:
             VAULT_ADDR: ${{ secrets.VAULT_ADDR }}
             VAULT_JWT_PATH: ${{ secrets.VAULT_JWT_PATH }}
